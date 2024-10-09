@@ -1,0 +1,29 @@
+.grid-container {
+    display: grid;
+    grid-template-columns: repeat(5, 100px); /* Change to fit number of lights */
+    grid-gap: 10px;
+    justify-content: center;
+    align-items: center;
+}
+
+.light {
+    width: 100px;
+    height: 100px;
+    border: 2px solid #ddd;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.light.selected {
+    border-color: #00f;
+    box-shadow: 0 0 15px rgba(0, 0, 255, 0.5);
+    background-color: #00f; 
+}
+
+.light:active {
+    background-color: #ccc; 
+}
