@@ -152,11 +152,11 @@ app.post('/clear-lights', (req, res) => {
 
 
 
-// Control individual lights (you'd map this based on your layout)
+// Control individual lights 
 app.post('/set-light', (req, res) => {
     const { id, color } = req.body;
 
-    // Map the light ID to its DMX channel (assuming one light per channel)
+    // Map the light ID to its DMX channel
     const dmxChannel = id;
 
     // Convert the color to DMX values (RGB)
@@ -164,7 +164,7 @@ app.post('/set-light', (req, res) => {
     const green = parseInt(color.substr(3, 2), 16);
     const blue = parseInt(color.substr(5, 2), 16);
 
-    // Set the DMX channels for the light (assuming RGB lights)
+    // Set the DMX channels for the light
     universe.update({
         [dmxChannel]: red,      // Red channel
         [dmxChannel + 1]: green, // Green channel
