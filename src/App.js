@@ -2,14 +2,18 @@ import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Main from "./views/Main";
 import HelpPage from "./views/Help";
+import Nav from "./components/Nav";
 
 function App() {
   return (
     <Router>
-      <Routes>
-        <Route path="/" element={<Main />} />
-        <Route path="/help" element={<HelpPage />} />
-      </Routes>
+      <Nav />
+      <main className="pt-16 pb-16">
+        <Routes>
+          <Route path="/" element={<Main />} />
+          <Route path="/help" element={<HelpPage />} />
+        </Routes>
+      </main>
     </Router>
   );
 }
