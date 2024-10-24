@@ -67,7 +67,7 @@ const LightGrid = ({ onLightSelect }) => {
         setShowModal(true);
     };
 
-    // Handle the form submission inside the modal
+    // Handle  form submission inside modal
     const handleModalSubmit = () => {
         const id = parseInt(newLightId);
         const channel = parseInt(newLightChannels);
@@ -77,7 +77,7 @@ const LightGrid = ({ onLightSelect }) => {
                 alert(`A light with ID ${id} already exists.`);
             } else {
                 setLights([...lights, { id, selected: false, color: '#fff', channel }]);
-                setShowModal(false); // Close the modal after submission
+                setShowModal(false); 
             }
         }
     };
