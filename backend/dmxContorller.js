@@ -32,7 +32,7 @@ app.post('/set-channel', (req, res) => {
 });
 
 let intervalId = null;
-
+// Route to start the rainbow effect
 app.post('/start-rainbow', (req, res) => {
     let hue = 0;
     // Interval time in milliseconds, smaller values will make the effect faster
@@ -57,7 +57,7 @@ app.post('/start-rainbow', (req, res) => {
 
     res.send('Rainbow effect started');
 });
-
+// Route to stop the rainbow effect
 app.post('/stop-rainbow', (req, res) => {
     if (intervalId) {
         clearInterval(intervalId);
@@ -128,11 +128,13 @@ app.post('/stop-police-lights', (req, res) => {
 
 // Route to clear all lights and stop all effects
 app.post('/clear-lights', (req, res) => {
-    universe.update({
-        1: 0,
-        2: 0,
-        3: 0
-    });
+    // Create an object to set all channels to 0
+    const clearChannels = {};
+    for (let i = 1; i <= 512; i++) {
+        clearChannels[i] = 0;
+    }
+    console.log('Clearing all lights and stopping effects');
+    universe.update(clearChannels);
 
     // Stop rainbow effect if running
     if (intervalId) {
@@ -174,42 +176,29 @@ app.post('/set-light', (req, res) => {
     res.send({ success: true });
 });
 
-// Test all DMX channels
+let currentChannel = 1;
+
+// Test one DMX channel at a time
 app.post('/test-channels', (req, res) => {
-    let channel = 1;
+    if (currentChannel > 512) {
+        currentChannel = 1; // Reset to the first channel if all channels have been tested
+    }
 
-    const interval = setInterval(() => {
-        if (channel > 512) {
-            clearInterval(interval);
-            setTimeout(() => {
-                for (let i = 1; i <= 512; i++) {
-                    console.log(`Turning off channel ${i}`);
-                    universe.update({
-                        [i]: 0
-                    });
-                }
-            }, 1000);
-            return;
-        }
-
-        console.log(`Testing channel ${channel}`);
+    // Turn off the previous channel
+    if (currentChannel > 1) {
         universe.update({
-            [channel]: 255
+            [currentChannel - 1]: 0
         });
+    }
 
-        channel++;
-    }, 1000);
+    // Test the current channel
+    console.log(`Testing channel ${currentChannel}`);
+    universe.update({
+        [currentChannel]: 255
+    });
 
-    setTimeout(() => {
-        for (let i = 1; i <= 512; i++) {
-            console.log(`Turning off channel ${i}`);
-            universe.update({
-                [i]: 0
-            });
-        }
-    }, 1000);
-
-    res.send('Testing all DMX channels');
+    res.send(`Testing channel ${currentChannel}`);
+    currentChannel++;
 });
 
 

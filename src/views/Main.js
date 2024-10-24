@@ -146,6 +146,7 @@ function Main() {
           Set DMX Channel
         </button>
         <button
+          type="button"
           onClick={handleRainbowToggle}
           style={{
             padding: "10px",
@@ -159,6 +160,7 @@ function Main() {
           {isRainbowActive ? "Stop Rainbow Effect" : "Start Rainbow Effect"}
         </button>
         <button
+        type="button"
           onClick={handlePoliceLightsToggle}
           style={{
             padding: "10px",
