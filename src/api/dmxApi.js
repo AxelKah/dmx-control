@@ -35,3 +35,12 @@ export const stopPoliceLights = async () => {
     },
   });
 };
+
+export const testChannels = async () => {
+  await fetch("http://localhost:5000/test-channels", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+};

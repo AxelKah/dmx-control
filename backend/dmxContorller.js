@@ -174,6 +174,44 @@ app.post('/set-light', (req, res) => {
     res.send({ success: true });
 });
 
+// Test all DMX channels
+app.post('/test-channels', (req, res) => {
+    let channel = 1;
+
+    const interval = setInterval(() => {
+        if (channel > 512) {
+            clearInterval(interval);
+            setTimeout(() => {
+                for (let i = 1; i <= 512; i++) {
+                    console.log(`Turning off channel ${i}`);
+                    universe.update({
+                        [i]: 0
+                    });
+                }
+            }, 1000);
+            return;
+        }
+
+        console.log(`Testing channel ${channel}`);
+        universe.update({
+            [channel]: 255
+        });
+
+        channel++;
+    }, 1000);
+
+    setTimeout(() => {
+        for (let i = 1; i <= 512; i++) {
+            console.log(`Turning off channel ${i}`);
+            universe.update({
+                [i]: 0
+            });
+        }
+    }, 1000);
+
+    res.send('Testing all DMX channels');
+});
+
 
 
 //Convert HSL to RGB

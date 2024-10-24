@@ -68,6 +68,15 @@ function Main() {
     }
   };
 
+  const handleTestChannels = async () => {
+    await fetch("http://localhost:5000/test-channels", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+  };
+
   const handleLightSelect = (light) => {
     setSelectedLight(light);
   };
@@ -163,6 +172,20 @@ function Main() {
           {isPoliceLightsActive
             ? "Stop Police Lights Effect"
             : "Start Police Lights Effect"}
+        </button>
+        <button
+          type="button"
+          onClick={handleTestChannels}
+          style={{
+            padding: "10px",
+            borderRadius: "4px",
+            border: "none",
+            backgroundColor: "#007BFF",
+            color: "#fff",
+            cursor: "pointer",
+          }}
+        >
+          Test Channels
         </button>
         <button
           type="button"
