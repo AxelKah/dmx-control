@@ -154,23 +154,31 @@ app.post('/clear-lights', (req, res) => {
 
 
 
-// Control individual lights 
-app.post('/set-light', (req, res) => {
-    const { id, color } = req.body;
+// Control multiple lights
+app.post('/set-lights', (req, res) => {
+    const lights = req.body.lights;
+    console.log(lights);
+    if (!Array.isArray(lights)) {
+        return res.status(400).send('Lights should be an array of objects with id and color properties.');
+    }
 
-    // Map the light ID to its DMX channel
-    const dmxChannel = id;
+    lights.forEach(light => {
+        const { id, color } = light;
 
-    // Convert the color to DMX values (RGB)
-    const red = parseInt(color.substr(1, 2), 16);
-    const green = parseInt(color.substr(3, 2), 16);
-    const blue = parseInt(color.substr(5, 2), 16);
+        // Map the light ID to its DMX channel
+        const dmxChannel = id;
 
-    // Set the DMX channels for the light
-    universe.update({
-        [dmxChannel]: red,      // Red channel
-        [dmxChannel + 1]: green, // Green channel
-        [dmxChannel + 2]: blue   // Blue channel
+        // Convert the color to DMX values (RGB)
+        const red = parseInt(color.substr(1, 2), 16);
+        const green = parseInt(color.substr(3, 2), 16);
+        const blue = parseInt(color.substr(5, 2), 16);
+
+        // Set the DMX channels for the light
+        universe.update({
+            [dmxChannel]: red,      // Red channel
+            [dmxChannel + 1]: green, // Green channel
+            [dmxChannel + 2]: blue   // Blue channel
+        });
     });
 
     res.send({ success: true });

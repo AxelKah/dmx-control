@@ -12,8 +12,7 @@ function Main() {
   const [value, setValue] = useState(0);
   const [isRainbowActive, setIsRainbowActive] = useState(false);
   const [isPoliceLightsActive, setIsPoliceLightsActive] = useState(false);
-  const [selectedLight, setSelectedLight] = useState(null);
-  const [color, setColor] = useState("#ffffff");
+  const [selectedLights, setSelectedLights] = useState([]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -77,24 +76,22 @@ function Main() {
     });
   };
 
-  const handleLightSelect = (light) => {
-    setSelectedLight(light);
+  const handleLightSelect = (lights) => {
+    setSelectedLights(lights);
+    console.log("main" +lights);
   };
 
-  const handleColorChange = (e) => {
-    setColor(e.target.value);
-  };
-
+/*
   const handleApplyColor = async () => {
-    if (selectedLight) {
-      await fetch("http://localhost:5000/set-light", {
+    if (selectedLights) {
+      await fetch("http://localhost:5000/set-lights", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id: selectedLight.id, color }),
+        body: JSON.stringify({ lights: [{ id: selectedLights.id, color }] }),
       });
     }
   };
-
+*/
   return (
     <div style={{ padding: "20px", fontFamily: "Arial, sans-serif" }}>
       <h1 style={{ color: "#333" }}>Light Control</h1>
@@ -207,8 +204,6 @@ function Main() {
       <div>
         <h1>DMX Light Control</h1>
         <LightGrid onLightSelect={handleLightSelect} />
-        <input type="color" value={color} onChange={handleColorChange} />
-        <button onClick={handleApplyColor}>Apply Color</button>
       </div>{" "}
     </div>
   );
