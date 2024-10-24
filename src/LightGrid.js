@@ -2,26 +2,28 @@ import React, { useState } from "react";
 import './lightGrid.css';
 
 const LightGrid = ({ onLightSelect }) => {
-    const [lights, setLights] = useState([
-        { id: 1, selected: false, color: '#fff' },  
-        { id: 2, selected: false, color: '#fff' }, 
-        { id: 3, selected: false, color: '#fff' }, 
-        { id: 4, selected: false, color: '#fff' },  
-        { id: 5, selected: false, color: '#fff' }, 
-        { id: 6, selected: false, color: '#fff' }, 
-        { id: 7, selected: false, color: '#fff' },
-        { id: 8, selected: false, color: '#fff' },  
-        { id: 9, selected: false, color: '#fff' },  
-        { id: 10, selected: false, color: '#fff' }, 
-        { id: 11, selected: false, color: '#fff' },
-        { id: 12, selected: false, color: '#fff' }
-        ]);
+    const [numLights, setNumLights] = useState(11); // Default to 11 lights
+    const [lights, setLights] = useState(Array.from({ length: numLights }, (_, i) => ({
+        id: i + 1,
+        selected: false,
+        color: '#fff'
+    })));
     const [color, setColor] = useState("#ffffff");
 
+    const handleNumLightsChange = (e) => {
+        const newNumLights = parseInt(e.target.value);
+        setNumLights(newNumLights);
+        setLights(Array.from({ length: newNumLights }, (_, i) => ({
+            id: i + 1,
+            selected: false,
+            color: '#fff'
+        })));
+    };
+
     const handleClick = (clickedLight) => {
-        setLights(lights.map(light => 
-            light.id === clickedLight.id 
-                ? { ...light, selected: !light.selected, color: light.selected ? '#fff' : '#f00' } 
+        setLights(lights.map(light =>
+            light.id === clickedLight.id
+                ? { ...light, selected: !light.selected, color: light.selected ? '#fff' : '#f00' }
                 : light
         ));
         onLightSelect(clickedLight);
@@ -44,6 +46,18 @@ const LightGrid = ({ onLightSelect }) => {
 
     return (
         <div>
+            <div>
+                <label>
+                    Number of Light Fixtures:
+                    <input
+                        type="number"
+                        value={numLights}
+                        onChange={handleNumLightsChange}
+                        min="1"
+                        style={{ marginLeft: '10px', padding: '5px', borderRadius: '4px', border: '1px solid #ccc' }}
+                    />
+                </label>
+            </div>
             <div className="grid-container">
                 {lights.map((light) => (
                     <div
