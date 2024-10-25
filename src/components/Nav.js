@@ -4,7 +4,7 @@ import { FaHome, FaCog, FaQuestionCircle } from "react-icons/fa";
 
 function Navbar() {
   return (
-    <nav className="bg-white p-4 shadow-top-md md:shadow-md md:fixed md:top-0 md:w-full md:bottom-auto bottom-0 w-full fixed">
+    <nav className="bg-white p-4 shadow-top-md md:shadow-md md:fixed md:top-0 md:w-full md:bottom-auto bottom-0 w-full fixed z-50">
       <div className="container mx-auto flex justify-between items-center">
         <div className="text-white text-2xl font-bold">
           <Link to="/">🚥</Link>
