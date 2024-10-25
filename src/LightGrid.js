@@ -2,7 +2,8 @@ import React, { useState } from "react";
 import './lightGrid.css';
 
 const LightGrid = ({ onLightSelect }) => {
-    const [numLights, setNumLights] = useState(1); // Default to 11 lights
+    const [numLights, setNumLights] = useState(0); // Default to 11 lights
+    // This should be modified later
     const [lights, setLights] = useState(Array.from({ length: numLights }, (_, i) => ({
         id: i + 1,
         selected: false,
@@ -13,6 +14,8 @@ const LightGrid = ({ onLightSelect }) => {
     const [showModal, setShowModal] = useState(false); // Modal visibility state
     const [newLightId, setNewLightId] = useState("");
     const [newLightChannels, setNewLightChannels] = useState("");
+    const [errorMessage, setErrorMessage] = useState("");
+
 
     const handleNumLightsChange = (e) => {
         const newNumLights = parseInt(e.target.value);
@@ -49,6 +52,7 @@ const LightGrid = ({ onLightSelect }) => {
         }
     };
 
+    //Promt user to enter light ID and number of channels(different from modal)
     const handleAddLight = () => {
         const id = parseInt(prompt("Enter light ID:"));
         const channel = parseInt(prompt("Enter how many channels does the light have:"));
@@ -72,15 +76,63 @@ const LightGrid = ({ onLightSelect }) => {
         const id = parseInt(newLightId);
         const channel = parseInt(newLightChannels);
         if (!isNaN(id) && !isNaN(channel)) {
-            const existingLight = lights.find(light => light.id === id);
+            //checks if light with the same ID already exists
+            const existingLight = lights.find(light => light.id === id );
             if (existingLight) {
-                alert(`A light with ID ${id} already exists.`);
+                setErrorMessage(`A light with ID ${id} already exists.`);
             } else {
                 setLights([...lights, { id, selected: false, color: '#fff', channel }]);
-                setShowModal(false); 
+
+                setShowModal(false);
+                setNewLightId("");
+                setNewLightChannels("");
+                setErrorMessage("");
             }
         }
     };
+
+    
+    const handleNewLightIdChange = (e) => {
+        const id = parseInt(e.target.value);
+        setNewLightId(e.target.value);
+        if (!isNaN(id)) {
+               // Find the existing light with the same ID or where the ID falls within its channel range
+        const existingLight = lights.find(light => id >= light.id && id < light.id + light.channel);
+        
+        if (existingLight) {
+            // Calculate the range of channels occupied by the existing light
+            const channelRange = `${existingLight.id}-${existingLight.id + existingLight.channel - 1}`;
+            // Set the error message with detailed info about the ID and channel range
+            setErrorMessage(
+                <>
+                  {`ID `}
+                  <strong>{id}</strong>
+                  {` is already occupied by a light with `}
+                  <strong>{existingLight.channel}</strong>
+                  {` channels.`}
+                  <br />
+                  {`Occupied ID/Channel range: `}
+                  <strong>{channelRange}</strong>
+                  {`.`}
+                </>
+              );
+            } else {
+                setErrorMessage("");
+            }
+        } else {
+            setErrorMessage("");
+        }
+    };
+
+    const logLightsAndChannels = () => {
+        lights.forEach(light => {
+            console.log(`Light ID: ${light.id}, Channel: ${light.channel}`);
+        });
+    };
+
+    // Call the function to log lights and channels
+    logLightsAndChannels();
+
 
     return (
         <div>
@@ -128,7 +180,9 @@ const LightGrid = ({ onLightSelect }) => {
                             <input 
                                 type="number" 
                                 value={newLightId} 
-                                onChange={(e) => setNewLightId(e.target.value)} 
+                                /*onChange={(e) => setNewLightId(e.target.value)} */
+                                onChange={handleNewLightIdChange} 
+                                min="1"
                             />
                         </label>
                         <br />
@@ -138,9 +192,11 @@ const LightGrid = ({ onLightSelect }) => {
                                 type="number" 
                                 value={newLightChannels} 
                                 onChange={(e) => setNewLightChannels(e.target.value)} 
+                                min="1"
                             />
                         </label>
                         <br />
+                        {errorMessage && <p className="error">{errorMessage}</p>}
                         <button onClick={handleModalSubmit}>Submit</button>
                         <button onClick={() => setShowModal(false)}>Close</button>
                     </div>

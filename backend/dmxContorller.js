@@ -151,7 +151,7 @@ app.post('/clear-lights', (req, res) => {
     res.send('All lights cleared and effects stopped');
 });
 
-
+/*
 // Route to log all lights and their channels
 app.post('/log-lights', (req, res) => {
     const channels = universe.getChannels();
@@ -161,7 +161,7 @@ app.post('/log-lights', (req, res) => {
     }
     res.send({ success: true });
 });
-
+*/
 // Control multiple lights
 app.post('/set-lights', (req, res) => {
     const lights = req.body.lights;

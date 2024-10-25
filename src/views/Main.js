@@ -76,6 +76,18 @@ function Main() {
     });
   };
 
+/*
+  const handleLogLights = async () => {
+    await fetch("http://localhost:5000/log-lights", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+  };
+*/
+
+
   const handleLightSelect = (lights) => {
     setSelectedLights(lights);
     console.log("main" +lights);
@@ -200,6 +212,7 @@ function Main() {
         >
           Clear Lights
         </button>
+       
       </form>
       <div>
         <h1>DMX Light Control</h1>
