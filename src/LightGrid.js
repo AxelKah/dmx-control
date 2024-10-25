@@ -1,5 +1,8 @@
 import React, { useState } from "react";
 import './lightGrid.css';
+import { DndProvider, useDrag, useDrop } from "react-dnd";
+import { HTML5Backend } from "react-dnd-html5-backend";
+import LightBox from "./LightBox";
 
 const LightGrid = ({ onLightSelect }) => {
     const [numLights, setNumLights] = useState(0); // Default to 11 lights
@@ -30,6 +33,17 @@ const LightGrid = ({ onLightSelect }) => {
         })));
     };
 */
+
+
+const moveLight = (dragIndex, hoverIndex) => {
+    const updatedLights = [...lights];
+    const [removed] = updatedLights.splice(dragIndex, 1);
+    updatedLights.splice(hoverIndex, 0, removed);
+    setLights(updatedLights);
+};
+
+
+
     const handleClick = (clickedLight) => {
         setLights(lights.map(light =>
             light.id === clickedLight.id
@@ -138,19 +152,19 @@ const LightGrid = ({ onLightSelect }) => {
 
     return (
         <div>
-
+            <DndProvider backend={HTML5Backend}>
             <div className="grid-container">
-                {lights.map((light) => (
-                    <div
-                        key={light.id}
-                        className={`light ${light.selected ? 'selected' : ''}`}
-                        style={{ backgroundColor: light.color }}
-                        onClick={() => handleClick(light)}
-                    >
-                        {`Light address ${light.id}`}
-                    </div>
+                {lights.map((light, index) => (
+                    <LightBox 
+                        key={light.id} 
+                        index={index} 
+                        light={light} 
+                        moveLight={moveLight}
+                        onClick={() => handleClick(light)} 
+                    />
                 ))}
             </div>
+            </DndProvider>
             <input type="color" value={color} onChange={handleColorChange} />
             <button onClick={handleApplyColor}>Apply Color</button>
             
