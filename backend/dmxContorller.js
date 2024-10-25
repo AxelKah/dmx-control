@@ -152,7 +152,15 @@ app.post('/clear-lights', (req, res) => {
 });
 
 
-
+// Route to log all lights and their channels
+app.post('/log-lights', (req, res) => {
+    const channels = universe.getChannels();
+    console.log('Current light channels and values:');
+    for (let channel in channels) {
+        console.log(`Channel ${channel}: ${channels[channel]}`);
+    }
+    res.send({ success: true });
+});
 
 // Control multiple lights
 app.post('/set-lights', (req, res) => {
