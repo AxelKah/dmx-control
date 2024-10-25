@@ -3,6 +3,7 @@ import './lightGrid.css';
 import { DndProvider, useDrag, useDrop } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import LightBox from "./LightBox";
+import { ColorPicker } from "./components/ColorPicker";
 
 const LightGrid = ({ onLightSelect }) => {
     const [numLights, setNumLights] = useState(0); // Default to 11 lights
@@ -53,8 +54,8 @@ const moveLight = (dragIndex, hoverIndex) => {
         onLightSelect(clickedLight);
     };
 
-    const handleColorChange = (e) => {
-        setColor(e.target.value);
+    const handleColorChange = (newColor) => {
+        setColor(newColor);
     };
 
     const handleApplyColor = async () => {
@@ -165,7 +166,7 @@ const moveLight = (dragIndex, hoverIndex) => {
                 ))}
             </div>
             </DndProvider>
-            <input type="color" value={color} onChange={handleColorChange} />
+            <ColorPicker onColorChange={handleColorChange} />
             <button onClick={handleApplyColor}>Apply Color</button>
             
              {/* Button to open the modal */}
