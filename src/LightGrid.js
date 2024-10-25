@@ -17,6 +17,8 @@ const LightGrid = ({ onLightSelect }) => {
     const [errorMessage, setErrorMessage] = useState("");
 
 
+    /*
+// Function to handle the number of lights(old)
     const handleNumLightsChange = (e) => {
         const newNumLights = parseInt(e.target.value);
         setNumLights(newNumLights);
@@ -27,7 +29,7 @@ const LightGrid = ({ onLightSelect }) => {
             channel: i + 1 // Assigning channel value
         })));
     };
-
+*/
     const handleClick = (clickedLight) => {
         setLights(lights.map(light =>
             light.id === clickedLight.id
@@ -53,7 +55,7 @@ const LightGrid = ({ onLightSelect }) => {
     };
 
     //Promt user to enter light ID and number of channels(different from modal)
-    const handleAddLight = () => {
+  /*  const handleAddLight = () => {
         const id = parseInt(prompt("Enter light ID:"));
         const channel = parseInt(prompt("Enter how many channels does the light have:"));
         if (!isNaN(id) && !isNaN(channel)) {
@@ -65,7 +67,7 @@ const LightGrid = ({ onLightSelect }) => {
             }
         }
     };
-
+*/
 
     const openModal = () => {
         setShowModal(true);
@@ -102,7 +104,7 @@ const LightGrid = ({ onLightSelect }) => {
         if (existingLight) {
             // Calculate the range of channels occupied by the existing light
             const channelRange = `${existingLight.id}-${existingLight.id + existingLight.channel - 1}`;
-            // Set the error message with detailed info about the ID and channel range
+            //Set error message that shows if the id is already occupied
             setErrorMessage(
                 <>
                   {`ID `}
@@ -136,21 +138,7 @@ const LightGrid = ({ onLightSelect }) => {
 
     return (
         <div>
-            <div>
-                <label>
-                    Number of Light Fixtures:
-                    <input
-                        type="number"
-                        value={numLights}
-                        onChange={handleNumLightsChange}
-                        min="1"
-                        style={{ marginLeft: '10px', padding: '5px', borderRadius: '4px', border: '1px solid #ccc' }}
-                    />
-                </label>
-                <button onClick={handleAddLight} style={{ marginLeft: '10px', padding: '5px', borderRadius: '4px', border: '1px solid #ccc' }}>
-                    Add Light
-                </button>
-            </div>
+
             <div className="grid-container">
                 {lights.map((light) => (
                     <div
@@ -197,7 +185,7 @@ const LightGrid = ({ onLightSelect }) => {
                         </label>
                         <br />
                         {errorMessage && <p className="error">{errorMessage}</p>}
-                        <button onClick={handleModalSubmit}>Submit</button>
+                        <button onClick={handleModalSubmit} disabled={!!errorMessage}>Submit</button>
                         <button onClick={() => setShowModal(false)}>Close</button>
                     </div>
                 </div>
