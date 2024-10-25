@@ -163,6 +163,10 @@ const moveLight = (dragIndex, hoverIndex) => {
                         onClick={() => handleClick(light)} 
                     />
                 ))}
+                                <div className="large">
+                    {/* This is the large box in the center */}
+                    Large Box
+                </div>
             </div>
             </DndProvider>
             <input type="color" value={color} onChange={handleColorChange} />
