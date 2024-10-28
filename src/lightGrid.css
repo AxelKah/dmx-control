@@ -1,51 +1,33 @@
 .grid-container {
     display: grid;
-    grid-template-columns: repeat(4, 100px);  /* 5 columns in total */
-    grid-template-rows: repeat(6, 100px);     /* 6 rows in total */
     grid-gap: 10px;
     justify-content: center;
     align-items: center;
     width: max-content;
     margin: auto;
 }
-
-/* Define grid template areas to accommodate a 2x3 central box */
-.grid-container {
-    grid-template-areas:
-        "light1 light2 light3 light4 light5"
-        "light6 large large light7 light8"
-        "light9 large large light10 light11"
-        "light12 large large light13 light14"
-        "light15 light16 light17 light18 light19"
-        "light20 light21 light22 light23 light24";
+/* Needs works */
+#container1 {
+    grid-template-columns: repeat(1, 100px); /* 1 column */
+    grid-template-rows: repeat(5, 100px);    /* 5 rows */
 }
-
-/* Assign grid areas to individual light boxes */
-.light:nth-child(1)  { grid-area: light1; }
-.light:nth-child(2)  { grid-area: light2; }
-.light:nth-child(3)  { grid-area: light3; }
-.light:nth-child(4)  { grid-area: light4; }
-.light:nth-child(5)  { grid-area: light5; }
-.light:nth-child(6)  { grid-area: light6; }
-.light:nth-child(7)  { grid-area: light7; }
-.light:nth-child(8)  { grid-area: light8; }
-.light:nth-child(9)  { grid-area: light9; }
-.light:nth-child(10) { grid-area: light10; }
-.light:nth-child(11) { grid-area: light11; }
-.light:nth-child(12) { grid-area: light12; }
-.light:nth-child(13) { grid-area: light13; }
-.light:nth-child(14) { grid-area: light14; }
-.light:nth-child(15) { grid-area: light15; }
-.light:nth-child(16) { grid-area: light16; }
-.light:nth-child(17) { grid-area: light17; }
-.light:nth-child(18) { grid-area: light18; }
-.light:nth-child(19) { grid-area: light19; }
-.light:nth-child(20) { grid-area: light20; }
-.light:nth-child(21) { grid-area: light21; }
-.light:nth-child(22) { grid-area: light22; }
-.light:nth-child(23) { grid-area: light23; }
-.light:nth-child(24) { grid-area: light24; }
-
+/* Needs works */
+#container2 {
+    grid-template-columns: repeat(5, 100px); /* 5 columns */
+    grid-template-rows: repeat(1, 100px);    /* 1 row */
+}
+/* Needs works */
+#container3 {
+    grid-template-columns: repeat(1, 100px); /* 1 column */
+    grid-template-rows: repeat(5, 100px);    /* 5 rows */
+}
+/* Needs works */
+.containers {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px;
+    width: 100%;
+}
 .light-box {
     width: 100px;
     height: 100px;
@@ -57,6 +39,7 @@
     cursor: grab;
     border-radius: 4px;
 }
+
 /* Large box styles */
 .large {
     grid-area: large;
@@ -67,6 +50,7 @@
     justify-content: center;
     align-items: center;
 }
+
 /* Light box styles */
 .light {
     background-color: white;
