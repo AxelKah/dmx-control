@@ -8,7 +8,7 @@ const ItemTypes = {
     LIGHT: 'light',
 };
 
-const GridContainer = ({ containerId, lights, onDrop }) => {
+const GridContainer = ({ containerId, lights, onDrop, onClick,  }) => {
     const [, drop] = useDrop(() => ({
         accept: ItemTypes.LIGHT,
         drop: (item) => onDrop(item, containerId),
@@ -26,8 +26,8 @@ const GridContainer = ({ containerId, lights, onDrop }) => {
                 minHeight: '200px',
             }}
         >
-            {lights.map((light) => (
-                <LightBox key={light.id} light={light} />
+            {lights.map((light, index) => (
+                <LightBox key={light.id} light={light} onClick={onClick} index={index}/>
             ))}
         </div>
     );

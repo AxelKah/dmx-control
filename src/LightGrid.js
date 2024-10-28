@@ -6,13 +6,13 @@ import LightBox from "./LightBox2";
 import GridContainer from "./GridContaier";
 
 const LightGrid = ({ onLightSelect }) => {
-  const [numLights, setNumLights] = useState(0); // Default to 11 lights
+  const [numLights, setNumLights] = useState(2); // Default to 11 lights
   // This should be modified later
   const [lights, setLights] = useState(
     Array.from({ length: numLights }, (_, i) => ({
       id: i + 1,
       selected: false,
-      containerId: "container-1", //UUUUUUUUUUUUUUUUUUUUUUUUUUU
+      containerId: "container1", //UUUUUUUUUUUUUUUUUUUUUUUUUUU
       color: "#fff",
       channel: i + 1, // Assigning channel value
     }))
@@ -34,6 +34,25 @@ const LightGrid = ({ onLightSelect }) => {
   const containerLights = (containerId) =>
     lights.filter((light) => light.containerId === containerId);
 
+
+
+  
+    const renderLights = (lights) => {
+        return lights.map((light) => (
+            <div
+                key={light.id}
+                className={`light ${light.selected ? 'selected' : ''}`}
+                style={{ backgroundColor: light.color }}
+                onClick={() => handleClick(light)}
+            >
+                {`Light address ${light.id}`}
+            </div>
+        ));
+    };
+
+
+
+
   // Function to handle the number of lights(old)
   const handleNumLightsChange = (e) => {
     const newNumLights = parseInt(e.target.value);
@@ -42,6 +61,7 @@ const LightGrid = ({ onLightSelect }) => {
       Array.from({ length: newNumLights }, (_, i) => ({
         id: i + 1,
         selected: false,
+        containerId: "container1",
         color: "#fff",
         channel: i + 1, // Assigning channel value
       }))
@@ -221,48 +241,35 @@ const LightGrid = ({ onLightSelect }) => {
         </button>
       </div>
       <div>
+        
         <DndProvider backend={HTML5Backend}>
           <div className="containers" style={{}}>
             <GridContainer
               containerId="container1"
               lights={containerLights("container1")}
               onDrop={handleDrop}
+              onClick={handleClick}
             />
             <GridContainer
               containerId="container2"
               lights={containerLights("container2")}
               onDrop={handleDrop}
+              onClick={handleClick}
+
             />
             <GridContainer
               containerId="container3"
               lights={containerLights("container3")}
               onDrop={handleDrop}
-            >           {lights.map((light, index) => (
-                <LightBox
-                  key={light.id}
-                  index={index}
-                  light={light}
-                  moveLight={moveLight}
-                  onClick={() => handleClick(light)}
-                />
-              ))}</GridContainer>
+              onClick={handleClick}
+
+            ></GridContainer>
           </div>
         </DndProvider>
       </div>
 
       <DndProvider backend={HTML5Backend}>
-        <div className="grid-container">
-          {lights.map((light, index) => (
-            <LightBox
-              key={light.id}
-              index={index}
-              light={light}
-              moveLight={moveLight}
-              onClick={() => handleClick(light)}
-            />
-          ))}
 
-        </div>
       </DndProvider>
       <input type="color" value={color} onChange={handleColorChange} />
       <button onClick={handleApplyColor}>Apply Color</button>
