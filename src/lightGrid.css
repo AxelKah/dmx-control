@@ -1,64 +1,26 @@
 .grid-container {
     display: grid;
-    grid-template-columns: repeat(5, 100px);  /* 5 columns in total */
-    grid-template-rows: repeat(5, 100px);     /* 5 rows in total */
+    grid-template-columns: repeat(4, 100px);  /* 5 columns in total */
+    grid-template-rows: repeat(6, 100px);     /* 6 rows in total */
     grid-gap: 10px;
     justify-content: center;
     align-items: center;
+    width: max-content;
+    margin: auto;
 }
 
+/* Define grid template areas to accommodate a 2x3 central box */
 .grid-container {
     grid-template-areas:
-        "light1 light2 light3 light4 light5 light6"
-        "light7 .      large large .      light8"
-        "light9 .      large large .      light10"
-        "light11 .     large large .      light12"
-        "light13 .     large large .      light14"
-        "light15 light16 light17 light18 light19 light20";
+        "light1 light2 light3 light4 light5"
+        "light6 large large light7 light8"
+        "light9 large large light10 light11"
+        "light12 large large light13 light14"
+        "light15 light16 light17 light18 light19"
+        "light20 light21 light22 light23 light24";
 }
 
-.light-box {
-    width: 100px;
-    height: 100px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    font-weight: bold;
-    cursor: grab;
-    border-radius: 4px;
-}
-
-.large {
-    grid-area: large;
-    width: 100%;
-    height: 100%;
-    background-color: grey; /* You can change the color of the large box */
-}
-
-.light {
-    background-color: lightgray;  /* Default color for lights */
-    border: 1px solid #ccc;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 14px;
-    cursor: pointer;
-    transition: 0.3s;
-}
-
-.light.selected {
-    border-color: #00f;
-    box-shadow: 0 0 15px rgba(0, 0, 255, 0.5);
-    background-color: #00f; 
-}
-
-.light:active {
-    background-color: #ccc; 
-}
-/*
-
-/* Assign the areas to the grid items */
+/* Assign grid areas to individual light boxes */
 .light:nth-child(1)  { grid-area: light1; }
 .light:nth-child(2)  { grid-area: light2; }
 .light:nth-child(3)  { grid-area: light3; }
@@ -75,6 +37,59 @@
 .light:nth-child(14) { grid-area: light14; }
 .light:nth-child(15) { grid-area: light15; }
 .light:nth-child(16) { grid-area: light16; }
+.light:nth-child(17) { grid-area: light17; }
+.light:nth-child(18) { grid-area: light18; }
+.light:nth-child(19) { grid-area: light19; }
+.light:nth-child(20) { grid-area: light20; }
+.light:nth-child(21) { grid-area: light21; }
+.light:nth-child(22) { grid-area: light22; }
+.light:nth-child(23) { grid-area: light23; }
+.light:nth-child(24) { grid-area: light24; }
+
+.light-box {
+    width: 100px;
+    height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-weight: bold;
+    cursor: grab;
+    border-radius: 4px;
+}
+/* Large box styles */
+.large {
+    grid-area: large;
+    width: 100%;
+    height: 100%;
+    background-color: grey; /* Adjust color if needed */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+/* Light box styles */
+.light {
+    background-color: white;
+    border: 1px solid #ccc;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.light.selected {
+    border-color: #00f;
+    box-shadow: 0 0 15px rgba(0, 0, 255, 0.5);
+    background-color: #00f; 
+}
+
+.light:active {
+    background-color: #ccc; 
+}
+/*
+
+
 
 /* Modal styles */
 .modal {

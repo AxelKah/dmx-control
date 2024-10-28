@@ -20,7 +20,7 @@ const LightGrid = ({ onLightSelect }) => {
     const [errorMessage, setErrorMessage] = useState("");
 
 
-    /*
+    
 // Function to handle the number of lights(old)
     const handleNumLightsChange = (e) => {
         const newNumLights = parseInt(e.target.value);
@@ -32,7 +32,20 @@ const LightGrid = ({ onLightSelect }) => {
             channel: i + 1 // Assigning channel value
         })));
     };
-*/
+
+    const handleAddLight = () => {
+        const id = parseInt(prompt("Enter light ID:"));
+        const channel = parseInt(prompt("Enter how many channels does the light have:"));
+        if (!isNaN(id) && !isNaN(channel)) {
+            const existingLight = lights.find(light => light.id === id);
+            if (existingLight) {
+                alert(`A light with ID ${id} already exists.`);
+            } else {
+                setLights([...lights, { id, selected: false, color: '#fff', channel }]);
+            }
+        }
+    };
+
 
 
 const moveLight = (dragIndex, hoverIndex) => {
@@ -152,6 +165,21 @@ const moveLight = (dragIndex, hoverIndex) => {
 
     return (
         <div>
+               <div>
+                <label>
+                    Number of Light Fixtures:
+                    <input
+                        type="number"
+                        value={numLights}
+                        onChange={handleNumLightsChange}
+                        min="1"
+                        style={{ marginLeft: '10px', padding: '5px', borderRadius: '4px', border: '1px solid #ccc' }}
+                    />
+                </label>
+                <button onClick={handleAddLight} style={{ marginLeft: '10px', padding: '5px', borderRadius: '4px', border: '1px solid #ccc' }}>
+                    Add Light
+                </button>
+            </div>
             <DndProvider backend={HTML5Backend}>
             <div className="grid-container">
                 {lights.map((light, index) => (
