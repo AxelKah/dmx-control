@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import LightGrid from "../LightGrid";
+import LightGrid from "../components/LightGrid";
 import {
   startRainbow,
   stopRainbow,

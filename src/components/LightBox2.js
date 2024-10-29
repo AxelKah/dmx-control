@@ -23,7 +23,13 @@ const LightBox = ({ light, moveLight, onClick, index }) => {
     },
   });
 
-  console.log("Drag item:", { id: light.id, index });
+ // console.log("Drag item:", { id: light.id, index });
+
+
+ //Delete this function
+  const LightModal = () => {
+    console.log("Double clicked light: " + light.id);
+  }; 
 
   return (
     <div
@@ -31,6 +37,7 @@ const LightBox = ({ light, moveLight, onClick, index }) => {
       className="light-box"
       style={{ backgroundColor: light.color, opacity: isDragging ? 0.5 : 1 }}
       onClick={() => onClick(light)}
+      onDoubleClick={LightModal}
     >
       {`Light ${light.id}`}
     </div>

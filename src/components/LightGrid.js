@@ -1,24 +1,19 @@
 import React, { useState } from "react";
-import "./lightGrid.css";
+import "../lightGrid.css";
 import { DndProvider, useDrag, useDrop } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import LightBox from "./LightBox2";
 import GridContainer from "./GridContainer";
+import SetupLights from "./SetupLights";
 
 const LightGrid = ({ onLightSelect }) => {
-  const [numLights, setNumLights] = useState(2); // Default to 11 lights
+  const [numLights, setNumLights] = useState(0); // Default to 11 lights
   // This should be modified later
-  const [lights, setLights] = useState(
-    Array.from({ length: numLights }, (_, i) => ({
-      id: i + 1,
-      selected: false,
-      containerId: "container1", //Change  this to create lights to different container(For testing purposes)
-      color: "#fff",
-      channel: i + 1, // Assigning channel value
-    }))
-  );
+  const [lights, setLights] = useState([]);
   const [color, setColor] = useState("#ffffff");
   const [showModal, setShowModal] = useState(false);
+  const [modalContent, setModalContent] = useState(""); // Modal content 
+
   const [newLightId, setNewLightId] = useState("");
   const [newLightChannels, setNewLightChannels] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
@@ -30,9 +25,27 @@ const LightGrid = ({ onLightSelect }) => {
       )
     );
   };
+/*
+  const addLight = (id, channel, containerId = "container1", color = "#fff") => {
+    if (!isNaN(id) && !isNaN(channel)) {
+      const existingLight = lights.find((light) => light.id === id);
+      if (existingLight) {
+        alert(`A light with ID ${id} already exists.`);
+      } else {
+        setLights([...lights, { id, selected: false, containerId, color, channel }]);
+        console.log(`Added light with ID ${id} and ${containerId} container.`);
+        setNumLights(parseInt(numLights + 1));
+        console.log(`Number of lights: ${numLights}`);
+      }
+    }
+  };
+*/
 
   const containerLights = (containerId) =>
     lights.filter((light) => light.containerId === containerId);
+
+
+
 
   // For rendering the lights in the container (not working for later date to fix / delete)
   const renderLights = (lights) => {
@@ -49,6 +62,7 @@ const LightGrid = ({ onLightSelect }) => {
   };
 
   // Function to handle the number of lights(old)
+  
   const handleNumLightsChange = (e) => {
     const newNumLights = parseInt(e.target.value);
     setNumLights(newNumLights);
@@ -59,6 +73,7 @@ const LightGrid = ({ onLightSelect }) => {
         containerId: "container1",
         color: "#fff",
         channel: i + 1, // Assigning channel value
+        startAddress: 0, // Assigning start address
       }))
     );
   };
@@ -116,13 +131,15 @@ const LightGrid = ({ onLightSelect }) => {
             id: light.id,
             color,
             channel: light.channel,
+            startAddress: light.startAddress,
           })),
         }),
       });
     }
   };
 
-  const openModal = () => {
+  const openModal = (content) => {
+    setModalContent(content);
     setShowModal(true);
   };
 
@@ -136,7 +153,7 @@ const LightGrid = ({ onLightSelect }) => {
       if (existingLight) {
         setErrorMessage(`A light with ID ${id} already exists.`);
       } else {
-        setLights([...lights, { id, selected: false, color: "#fff", channel }]);
+        setLights([...lights, { id, selected: false, color: "#fff", containerId: "container1", channel }]);
 
         setShowModal(false);
         setNewLightId("");
@@ -187,6 +204,44 @@ const LightGrid = ({ onLightSelect }) => {
       console.log(`Light ID: ${light.id}, Channel: ${light.channel}`);
     });
   };
+
+  const handleFinishSetup = (values) => {
+    console.log("Finished! Collected values:", values);
+    addLightsFromSetup(values);
+  };
+
+  const addLightsFromSetup = (values) => {
+    const { left, back, right } = values.sides; // Get the user-specified values
+
+    let currentId = numLights; // Start with the current value of numLights
+
+    // Helper function to add multiple lights to a specific container
+    const addMultipleLights = (numLightsToAdd, containerId) => {
+        const newLights = []; // Temporary array to store new lights for batch update
+
+        for (let i = 0; i < numLightsToAdd; i++) {
+            currentId++; // Increment the local variable for each new light
+            newLights.push({
+                id: currentId,
+                selected: false,
+                containerId: containerId,
+                color: "#fff",
+                channel: 1,
+                startAddress: 0,
+            });
+        }
+
+        setLights((prevLights) => [...prevLights, ...newLights]); // Batch update lights array
+    };
+
+    // Add lights to each container based on user input
+    addMultipleLights(left, "container1");   // Add lights to container1
+    addMultipleLights(back, "container2");   // Add lights to container2
+    addMultipleLights(right, "container3");  // Add lights to container3
+
+    setNumLights(currentId); // Update numLights to reflect the final ID used
+};
+
 
   // Call the function to log lights and channels
   logLightsAndChannels();
@@ -252,7 +307,7 @@ const LightGrid = ({ onLightSelect }) => {
 
       {/* Button to open the modal */}
       <button
-        onClick={openModal}
+        onClick={() => openModal("addLight")}
         style={{
           marginLeft: "10px",
           padding: "5px",
@@ -262,36 +317,56 @@ const LightGrid = ({ onLightSelect }) => {
       >
         Add new light
       </button>
+      <button
+        onClick={() => openModal("setupLights")}
+        style={{
+          marginLeft: "10px",
+          padding: "5px",
+          borderRadius: "4px",
+          border: "1px solid #ccc",
+        }}
+      >
+        Lights setup
+      </button>
       {/* Modal to input new light information */}
       {showModal && (
         <div className="modal">
           <div className="modal-content">
-            <h2>Add New Light</h2>
-            <label>
-              Light ID:
-              <input
-                type="number"
-                value={newLightId}
-                /*onChange={(e) => setNewLightId(e.target.value)} */
-                onChange={handleNewLightIdChange}
-                min="1"
-              />
-            </label>
-            <br />
-            <label>
-              Number of Channels:
-              <input
-                type="number"
-                value={newLightChannels}
-                onChange={(e) => setNewLightChannels(e.target.value)}
-                min="1"
-              />
-            </label>
-            <br />
-            {errorMessage && <p className="error">{errorMessage}</p>}
-            <button onClick={handleModalSubmit} disabled={!!errorMessage}>
-              Submit
-            </button>
+          {modalContent === "addLight" && (
+              <>
+                <h2>Add New Light</h2>
+                <label>
+                  Light ID:
+                  <input
+                    type="number"
+                    value={newLightId}
+                    onChange={handleNewLightIdChange}
+                    min="1"
+                  />
+                </label>
+                <br />
+                <label>
+                  Number of Channels:
+                  <input
+                    type="number"
+                    value={newLightChannels}
+                    onChange={(e) => setNewLightChannels(e.target.value)}
+                    min="1"
+                  />
+                </label>
+                <br />
+                {errorMessage && <p className="error">{errorMessage}</p>}
+                <button onClick={handleModalSubmit} disabled={!!errorMessage}>
+                  Submit
+                </button>
+              </>
+            )}
+            {modalContent === "setupLights" && (
+              <>
+                <SetupLights onClose={() => setShowModal(false)} onFinish={handleFinishSetup} />
+
+              </>
+            )}
             <button onClick={() => setShowModal(false)}>Close</button>
           </div>
         </div>
