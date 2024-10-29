@@ -3,7 +3,7 @@ import "./lightGrid.css";
 import { DndProvider, useDrag, useDrop } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import LightBox from "./LightBox2";
-import GridContainer from "./GridContaier";
+import GridContainer from "./GridContainer";
 
 const LightGrid = ({ onLightSelect }) => {
   const [numLights, setNumLights] = useState(2); // Default to 11 lights
@@ -12,13 +12,13 @@ const LightGrid = ({ onLightSelect }) => {
     Array.from({ length: numLights }, (_, i) => ({
       id: i + 1,
       selected: false,
-      containerId: "container1", //UUUUUUUUUUUUUUUUUUUUUUUUUUU
+      containerId: "container1", //Change  this to create lights to different container(For testing purposes)
       color: "#fff",
       channel: i + 1, // Assigning channel value
     }))
   );
   const [color, setColor] = useState("#ffffff");
-  const [showModal, setShowModal] = useState(false); // Modal visibility state
+  const [showModal, setShowModal] = useState(false);
   const [newLightId, setNewLightId] = useState("");
   const [newLightChannels, setNewLightChannels] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
@@ -34,24 +34,19 @@ const LightGrid = ({ onLightSelect }) => {
   const containerLights = (containerId) =>
     lights.filter((light) => light.containerId === containerId);
 
-
-
-  
-    const renderLights = (lights) => {
-        return lights.map((light) => (
-            <div
-                key={light.id}
-                className={`light ${light.selected ? 'selected' : ''}`}
-                style={{ backgroundColor: light.color }}
-                onClick={() => handleClick(light)}
-            >
-                {`Light address ${light.id}`}
-            </div>
-        ));
-    };
-
-
-
+  // For rendering the lights in the container (not working for later date to fix / delete)
+  const renderLights = (lights) => {
+    return lights.map((light) => (
+      <div
+        key={light.id}
+        className={`light ${light.selected ? "selected" : ""}`}
+        style={{ backgroundColor: light.color }}
+        onClick={() => handleClick(light)}
+      >
+        {`Light address ${light.id}`}
+      </div>
+    ));
+  };
 
   // Function to handle the number of lights(old)
   const handleNumLightsChange = (e) => {
@@ -83,6 +78,7 @@ const LightGrid = ({ onLightSelect }) => {
     }
   };
 
+  // Moving the lights between containers in any order(Not working for later date to fix)
   const moveLight = (dragIndex, hoverIndex) => {
     const updatedLights = [...lights];
     const [removed] = updatedLights.splice(dragIndex, 1);
@@ -125,21 +121,6 @@ const LightGrid = ({ onLightSelect }) => {
       });
     }
   };
-
-  //Promt user to enter light ID and number of channels(different from modal)
-  /*  const handleAddLight = () => {
-        const id = parseInt(prompt("Enter light ID:"));
-        const channel = parseInt(prompt("Enter how many channels does the light have:"));
-        if (!isNaN(id) && !isNaN(channel)) {
-            const existingLight = lights.find(light => light.id === id);
-            if (existingLight) {
-                alert(`A light with ID ${id} already exists.`);
-            } else {
-                setLights([...lights, { id, selected: false, color: '#fff', channel }]);
-            }
-        }
-    };
-*/
 
   const openModal = () => {
     setShowModal(true);
@@ -241,9 +222,8 @@ const LightGrid = ({ onLightSelect }) => {
         </button>
       </div>
       <div>
-        
         <DndProvider backend={HTML5Backend}>
-          <div className="containers" style={{}}>
+          <div className="containers">
             <GridContainer
               containerId="container1"
               lights={containerLights("container1")}
@@ -255,22 +235,18 @@ const LightGrid = ({ onLightSelect }) => {
               lights={containerLights("container2")}
               onDrop={handleDrop}
               onClick={handleClick}
-
             />
             <GridContainer
               containerId="container3"
               lights={containerLights("container3")}
               onDrop={handleDrop}
               onClick={handleClick}
-
             ></GridContainer>
           </div>
         </DndProvider>
       </div>
 
-      <DndProvider backend={HTML5Backend}>
-
-      </DndProvider>
+      <DndProvider backend={HTML5Backend}></DndProvider>
       <input type="color" value={color} onChange={handleColorChange} />
       <button onClick={handleApplyColor}>Apply Color</button>
 
