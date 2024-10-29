@@ -211,16 +211,16 @@ const LightGrid = ({ onLightSelect }) => {
   };
 
   const addLightsFromSetup = (values) => {
-    const { left, back, right } = values.sides; // Get the user-specified values
+    const { left, back, right } = values.sides;
 
-    let currentId = numLights; // Start with the current value of numLights
+    let currentId = numLights; 
 
     // Helper function to add multiple lights to a specific container
     const addMultipleLights = (numLightsToAdd, containerId) => {
-        const newLights = []; // Temporary array to store new lights for batch update
+        const newLights = []; // Array to store the new lights
 
         for (let i = 0; i < numLightsToAdd; i++) {
-            currentId++; // Increment the local variable for each new light
+            currentId++; // Increment the current ID
             newLights.push({
                 id: currentId,
                 selected: false,
@@ -231,7 +231,7 @@ const LightGrid = ({ onLightSelect }) => {
             });
         }
 
-        setLights((prevLights) => [...prevLights, ...newLights]); // Batch update lights array
+        setLights((prevLights) => [...prevLights, ...newLights]); // Update the lights state with the new lights
     };
 
     // Add lights to each container based on user input
@@ -245,6 +245,15 @@ const LightGrid = ({ onLightSelect }) => {
 
   // Call the function to log lights and channels
   logLightsAndChannels();
+
+
+  const updateStartAddress = (id, newStartAddress) => {
+    setLights((prevLights) =>
+      prevLights.map((light) =>
+        light.id === id ? { ...light, startAddress: newStartAddress } : light
+      )
+    );
+  };
 
   return (
     <div>
@@ -284,18 +293,21 @@ const LightGrid = ({ onLightSelect }) => {
               lights={containerLights("container1")}
               onDrop={handleDrop}
               onClick={handleClick}
+              updateStartAddress={updateStartAddress}
             />
             <GridContainer
               containerId="container2"
               lights={containerLights("container2")}
               onDrop={handleDrop}
               onClick={handleClick}
+              updateStartAddress={updateStartAddress}
             />
             <GridContainer
               containerId="container3"
               lights={containerLights("container3")}
               onDrop={handleDrop}
               onClick={handleClick}
+              updateStartAddress={updateStartAddress}
             ></GridContainer>
           </div>
         </DndProvider>
