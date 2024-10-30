@@ -32,7 +32,7 @@ app.post('/set-channel', (req, res) => {
 });
 
 let intervalId = null;
-
+// Route to start the rainbow effect
 app.post('/start-rainbow', (req, res) => {
     let hue = 0;
     // Interval time in milliseconds, smaller values will make the effect faster
@@ -57,7 +57,7 @@ app.post('/start-rainbow', (req, res) => {
 
     res.send('Rainbow effect started');
 });
-
+// Route to stop the rainbow effect
 app.post('/stop-rainbow', (req, res) => {
     if (intervalId) {
         clearInterval(intervalId);
@@ -128,11 +128,13 @@ app.post('/stop-police-lights', (req, res) => {
 
 // Route to clear all lights and stop all effects
 app.post('/clear-lights', (req, res) => {
-    universe.update({
-        1: 0,
-        2: 0,
-        3: 0
-    });
+    // Create an object to set all channels to 0
+    const clearChannels = {};
+    for (let i = 1; i <= 512; i++) {
+        clearChannels[i] = 0;
+    }
+    console.log('Clearing all lights and stopping effects');
+    universe.update(clearChannels);
 
     // Stop rainbow effect if running
     if (intervalId) {
@@ -149,29 +151,71 @@ app.post('/clear-lights', (req, res) => {
     res.send('All lights cleared and effects stopped');
 });
 
+/*
+// Route to log all lights and their channels
+app.post('/log-lights', (req, res) => {
+    const channels = universe.getChannels();
+    console.log('Current light channels and values:');
+    for (let channel in channels) {
+        console.log(`Channel ${channel}: ${channels[channel]}`);
+    }
+    res.send({ success: true });
+});
+*/
+// Control multiple lights
+app.post('/set-lights', (req, res) => {
+    const lights = req.body.lights;
+    console.log(lights);
+    if (!Array.isArray(lights)) {
+        return res.status(400).send('Lights should be an array of objects with id and color properties.');
+    }
 
+    lights.forEach(light => {
+        const { id, channel, color, startAddress } = light;
+        console.log(`Setting light ${id} channel ${channel} to color ${color}`);
 
+        // Map the light StartAddress to its DMX channel
+        const dmxChannel = startAddress;
 
-// Control individual lights (you'd map this based on your layout)
-app.post('/set-light', (req, res) => {
-    const { id, color } = req.body;
+        // Convert the color to DMX values (RGB)
+        const red = parseInt(color.substr(1, 2), 16);
+        const green = parseInt(color.substr(3, 2), 16);
+        const blue = parseInt(color.substr(5, 2), 16);
 
-    // Map the light ID to its DMX channel (assuming one light per channel)
-    const dmxChannel = id;
-
-    // Convert the color to DMX values (RGB)
-    const red = parseInt(color.substr(1, 2), 16);
-    const green = parseInt(color.substr(3, 2), 16);
-    const blue = parseInt(color.substr(5, 2), 16);
-
-    // Set the DMX channels for the light (assuming RGB lights)
-    universe.update({
-        [dmxChannel]: red,      // Red channel
-        [dmxChannel + 1]: green, // Green channel
-        [dmxChannel + 2]: blue   // Blue channel
+        // Set the DMX channels for the light
+        universe.update({
+            [dmxChannel]: red,      // Red channel
+            [dmxChannel + 1]: green, // Green channel
+            [dmxChannel + 2]: blue   // Blue channel
+        });
     });
 
     res.send({ success: true });
+});
+
+let currentChannel = 1;
+
+// Test one DMX channel at a time
+app.post('/test-channels', (req, res) => {
+    if (currentChannel > 512) {
+        currentChannel = 1; // Reset to the first channel if all channels have been tested
+    }
+
+    // Turn off the previous channel
+    if (currentChannel > 1) {
+        universe.update({
+            [currentChannel - 1]: 0
+        });
+    }
+
+    // Test the current channel
+    console.log(`Testing channel ${currentChannel}`);
+    universe.update({
+        [currentChannel]: 255
+    });
+
+    res.send(`Testing channel ${currentChannel}`);
+    currentChannel++;
 });
 
 
