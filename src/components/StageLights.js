@@ -225,6 +225,6 @@ const StageLights = ({ onLightSelect }) => {
       />
     </div>
   );
-};
+}; 
 
 export default StageLights;
