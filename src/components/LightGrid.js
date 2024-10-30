@@ -16,6 +16,7 @@ const LightGrid = ({ onLightSelect }) => {
 
   const [newLightId, setNewLightId] = useState("");
   const [newLightChannels, setNewLightChannels] = useState("");
+  const [newStartAddress, setNewStartAddress] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
 
   const handleDrop = (item, newContainerId) => {
@@ -143,61 +144,65 @@ const LightGrid = ({ onLightSelect }) => {
     setShowModal(true);
   };
 
-  // Handle  form submission inside modal
-  const handleModalSubmit = () => {
-    const id = parseInt(newLightId);
-    const channel = parseInt(newLightChannels);
-    if (!isNaN(id) && !isNaN(channel)) {
-      //checks if light with the same ID already exists
-      const existingLight = lights.find((light) => light.id === id);
-      if (existingLight) {
-        setErrorMessage(`A light with ID ${id} already exists.`);
-      } else {
-        setLights([...lights, { id, selected: false, color: "#fff", containerId: "container1", channel }]);
-
-        setShowModal(false);
-        setNewLightId("");
-        setNewLightChannels("");
-        setErrorMessage("");
-      }
+  // Handle form submission inside modal
+const handleModalSubmit = () => {
+  const id = parseInt(numLights + 1);
+  const channel = parseInt(newLightChannels);
+  const startAddress = parseInt(newStartAddress);
+  if (!isNaN(id) && !isNaN(channel) && !isNaN(startAddress)) {
+    console.log(`Adding light with ID ${id} and ${startAddress} address.`);
+    
+    // Check if the startAddress is already taken by another light
+    const existingLightAddress = lights.find(
+      (light) => startAddress >= light.startAddress && startAddress < light.startAddress + light.channel
+    );
+    
+    if (existingLightAddress) {
+      setErrorMessage(`A light with startAddress ${startAddress} already exists.`);
+    } else {
+      setLights([...lights, { id, selected: false, color: "#fff", containerId: "container1", channel, startAddress }]);
+      setNumLights(parseInt(numLights + 1));
+      setShowModal(false);
+      setNewLightId("");
+      setNewLightChannels("");
+      setNewStartAddress("");
+      setErrorMessage("");
     }
-  };
+  }
+};
+const handleStartAddressChange = (e) => {
+  const startAddress = parseInt(e.target.value);
+  setNewStartAddress(e.target.value);
+  if (!isNaN(startAddress)) {
+    // Find the existing light where the startAddress falls within its channel range
+    const existingLight = lights.find(
+      (light) => startAddress >= light.startAddress && startAddress < light.startAddress + light.channel
+    );
 
-  const handleNewLightIdChange = (e) => {
-    const id = parseInt(e.target.value);
-    setNewLightId(e.target.value);
-    if (!isNaN(id)) {
-      // Find the existing light with the same ID or where the ID falls within its channel range
-      const existingLight = lights.find(
-        (light) => id >= light.id && id < light.id + light.channel
+    if (existingLight) {
+      // Calculate the range of channels occupied by the existing light
+      const channelRange = `${existingLight.startAddress}-${existingLight.startAddress + existingLight.channel - 1}`;
+      // Set error message that shows if the startAddress is already occupied
+      setErrorMessage(
+        <>
+          {`Start Address `}
+          <strong>{startAddress}</strong>
+          {` is already occupied by a light with `}
+          <strong>{existingLight.channel}</strong>
+          {` channels.`}
+          <br />
+          {`Occupied Start Address/Channel range: `}
+          <strong>{channelRange}</strong>
+          {`.`}
+        </>
       );
-
-      if (existingLight) {
-        // Calculate the range of channels occupied by the existing light
-        const channelRange = `${existingLight.id}-${
-          existingLight.id + existingLight.channel - 1
-        }`;
-        //Set error message that shows if the id is already occupied
-        setErrorMessage(
-          <>
-            {`ID `}
-            <strong>{id}</strong>
-            {` is already occupied by a light with `}
-            <strong>{existingLight.channel}</strong>
-            {` channels.`}
-            <br />
-            {`Occupied ID/Channel range: `}
-            <strong>{channelRange}</strong>
-            {`.`}
-          </>
-        );
-      } else {
-        setErrorMessage("");
-      }
     } else {
       setErrorMessage("");
     }
-  };
+  } else {
+    setErrorMessage("");
+  }
+};
 
   const logLightsAndChannels = () => {
     lights.forEach((light) => {
@@ -244,7 +249,7 @@ const LightGrid = ({ onLightSelect }) => {
 
 
   // Call the function to log lights and channels
-  logLightsAndChannels();
+ // logLightsAndChannels();
 
 
   const updateStartAddress = (id, newStartAddress) => {
@@ -254,6 +259,14 @@ const LightGrid = ({ onLightSelect }) => {
       )
     );
   };
+
+  const updateChannel = (id, newChannel) => {
+    setLights((prevLights) =>
+      prevLights.map((light) =>
+        light.id === id ? { ...light, channel: newChannel } : light
+      )
+    );
+  }
 
   return (
     <div>
@@ -285,7 +298,6 @@ const LightGrid = ({ onLightSelect }) => {
           Add Light
         </button>
       </div>
-      <div>
         <DndProvider backend={HTML5Backend}>
           <div className="containers">
             <GridContainer
@@ -294,6 +306,7 @@ const LightGrid = ({ onLightSelect }) => {
               onDrop={handleDrop}
               onClick={handleClick}
               updateStartAddress={updateStartAddress}
+              updateChannel={updateChannel}
             />
             <GridContainer
               containerId="container2"
@@ -301,17 +314,28 @@ const LightGrid = ({ onLightSelect }) => {
               onDrop={handleDrop}
               onClick={handleClick}
               updateStartAddress={updateStartAddress}
+              updateChannel={updateChannel}
             />
+
             <GridContainer
               containerId="container3"
               lights={containerLights("container3")}
               onDrop={handleDrop}
               onClick={handleClick}
               updateStartAddress={updateStartAddress}
+              updateChannel={updateChannel}
             ></GridContainer>
+                                    <GridContainer
+              containerId="container4"
+              lights={containerLights("container4")}
+              onDrop={handleDrop}
+              onClick={handleClick}
+              updateStartAddress={updateStartAddress}
+              updateChannel={updateChannel}
+
+            />
           </div>
         </DndProvider>
-      </div>
 
       <DndProvider backend={HTML5Backend}></DndProvider>
       <input type="color" value={color} onChange={handleColorChange} />
@@ -347,17 +371,18 @@ const LightGrid = ({ onLightSelect }) => {
           {modalContent === "addLight" && (
               <>
                 <h2>Add New Light</h2>
-                <label>
-                  Light ID:
+                <br />                <label>
+                  Start Address:
                   <input
                     type="number"
-                    value={newLightId}
-                    onChange={handleNewLightIdChange}
+                    value={newStartAddress}
+                    onChange={handleStartAddressChange}
                     min="1"
                   />
                 </label>
+               
                 <br />
-                <label>
+ <label>
                   Number of Channels:
                   <input
                     type="number"

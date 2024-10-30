@@ -1,42 +1,66 @@
 /* Container styles */
 .grid-container {
     display: grid;
-    grid-gap: 10px;
+    grid-template-columns: 100px 500px 100px; /* 3 columns for the layout */
+    grid-template-rows: 500px 100px; /* 2 rows for the layout */
+    gap: 10px;
     justify-content: center;
     align-items: center;
     margin: auto;
 }
 
+/* First vertical column */
 #container1 {
+    grid-column: 1; /* Place it in the first column */
+    grid-row: 1 / span 1; /* Span only one row */
+    background-color: #ababab;
     display: grid;
-    grid-template-columns: repeat(1, 100px); /* 1 column */
-    grid-template-rows: repeat(5, 100px);    /* 5 rows */
-    background-color: #007BFF;
+    grid-template-columns: 100px; /* 1 column */
+    grid-template-rows: repeat(5, 100px); /* 5 rows */
     width: 100px;
-    height: 500px; /* 5 rows of 100px height */
+    height: 500px;
 }
 
+/* Horizontal row between the columns */
 #container2 {
+    grid-column: 2; /* Place it in the second column */
+    grid-row: 1 / span 1; /* Span only one row */
+    background-color: #ababab;
     display: grid;
     grid-template-columns: repeat(5, 100px); /* 5 columns */
-    grid-template-rows: repeat(1, 100px);    /* 1 row */
-    background-color: #007BFF;
+    grid-template-rows: 100px; /* 1 row */
     width: 500px;
     height: 100px;
 }
 
+/* Second vertical column */
 #container3 {
+    grid-column: 3; /* Place it in the third column */
+    grid-row: 1 / span 1; /* Span only one row */
+    background-color: #ababab;
     display: grid;
-    grid-template-columns: repeat(1, 100px); /* 1 column */
-    grid-template-rows: repeat(5, 100px);    /* 5 rows */
-    background-color: #007BFF;
+    grid-template-columns: 100px; /* 1 column */
+    grid-template-rows: repeat(5, 100px); /* 5 rows */
     width: 100px;
-    height: 500px; /* 5 rows of 100px height */
+    height: 500px;
 }
+
+/* Bottom horizontal row that spans the middle column */
+#container4 {
+    grid-column: 2; /* Place it in the second column */
+    grid-row: 2; /* Place it in the second row */
+    background-color: #ababab;
+    display: grid;
+    grid-template-columns: repeat(5, 100px); /* 5 columns */
+    grid-template-rows: 100px; /* 1 row */
+    width: 500px;
+    height: 100px;
+}
+
 
 .containers {
     margin: 0 auto;
-    display: flex;
+    display: grid;
     justify-content: space-around; 
     padding: 10px;
     width: 50%;

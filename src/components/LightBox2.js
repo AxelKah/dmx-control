@@ -5,7 +5,7 @@ const ItemTypes = {
   LIGHT: "light",
 };
 
-const LightBox = ({ light, moveLight, onClick, index, updateStartAddress }) => {
+const LightBox = ({ light, moveLight, onClick, index, updateStartAddress, containerId, updateChannel }) => {
   const [{ isDragging }, drag] = useDrag(() => ({
     type: ItemTypes.LIGHT,
     item: { id: light.id, containerId: light.containerId },
@@ -25,8 +25,12 @@ const LightBox = ({ light, moveLight, onClick, index, updateStartAddress }) => {
 
   const handleDoubleClick = () => {
     const newStartAddress = prompt("Enter new start address:", light.startAddress);
+    const newChannel = prompt("Enter new channel:", light.channel);
     if (newStartAddress !== null) {
       updateStartAddress(light.id, parseInt(newStartAddress, 10));
+    }
+    if (newChannel !== null) {
+      updateChannel(light.id, parseInt(newChannel, 10));
     }
   };
 
@@ -38,7 +42,7 @@ const LightBox = ({ light, moveLight, onClick, index, updateStartAddress }) => {
       onClick={() => onClick(light)}
       onDoubleClick={handleDoubleClick}
     >
-      {`Light ${light.id}`}
+      {`Light ${light.id} Address ${light.startAddress}`}
     </div>
   );
 };

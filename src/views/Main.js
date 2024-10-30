@@ -90,7 +90,6 @@ function Main() {
 
   const handleLightSelect = (lights) => {
     setSelectedLights(lights);
-    console.log("main" +lights);
   };
 
 /*

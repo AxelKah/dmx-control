@@ -6,7 +6,7 @@ const ItemTypes = {
   LIGHT: "light",
 };
 
-const GridContainer = ({ containerId, lights, onDrop, onClick, updateStartAddress }) => {
+const GridContainer = ({ containerId, lights, onDrop, onClick, updateStartAddress, updateChannel }) => {
   const [, drop] = useDrop(() => ({
     accept: ItemTypes.LIGHT,
     drop: (item) => onDrop(item, containerId),
@@ -21,6 +21,8 @@ const GridContainer = ({ containerId, lights, onDrop, onClick, updateStartAddres
           onClick={onClick}
           index={index}
           updateStartAddress={updateStartAddress}
+          containerId={containerId}
+          updateChannel={updateChannel}
         />
       ))}
     </div>

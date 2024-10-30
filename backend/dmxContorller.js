@@ -174,7 +174,7 @@ app.post('/set-lights', (req, res) => {
         const { id, channel, color, startAddress } = light;
         console.log(`Setting light ${id} channel ${channel} to color ${color}`);
 
-        // Map the light ID to its DMX channel
+        // Map the light StartAddress to its DMX channel
         const dmxChannel = startAddress;
 
         // Convert the color to DMX values (RGB)
