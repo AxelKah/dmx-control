@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import LightGrid from "../components/LightGrid";
+import StageLights from "../components/StageLights";
 import {
   startRainbow,
   stopRainbow,
@@ -215,7 +216,7 @@ function Main() {
       </form>
       <div>
         <h1>DMX Light Control</h1>
-        <LightGrid onLightSelect={handleLightSelect} />
+        <StageLights onLightSelect={handleLightSelect} />
       </div>{" "}
     </div>
   );

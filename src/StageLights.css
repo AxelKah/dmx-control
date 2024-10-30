@@ -1,0 +1,196 @@
+/* Container styles */
+.grid-container {
+    display: grid;
+    grid-template-columns: 100px 500px 100px; /* 3 columns for the layout */
+    grid-template-rows: 500px 100px; /* 2 rows for the layout */
+    gap: 10px;
+    justify-content: center;
+    align-items: center;
+    margin: auto;
+}
+
+/* First vertical column */
+#container1 {
+    grid-column: 1; /* Place it in the first column */
+    grid-row: 1 / span 1; /* Span only one row */
+    background-color: #ababab;
+    display: grid;
+    grid-template-columns: 100px; /* 1 column */
+    grid-template-rows: repeat(5, 100px); /* 5 rows */
+    width: 100px;
+    height: 500px;
+}
+
+/* Horizontal row between the columns */
+#container2 {
+    grid-column: 2; /* Place it in the second column */
+    grid-row: 1 / span 1; /* Span only one row */
+    background-color: #ababab;
+    display: grid;
+    grid-template-columns: repeat(5, 100px); /* 5 columns */
+    grid-template-rows: 100px; /* 1 row */
+    width: 500px;
+    height: 100px;
+}
+
+/* Second vertical column */
+#container3 {
+    grid-column: 3; /* Place it in the third column */
+    grid-row: 1 / span 1; /* Span only one row */
+    background-color: #ababab;
+    display: grid;
+    grid-template-columns: 100px; /* 1 column */
+    grid-template-rows: repeat(5, 100px); /* 5 rows */
+    width: 100px;
+    height: 500px;
+}
+
+/* Bottom horizontal row that spans the middle column */
+#container4 {
+    grid-column: 2; /* Place it in the second column */
+    grid-row: 2; /* Place it in the second row */
+    background-color: #ababab;
+    display: grid;
+    grid-template-columns: repeat(5, 100px); /* 5 columns */
+    grid-template-rows: 100px; /* 1 row */
+    width: 500px;
+    height: 100px;
+}
+
+
+.containers {
+    margin: 0 auto;
+    display: grid;
+    justify-content: space-around; 
+    padding: 10px;
+    width: 50%;
+}
+/* Light box styles */
+.light-box {
+    width: 100px;
+    height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    cursor: grab;
+    border-radius: 4px;
+    background-color: white;
+}
+
+/* Modal styles */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.7); /* Slightly darker background for contrast */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background-color: #fff;
+    padding: 30px;
+    border-radius: 10px;
+    width: 350px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3);
+    position: relative;
+    animation: modalFadeIn 0.3s ease-in-out;
+}
+
+@keyframes modalFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.modal-content h2 {
+    text-align: center;
+    color: #333;
+    font-size: 22px;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #007BFF;
+    padding-bottom: 10px;
+}
+
+.modal-content label {
+    display: block;
+    margin-bottom: 10px;
+    font-size: 16px;
+    color: #333;
+}
+
+.modal-content input {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 14px;
+    transition: border-color 0.2s;
+}
+
+.modal-content input:focus {
+    border-color: #007BFF;
+    outline: none;
+}
+
+.modal-content button {
+    width: 100%;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    background-color: #007BFF;
+    color: #fff;
+    font-size: 16px;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: background-color 0.3s;
+}
+
+.modal-content button:hover {
+    background-color: #0056b3;
+}
+
+.modal-content .close-btn {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 20px;
+    color: #333;
+    cursor: pointer;
+    background: none;
+    border: none;
+}
+
+.modal-content .close-btn:hover {
+    color: #ff0000;
+}
+
+button {
+    padding: 8px 12px;
+    font-size: 16px;
+    background-color: #007BFF;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+button:focus {
+    outline: none;
+}
