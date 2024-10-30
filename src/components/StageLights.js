@@ -84,7 +84,7 @@ const StageLights = ({ onLightSelect }) => {
   };
 
   const addLightsFromSetup = (values) => {
-    const { left, back, right } = values.sides;
+    const { left, back, right, front } = values.sides;
 
     let currentId = numLights;
 
@@ -111,6 +111,7 @@ const StageLights = ({ onLightSelect }) => {
     addMultipleLights(left, "container1"); // Add lights to container1
     addMultipleLights(back, "container2"); // Add lights to container2
     addMultipleLights(right, "container3"); // Add lights to container3
+    addMultipleLights(front, "container4"); // Add lights to container4
     setNumLights(currentId); // Update numLights to reflect the final ID used
   };
 
