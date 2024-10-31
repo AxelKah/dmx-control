@@ -193,6 +193,43 @@ app.post('/set-lights', (req, res) => {
     res.send({ success: true });
 });
 
+
+app.post('/set-brightness', (req, res) => {
+    const lights = req.body.lights;
+    console.log(lights);
+    if (!Array.isArray(lights)) {
+        return res.status(400).send('Lights should be an array of objects with id and color properties.');
+    }
+
+    lights.forEach(light => {
+        const { id, channel, color, startAddress, intensity } = light;
+        console.log(`Setting light ${id} channel ${channel} to brightness ${intensity}`);
+
+        // Map the light StartAddress to its DMX channel
+        const dmxChannel = startAddress;
+
+        // Convert the color to DMX values (RGB)
+        const red = parseInt(color.substr(1, 2), 16);
+        const green = parseInt(color.substr(3, 2), 16);
+        const blue = parseInt(color.substr(5, 2), 16);
+
+        //Convert RBG values accorging to intensity
+       const redIntensity = red * intensity / 100;
+       const greenIntensity = green * intensity / 100;
+       const blueIntensity = blue * intensity / 100;
+        
+
+        // Set the DMX channels for the light
+        universe.update({
+            [dmxChannel]: redIntensity,      // Red channel
+            [dmxChannel + 1]: greenIntensity, // Green channel
+            [dmxChannel + 2]: blueIntensity   // Blue channel
+        });
+    });
+
+    res.send({ success: true });
+}); 
+
 let currentChannel = 1;
 
 // Test one DMX channel at a time

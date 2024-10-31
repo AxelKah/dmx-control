@@ -99,22 +99,22 @@ const LightModal = ({
             <>
               <h2>Add New Light</h2>
               <br />
+            <label>
+                Start Address:
+                <input
+                  type="number"
+                  value={newStartAddress}
+                  onChange={handleStartAddressChange}
+                  min="1"
+                />
+              </label>
+              <br />
               <label>
                 Number of Channels:
                 <input
                   type="number"
                   value={newLightChannels}
                   onChange={(e) => setNewLightChannels(e.target.value)}
-                  min="1"
-                />
-              </label>
-              <br />
-              <label>
-                Start Address:
-                <input
-                  type="number"
-                  value={newStartAddress}
-                  onChange={handleStartAddressChange}
                   min="1"
                 />
               </label>

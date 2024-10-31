@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import "../StageLights.css";
-import { DndProvider} from "react-dnd";
+import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import GridContainer from "./GridContainer";
 import LightModal from "./LightModal";
@@ -31,7 +31,6 @@ const StageLights = ({ onLightSelect }) => {
           ? {
               ...light,
               selected: !light.selected,
-              color: light.selected ? "#fff" : "#f00",
             }
           : light
       )
@@ -41,7 +40,11 @@ const StageLights = ({ onLightSelect }) => {
 
   const handleColorChange = (e) => {
     setColor(e.target.value);
+    setLights((prevLights) =>
+      prevLights.map((light) => (light.selected ? { ...light, color: e.target.value } : light))
+    );
   };
+
 
   const handleApplyColor = async () => {
     const selectedLights = lights.filter((light) => light.selected);
@@ -52,15 +55,42 @@ const StageLights = ({ onLightSelect }) => {
         body: JSON.stringify({
           lights: selectedLights.map((light) => ({
             id: light.id,
-            color,
+            color: light.color,
             channel: light.channel,
             startAddress: light.startAddress,
+            intensity: light.intensity,
           })),
         }),
       });
     }
   };
 
+  const handleIntensityChange = (e) => {
+    const intensity = parseInt(e.target.value);
+    setLights((prevLights) =>
+      prevLights.map((light) => (light.selected ? { ...light, intensity } : light))
+    );
+  };
+
+  const handleApplyIntensity = async () => {
+    const selectedLights = lights.filter((light) => light.selected);
+    if (selectedLights.length > 0) {
+      await fetch("http://localhost:5000/set-brightness", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          lights: selectedLights.map((light) => ({
+            id: light.id,
+            color: light.color,
+            channel: light.channel,
+            startAddress: light.startAddress,
+            intensity: light.intensity,
+          })),
+        }),
+      });
+    }
+  };
+  
   const addLight = (channel, startAddress) => {
     console.log("rsweesrse");
     const id = parseInt(numLights + 1);
@@ -73,6 +103,7 @@ const StageLights = ({ onLightSelect }) => {
         containerId: "container1",
         channel,
         startAddress,
+        intensity: 97,
       },
     ]);
     setNumLights(parseInt(numLights + 1));
@@ -101,6 +132,7 @@ const StageLights = ({ onLightSelect }) => {
           color: "#fff",
           channel: 1,
           startAddress: 0,
+          intensity: 98,
         });
       }
 
@@ -182,6 +214,7 @@ const StageLights = ({ onLightSelect }) => {
       <DndProvider backend={HTML5Backend}></DndProvider>
       <input type="color" value={color} onChange={handleColorChange} />
       <button onClick={handleApplyColor}>Apply Color</button>
+      <button onClick={handleApplyIntensity}>Apply Brightness</button>
 
       {/* Button to open the modal */}
       <button
@@ -212,6 +245,17 @@ const StageLights = ({ onLightSelect }) => {
       >
         Lights setup
       </button>
+      <div style={{ marginTop: "10px" }}>
+        <label htmlFor="intensitySlider">Intensity: </label>
+        <input
+          type="range"
+          id="intensitySlider"
+          min="0"
+          max="100"
+          value={lights.find((light) => light.selected)?.intensity || 0}
+          onChange={handleIntensityChange}
+        />
+      </div>
       {/* Modal to input new light information */}
       <LightModal
         showModal={showModal}
