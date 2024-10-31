@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import "../lightGrid.css";
 import { DndProvider, useDrag, useDrop } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
-import LightBox from "./LightBox2";
+import LightFixture from "./LightFixture";
 import GridContainer from "./GridContainer";
 import SetupLights from "./SetupLights";
 

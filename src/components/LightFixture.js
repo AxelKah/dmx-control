@@ -5,7 +5,7 @@ const ItemTypes = {
   LIGHT: "light",
 };
 
-const LightBox = ({ light, moveLight, onClick, index, updateStartAddress, containerId, updateChannel }) => { 
+const LightFixture = ({ light, moveLight, onClick, index, updateStartAddress, containerId, updateChannel }) => { 
   const [selected, setSelected] = useState(false);
 
  
@@ -60,4 +60,4 @@ const LightBox = ({ light, moveLight, onClick, index, updateStartAddress, contai
   );
 };
 
-export default LightBox;
+export default LightFixture;

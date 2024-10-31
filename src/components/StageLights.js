@@ -1,17 +1,26 @@
 import React, { useState } from "react";
-import "../StageLights.css";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import GridContainer from "./GridContainer";
 import LightModal from "./LightModal";
+import SetupLights from "./SetupLights";
+import Light from "./Light"; // Import the Light class
 
-const StageLights = ({ onLightSelect }) => {
-  const [numLights, setNumLights] = useState(0);
+const StageLights = () => {
   const [lights, setLights] = useState([]);
-  const [color, setColor] = useState("#ffffff");
+  const [numLights, setNumLights] = useState(0);
   const [showModal, setShowModal] = useState(false);
-  const [modalContent, setModalContent] = useState(""); // Modal content
+  const [modalContent, setModalContent] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+  const [color, setColor] = useState("#ffffff");
+
+  const addLight = (channel, startAddress) => {
+    console.log("Adding light");
+    const id = parseInt(numLights + 1);
+    const newLight = new Light(id, channel, startAddress);
+    setLights([...lights, newLight]);
+    setNumLights(parseInt(numLights + 1));
+  };
 
   const handleDrop = (item, newContainerId) => {
     setLights((prevLights) =>
@@ -21,8 +30,24 @@ const StageLights = ({ onLightSelect }) => {
     );
   };
 
+  const updateStartAddress = (id, newStartAddress) => {
+    setLights((prevLights) =>
+      prevLights.map((light) =>
+        light.id === id ? { ...light, startAddress: newStartAddress } : light
+      )
+    );
+  };
+
+  const updateChannel = (id, newChannel) => {
+    setLights((prevLights) =>
+      prevLights.map((light) =>
+        light.id === id ? { ...light, channel: newChannel } : light
+      )
+    );
+  };
+
   const containerLights = (containerId) =>
-    lights.filter((light) => light.containerId === containerId);
+    lights.filter((light) => light && light.containerId === containerId);
 
   const handleClick = (clickedLight) => {
     setLights(
@@ -31,20 +56,21 @@ const StageLights = ({ onLightSelect }) => {
           ? {
               ...light,
               selected: !light.selected,
+              color: light.selected ? "#fff" : "#f00",
             }
           : light
       )
     );
-    onLightSelect(clickedLight);
   };
 
   const handleColorChange = (e) => {
     setColor(e.target.value);
     setLights((prevLights) =>
-      prevLights.map((light) => (light.selected ? { ...light, color: e.target.value } : light))
+      prevLights.map((light) =>
+        light.selected ? { ...light, color: e.target.value } : light
+      )
     );
   };
-
 
   const handleApplyColor = async () => {
     const selectedLights = lights.filter((light) => light.selected);
@@ -68,7 +94,9 @@ const StageLights = ({ onLightSelect }) => {
   const handleIntensityChange = (e) => {
     const intensity = parseInt(e.target.value);
     setLights((prevLights) =>
-      prevLights.map((light) => (light.selected ? { ...light, intensity } : light))
+      prevLights.map((light) =>
+        light.selected ? { ...light, intensity } : light
+      )
     );
   };
 
@@ -90,24 +118,6 @@ const StageLights = ({ onLightSelect }) => {
       });
     }
   };
-  
-  const addLight = (channel, startAddress) => {
-    console.log("rsweesrse");
-    const id = parseInt(numLights + 1);
-    setLights([
-      ...lights,
-      {
-        id,
-        selected: false,
-        color: "#fff",
-        containerId: "container1",
-        channel,
-        startAddress,
-        intensity: 97,
-      },
-    ]);
-    setNumLights(parseInt(numLights + 1));
-  };
 
   const handleFinishSetup = (values) => {
     console.log("Finished! Collected values:", values);
@@ -125,15 +135,7 @@ const StageLights = ({ onLightSelect }) => {
 
       for (let i = 0; i < numLightsToAdd; i++) {
         currentId++; // Increment the current ID
-        newLights.push({
-          id: currentId,
-          selected: false,
-          containerId: containerId,
-          color: "#fff",
-          channel: 1,
-          startAddress: 0,
-          intensity: 98,
-        });
+        newLights.push(new Light(currentId, 1, 0, "#fff", containerId, 99));
       }
 
       setLights((prevLights) => [...prevLights, ...newLights]); // Update the lights state with the new lights
@@ -145,22 +147,6 @@ const StageLights = ({ onLightSelect }) => {
     addMultipleLights(right, "container3"); // Add lights to container3
     addMultipleLights(front, "container4"); // Add lights to container4
     setNumLights(currentId); // Update numLights to reflect the final ID used
-  };
-
-  const updateStartAddress = (id, newStartAddress) => {
-    setLights((prevLights) =>
-      prevLights.map((light) =>
-        light.id === id ? { ...light, startAddress: newStartAddress } : light
-      )
-    );
-  };
-
-  const updateChannel = (id, newChannel) => {
-    setLights((prevLights) =>
-      prevLights.map((light) =>
-        light.id === id ? { ...light, channel: newChannel } : light
-      )
-    );
   };
 
   return (
@@ -233,8 +219,8 @@ const StageLights = ({ onLightSelect }) => {
       </button>
       <button
         onClick={() => {
-          setShowModal(true);
           setModalContent("setupLights");
+          setShowModal(true);
         }}
         style={{
           marginLeft: "10px",
