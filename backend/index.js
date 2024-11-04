@@ -1,8 +1,8 @@
+require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const dmxRoutes = require("./routes/dmxRouter");
-// const gptRoutes = require("./routes/gptRoutes");
-require("dotenv").config();
+const gptRoutes = require("./routes/gptRouter");
 
 const port = 5000;
 
@@ -14,7 +14,7 @@ app.use(express.json());
 
 // Use routes
 app.use("/", dmxRoutes);
-// app.use("/gpt", gptRoutes);
+app.use("/gpt", gptRoutes);
 
 // Start the app
 app.listen(port, () => {
