@@ -106,8 +106,8 @@ function Main() {
 */
   return (
     <div style={{ padding: "20px", fontFamily: "Arial, sans-serif" }}>
-      <h1 style={{ color: "#333" }}>Light Control</h1>
-      <form
+      {/*<h1 style={{ color: "#333" }}>Light Control</h1>
+       <form
         onSubmit={handleSubmit}
         style={{ display: "flex", flexDirection: "column", gap: "10px" }}
       >
@@ -213,9 +213,9 @@ function Main() {
           Clear Lights
         </button>
        
-      </form>
+      </form> */}
       <div>
-        <h1>DMX Light Control</h1>
+        {/* <h1>DMX Light Control</h1> */}
         <StageLights onLightSelect={handleLightSelect} />
       </div>{" "}
     </div>
