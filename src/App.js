@@ -8,7 +8,7 @@ function App() {
   return (
     <Router>
       <Nav />
-      <main className="pt-16 pb-16">
+      <main className="md:py-16 py-0">
         <Routes>
           <Route path="/" element={<Main />} />
           <Route path="/help" element={<HelpPage />} />

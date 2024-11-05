@@ -197,11 +197,27 @@ const updateLight = (id, updates) => {
       />
 
       <DndProvider backend={HTML5Backend}></DndProvider>
-      <input type="color" value={color} onChange={handleColorChange} />
+      
+      <div className="flex flex-row justify-center">
+      <div className="lighttools-container flex flex-col justify-center bg-gray-100 p-4 rounded-lg shadow-lg m-6 w-fit">
+      <input type="color" value={color} onChange={handleColorChange} className="self-center mb-1"  />
       <button onClick={() => handleApplyChanges("http://localhost:5000/set-lights")}>Apply Color</button>
+      <div className="my-2">
+        <label htmlFor="intensitySlider">Intensity: </label>
+        <input
+          type="range"
+          id="intensitySlider"
+          min="0"
+          max="100"
+          value={lights.find((light) => light.selected)?.intensity || 0}
+          onChange={handleIntensityChange}
+        />
+      </div>
       <button onClick={() => handleApplyChanges("http://localhost:5000/set-brightness")}>Apply Brightness</button>
+      </div>
 
       {/* Button to open the modal */}
+      <div className="lightsetup-container flex flex-row justify-center bg-gray-100 p-4 rounded-lg shadow-lg m-6 w-fit">
       <button
         onClick={() => {
           setShowModal(true);
@@ -230,16 +246,6 @@ const updateLight = (id, updates) => {
       >
         Lights setup
       </button>
-      <div style={{ marginTop: "10px" }}>
-        <label htmlFor="intensitySlider">Intensity: </label>
-        <input
-          type="range"
-          id="intensitySlider"
-          min="0"
-          max="100"
-          value={lights.find((light) => light.selected)?.intensity || 0}
-          onChange={handleIntensityChange}
-        />
       </div>
       {/* Modal */}
       <LightModal
@@ -252,6 +258,7 @@ const updateLight = (id, updates) => {
         handleFinishSetup={handleFinishSetup}
         lights={lights}
       />
+    </div>
     </div>
   );
 }; 
