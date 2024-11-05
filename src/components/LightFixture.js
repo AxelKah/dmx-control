@@ -1,11 +1,14 @@
-import React from "react";
+import React, { useState } from "react";
 import { useDrag, useDrop } from "react-dnd";
 
 const ItemTypes = {
   LIGHT: "light",
 };
 
-const LightBox = ({ light, moveLight, onClick, index, updateStartAddress, containerId, updateChannel }) => {
+const LightFixture = ({ light, moveLight, onClick, index, updateStartAddress, containerId, updateChannel }) => { 
+  const [selected, setSelected] = useState(false);
+
+ 
   const [{ isDragging }, drag] = useDrag(() => ({
     type: ItemTypes.LIGHT,
     item: { id: light.id, containerId: light.containerId },
@@ -34,12 +37,22 @@ const LightBox = ({ light, moveLight, onClick, index, updateStartAddress, contai
     }
   };
 
+
+  const handleClick = () => {
+    setSelected(!selected);
+    onClick(light);
+  };
+
   return (
     <div
       ref={(node) => drag(drop(node))}
       className="light-box"
-      style={{ backgroundColor: light.color, opacity: isDragging ? 0.5 : 1 }}
-      onClick={() => onClick(light)}
+      style={{
+        backgroundColor: light.color,
+        opacity: isDragging ? 0.5 : 1,
+        border: selected ? "3px solid black" : "none",
+      }}
+      onClick={handleClick}
       onDoubleClick={handleDoubleClick}
     >
       {`Light ${light.id} Address ${light.startAddress}`}
@@ -47,4 +60,4 @@ const LightBox = ({ light, moveLight, onClick, index, updateStartAddress, contai
   );
 };
 
-export default LightBox;
+export default LightFixture;

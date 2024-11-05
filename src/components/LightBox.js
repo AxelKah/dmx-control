@@ -2,7 +2,7 @@ import React from "react";
 import { useDrag, useDrop } from "react-dnd";
 const ItemType = "LIGHT";
 
-const LightBox = ({ light, index, moveLight, onClick }) => {
+const LightFixture = ({ light, index, moveLight, onClick }) => {
     const [, dragRef] = useDrag({
         type: ItemType,
         item: { index },
@@ -30,4 +30,4 @@ const LightBox = ({ light, index, moveLight, onClick }) => {
     );
 };
 
-export default LightBox;
+export default LightFixture;

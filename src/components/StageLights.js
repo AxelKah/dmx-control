@@ -1,17 +1,27 @@
 import React, { useState } from "react";
-import "../StageLights.css";
-import { DndProvider} from "react-dnd";
+import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import GridContainer from "./GridContainer";
 import LightModal from "./LightModal";
+import SetupLights from "./SetupLights";
+import Light from "../models/Light";
+import { updateSelectedLights, makeApiCall, addMultipleLights } from "../utils/utils";
 
-const StageLights = ({ onLightSelect }) => {
-  const [numLights, setNumLights] = useState(0);
+const StageLights = () => {
   const [lights, setLights] = useState([]);
-  const [color, setColor] = useState("#ffffff");
+  const [numLights, setNumLights] = useState(0);
   const [showModal, setShowModal] = useState(false);
-  const [modalContent, setModalContent] = useState(""); // Modal content
+  const [modalContent, setModalContent] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+  const [color, setColor] = useState("#ffffff");
+
+  const addLight = (channel, startAddress) => {
+    console.log("Adding light");
+    const id = parseInt(numLights + 1);
+    const newLight = new Light(id, channel, startAddress);
+    setLights([...lights, newLight]);
+    setNumLights(parseInt(numLights + 1));
+  };
 
   const handleDrop = (item, newContainerId) => {
     setLights((prevLights) =>
@@ -21,8 +31,18 @@ const StageLights = ({ onLightSelect }) => {
     );
   };
 
+
+const updateLight = (id, updates) => {
+  setLights((prevLights) =>
+    prevLights.map((light) =>
+      light.id === id ? { ...light, ...updates } : light
+    )
+  );
+};
+
+
   const containerLights = (containerId) =>
-    lights.filter((light) => light.containerId === containerId);
+    lights.filter((light) => light && light.containerId === containerId);
 
   const handleClick = (clickedLight) => {
     setLights(
@@ -31,105 +51,86 @@ const StageLights = ({ onLightSelect }) => {
           ? {
               ...light,
               selected: !light.selected,
-              color: light.selected ? "#fff" : "#f00",
             }
           : light
       )
     );
-    onLightSelect(clickedLight);
   };
 
   const handleColorChange = (e) => {
     setColor(e.target.value);
+    setLights((prevLights) =>
+      prevLights.map((light) =>
+        light.selected ? { ...light, color: e.target.value } : light
+      )
+    );
   };
 
-  const handleApplyColor = async () => {
+
+  const handleIntensityChange = (e) => {
+    const intensity = parseInt(e.target.value);
+    setLights((prevLights) =>
+      prevLights.map((light) =>
+        light.selected ? { ...light, intensity } : light
+      )
+    );
+  };
+
+  const handleApplyChanges = async (url) => {
     const selectedLights = lights.filter((light) => light.selected);
-    if (selectedLights.length > 0) {
-      await fetch("http://localhost:5000/set-lights", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          lights: selectedLights.map((light) => ({
-            id: light.id,
-            color,
-            channel: light.channel,
-            startAddress: light.startAddress,
-          })),
-        }),
-      });
-    }
+    await makeApiCall(url, selectedLights);
   };
 
-  const addLight = (channel, startAddress) => {
-    console.log("rsweesrse");
-    const id = parseInt(numLights + 1);
-    setLights([
-      ...lights,
-      {
-        id,
-        selected: false,
-        color: "#fff",
-        containerId: "container1",
-        channel,
-        startAddress,
-      },
-    ]);
-    setNumLights(parseInt(numLights + 1));
-  };
 
   const handleFinishSetup = (values) => {
     console.log("Finished! Collected values:", values);
     addLightsFromSetup(values);
   };
 
+
+
+
   const addLightsFromSetup = (values) => {
     const { left, back, right, front } = values.sides;
 
     let currentId = numLights;
 
-    // Helper function to add multiple lights to a specific container
-    const addMultipleLights = (numLightsToAdd, containerId) => {
-      const newLights = []; // Array to store the new lights
-
-      for (let i = 0; i < numLightsToAdd; i++) {
-        currentId++; // Increment the current ID
-        newLights.push({
-          id: currentId,
-          selected: false,
-          containerId: containerId,
-          color: "#fff",
-          channel: 1,
-          startAddress: 0,
-        });
-      }
-
-      setLights((prevLights) => [...prevLights, ...newLights]); // Update the lights state with the new lights
-    };
-
-    // Add lights to each container based on user input
-    addMultipleLights(left, "container1"); // Add lights to container1
-    addMultipleLights(back, "container2"); // Add lights to container2
-    addMultipleLights(right, "container3"); // Add lights to container3
-    addMultipleLights(front, "container4"); // Add lights to container4
-    setNumLights(currentId); // Update numLights to reflect the final ID used
-  };
-
-  const updateStartAddress = (id, newStartAddress) => {
-    setLights((prevLights) =>
-      prevLights.map((light) =>
-        light.id === id ? { ...light, startAddress: newStartAddress } : light
-      )
+    // Add lights to each container
+    const { newLights: leftLights, currentId: leftId } = addMultipleLights(
+      left,
+      "container1",
+      currentId
     );
+    currentId = leftId;
+    const { newLights: backLights, currentId: backId } = addMultipleLights(
+      back,
+      "container2",
+      currentId
+    );
+    currentId = backId;
+    const { newLights: rightLights, currentId: rightId } = addMultipleLights(
+      right,
+      "container3",
+      currentId
+    );
+    currentId = rightId;
+    const { newLights: frontLights, currentId: frontId } = addMultipleLights(
+      front,
+      "container4",
+      currentId
+    );
+    currentId = frontId;
+
+    setLights((prevLights) => [
+      ...prevLights,
+      ...leftLights,
+      ...backLights,
+      ...rightLights,
+      ...frontLights,
+    ]);
+    setNumLights(currentId); // Update the number of lights
   };
 
-  const updateChannel = (id, newChannel) => {
-    setLights((prevLights) =>
-      prevLights.map((light) =>
-        light.id === id ? { ...light, channel: newChannel } : light
-      )
-    );
-  };
 
   return (
     <div>
@@ -140,16 +141,24 @@ const StageLights = ({ onLightSelect }) => {
             lights={containerLights("container1")}
             onDrop={handleDrop}
             onClick={handleClick}
-            updateStartAddress={updateStartAddress}
-            updateChannel={updateChannel}
+            updateStartAddress={(id, newStartAddress) =>
+              updateLight(id, { startAddress: newStartAddress })
+            }
+            updateChannel={(id, newChannel) =>
+              updateLight(id, { channel: newChannel })
+            }
           />
           <GridContainer
             containerId="container2"
             lights={containerLights("container2")}
             onDrop={handleDrop}
             onClick={handleClick}
-            updateStartAddress={updateStartAddress}
-            updateChannel={updateChannel}
+            updateStartAddress={(id, newStartAddress) =>
+              updateLight(id, { startAddress: newStartAddress })
+            }
+            updateChannel={(id, newChannel) =>
+              updateLight(id, { channel: newChannel })
+            }
           />
 
           <GridContainer
@@ -157,16 +166,24 @@ const StageLights = ({ onLightSelect }) => {
             lights={containerLights("container3")}
             onDrop={handleDrop}
             onClick={handleClick}
-            updateStartAddress={updateStartAddress}
-            updateChannel={updateChannel}
+            updateStartAddress={(id, newStartAddress) =>
+              updateLight(id, { startAddress: newStartAddress })
+            }
+            updateChannel={(id, newChannel) =>
+              updateLight(id, { channel: newChannel })
+            }
           ></GridContainer>
           <GridContainer
             containerId="container4"
             lights={containerLights("container4")}
             onDrop={handleDrop}
             onClick={handleClick}
-            updateStartAddress={updateStartAddress}
-            updateChannel={updateChannel}
+            updateStartAddress={(id, newStartAddress) =>
+              updateLight(id, { startAddress: newStartAddress })
+            }
+            updateChannel={(id, newChannel) =>
+              updateLight(id, { channel: newChannel })
+            }
           />
         </div>
       </DndProvider>
@@ -181,7 +198,8 @@ const StageLights = ({ onLightSelect }) => {
 
       <DndProvider backend={HTML5Backend}></DndProvider>
       <input type="color" value={color} onChange={handleColorChange} />
-      <button onClick={handleApplyColor}>Apply Color</button>
+      <button onClick={() => handleApplyChanges("http://localhost:5000/set-lights")}>Apply Color</button>
+      <button onClick={() => handleApplyChanges("http://localhost:5000/set-brightness")}>Apply Brightness</button>
 
       {/* Button to open the modal */}
       <button
@@ -200,8 +218,8 @@ const StageLights = ({ onLightSelect }) => {
       </button>
       <button
         onClick={() => {
-          setShowModal(true);
           setModalContent("setupLights");
+          setShowModal(true);
         }}
         style={{
           marginLeft: "10px",
@@ -212,7 +230,18 @@ const StageLights = ({ onLightSelect }) => {
       >
         Lights setup
       </button>
-      {/* Modal to input new light information */}
+      <div style={{ marginTop: "10px" }}>
+        <label htmlFor="intensitySlider">Intensity: </label>
+        <input
+          type="range"
+          id="intensitySlider"
+          min="0"
+          max="100"
+          value={lights.find((light) => light.selected)?.intensity || 0}
+          onChange={handleIntensityChange}
+        />
+      </div>
+      {/* Modal */}
       <LightModal
         showModal={showModal}
         setShowModal={setShowModal}

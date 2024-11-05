@@ -2,11 +2,24 @@
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
-## Available Scripts
+## To run this project
 
-In the project directory, you can run:
+Open two terminal tabs in Visual Studio Code
 
+First tab navigate to dmx-control\backend
+### `cd dmx-control\backend`
+Then you can start the backend
+### `node dmxController.js`
+
+Secont tab navigate to dmx-control\src>
+### `cd dmx-control\src`
+Then you can start the frontend
 ### `npm start`
+
+
+
+
+
 
 Runs the app in the development mode.\
 Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
@@ -14,10 +27,6 @@ Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
 The page will reload when you make changes.\
 You may also see any lint errors in the console.
 
-### `npm test`
-
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
 
 ### `npm run build`
 

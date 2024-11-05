@@ -1,6 +1,6 @@
 import React from "react";
 import { useDrop } from "react-dnd";
-import LightBox from "./LightBox2";
+import LightFixture from "./LightFixture";
 
 const ItemTypes = {
   LIGHT: "light",
@@ -15,7 +15,7 @@ const GridContainer = ({ containerId, lights, onDrop, onClick, updateStartAddres
   return (
     <div ref={drop} id={containerId}>
       {lights.map((light, index) => (
-        <LightBox
+        <LightFixture
           key={light.id}
           light={light}
           onClick={onClick}
