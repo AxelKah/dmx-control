@@ -4,7 +4,8 @@ import { HTML5Backend } from "react-dnd-html5-backend";
 import GridContainer from "./GridContainer";
 import LightModal from "./LightModal";
 import SetupLights from "./SetupLights";
-import Light from "./Light"; // Import the Light class
+import Light from "../models/Light";
+import { updateSelectedLights, makeApiCall, addMultipleLights } from "../utils/utils";
 
 const StageLights = () => {
   const [lights, setLights] = useState([]);
@@ -30,21 +31,15 @@ const StageLights = () => {
     );
   };
 
-  const updateStartAddress = (id, newStartAddress) => {
-    setLights((prevLights) =>
-      prevLights.map((light) =>
-        light.id === id ? { ...light, startAddress: newStartAddress } : light
-      )
-    );
-  };
 
-  const updateChannel = (id, newChannel) => {
-    setLights((prevLights) =>
-      prevLights.map((light) =>
-        light.id === id ? { ...light, channel: newChannel } : light
-      )
-    );
-  };
+const updateLight = (id, updates) => {
+  setLights((prevLights) =>
+    prevLights.map((light) =>
+      light.id === id ? { ...light, ...updates } : light
+    )
+  );
+};
+
 
   const containerLights = (containerId) =>
     lights.filter((light) => light && light.containerId === containerId);
@@ -56,7 +51,6 @@ const StageLights = () => {
           ? {
               ...light,
               selected: !light.selected,
-              color: light.selected ? "#fff" : "#f00",
             }
           : light
       )
@@ -72,24 +66,6 @@ const StageLights = () => {
     );
   };
 
-  const handleApplyColor = async () => {
-    const selectedLights = lights.filter((light) => light.selected);
-    if (selectedLights.length > 0) {
-      await fetch("http://localhost:5000/set-lights", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          lights: selectedLights.map((light) => ({
-            id: light.id,
-            color: light.color,
-            channel: light.channel,
-            startAddress: light.startAddress,
-            intensity: light.intensity,
-          })),
-        }),
-      });
-    }
-  };
 
   const handleIntensityChange = (e) => {
     const intensity = parseInt(e.target.value);
@@ -100,54 +76,61 @@ const StageLights = () => {
     );
   };
 
-  const handleApplyIntensity = async () => {
+  const handleApplyChanges = async (url) => {
     const selectedLights = lights.filter((light) => light.selected);
-    if (selectedLights.length > 0) {
-      await fetch("http://localhost:5000/set-brightness", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          lights: selectedLights.map((light) => ({
-            id: light.id,
-            color: light.color,
-            channel: light.channel,
-            startAddress: light.startAddress,
-            intensity: light.intensity,
-          })),
-        }),
-      });
-    }
+    await makeApiCall(url, selectedLights);
   };
+
 
   const handleFinishSetup = (values) => {
     console.log("Finished! Collected values:", values);
     addLightsFromSetup(values);
   };
 
+
+
+
   const addLightsFromSetup = (values) => {
     const { left, back, right, front } = values.sides;
 
     let currentId = numLights;
 
-    // Helper function to add multiple lights to a specific container
-    const addMultipleLights = (numLightsToAdd, containerId) => {
-      const newLights = []; // Array to store the new lights
+    // Add lights to each container
+    const { newLights: leftLights, currentId: leftId } = addMultipleLights(
+      left,
+      "container1",
+      currentId
+    );
+    currentId = leftId;
+    const { newLights: backLights, currentId: backId } = addMultipleLights(
+      back,
+      "container2",
+      currentId
+    );
+    currentId = backId;
+    const { newLights: rightLights, currentId: rightId } = addMultipleLights(
+      right,
+      "container3",
+      currentId
+    );
+    currentId = rightId;
+    const { newLights: frontLights, currentId: frontId } = addMultipleLights(
+      front,
+      "container4",
+      currentId
+    );
+    currentId = frontId;
 
-      for (let i = 0; i < numLightsToAdd; i++) {
-        currentId++; // Increment the current ID
-        newLights.push(new Light(currentId, 1, 0, "#fff", containerId, 99));
-      }
-
-      setLights((prevLights) => [...prevLights, ...newLights]); // Update the lights state with the new lights
-    };
-
-    // Add lights to each container based on user input
-    addMultipleLights(left, "container1"); // Add lights to container1
-    addMultipleLights(back, "container2"); // Add lights to container2
-    addMultipleLights(right, "container3"); // Add lights to container3
-    addMultipleLights(front, "container4"); // Add lights to container4
-    setNumLights(currentId); // Update numLights to reflect the final ID used
+    setLights((prevLights) => [
+      ...prevLights,
+      ...leftLights,
+      ...backLights,
+      ...rightLights,
+      ...frontLights,
+    ]);
+    setNumLights(currentId); // Update the number of lights
   };
+
 
   return (
     <div>
@@ -158,16 +141,24 @@ const StageLights = () => {
             lights={containerLights("container1")}
             onDrop={handleDrop}
             onClick={handleClick}
-            updateStartAddress={updateStartAddress}
-            updateChannel={updateChannel}
+            updateStartAddress={(id, newStartAddress) =>
+              updateLight(id, { startAddress: newStartAddress })
+            }
+            updateChannel={(id, newChannel) =>
+              updateLight(id, { channel: newChannel })
+            }
           />
           <GridContainer
             containerId="container2"
             lights={containerLights("container2")}
             onDrop={handleDrop}
             onClick={handleClick}
-            updateStartAddress={updateStartAddress}
-            updateChannel={updateChannel}
+            updateStartAddress={(id, newStartAddress) =>
+              updateLight(id, { startAddress: newStartAddress })
+            }
+            updateChannel={(id, newChannel) =>
+              updateLight(id, { channel: newChannel })
+            }
           />
 
           <GridContainer
@@ -175,16 +166,24 @@ const StageLights = () => {
             lights={containerLights("container3")}
             onDrop={handleDrop}
             onClick={handleClick}
-            updateStartAddress={updateStartAddress}
-            updateChannel={updateChannel}
+            updateStartAddress={(id, newStartAddress) =>
+              updateLight(id, { startAddress: newStartAddress })
+            }
+            updateChannel={(id, newChannel) =>
+              updateLight(id, { channel: newChannel })
+            }
           ></GridContainer>
           <GridContainer
             containerId="container4"
             lights={containerLights("container4")}
             onDrop={handleDrop}
             onClick={handleClick}
-            updateStartAddress={updateStartAddress}
-            updateChannel={updateChannel}
+            updateStartAddress={(id, newStartAddress) =>
+              updateLight(id, { startAddress: newStartAddress })
+            }
+            updateChannel={(id, newChannel) =>
+              updateLight(id, { channel: newChannel })
+            }
           />
         </div>
       </DndProvider>
@@ -199,8 +198,8 @@ const StageLights = () => {
 
       <DndProvider backend={HTML5Backend}></DndProvider>
       <input type="color" value={color} onChange={handleColorChange} />
-      <button onClick={handleApplyColor}>Apply Color</button>
-      <button onClick={handleApplyIntensity}>Apply Brightness</button>
+      <button onClick={() => handleApplyChanges("http://localhost:5000/set-lights")}>Apply Color</button>
+      <button onClick={() => handleApplyChanges("http://localhost:5000/set-brightness")}>Apply Brightness</button>
 
       {/* Button to open the modal */}
       <button
@@ -242,7 +241,7 @@ const StageLights = () => {
           onChange={handleIntensityChange}
         />
       </div>
-      {/* Modal to input new light information */}
+      {/* Modal */}
       <LightModal
         showModal={showModal}
         setShowModal={setShowModal}
