@@ -6,6 +6,8 @@ import LightModal from "./LightModal";
 import SetupLights from "./SetupLights";
 import Light from "../models/Light";
 import { updateSelectedLights, makeApiCall, addMultipleLights } from "../utils/utils";
+import GPTColorForm from "./GPTColorForm";
+
 
 const StageLights = () => {
   const [lights, setLights] = useState([]);
@@ -215,7 +217,7 @@ const updateLight = (id, updates) => {
       </div>
       <button onClick={() => handleApplyChanges("http://localhost:5000/set-brightness")}>Apply Brightness</button>
       </div>
-
+            <GPTColorForm></GPTColorForm>
       {/* Button to open the modal */}
       <div className="lightsetup-container flex flex-row justify-center bg-gray-100 p-4 rounded-lg shadow-lg m-6 w-fit">
       <button
