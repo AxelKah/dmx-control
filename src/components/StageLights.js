@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import GridContainer from "./GridContainer";
@@ -11,7 +11,7 @@ import {
   addMultipleLights,
 } from "../utils/utils";
 import GPTColorForm from "./GPTColorForm";
-import { saveLights } from "../api/dmxApi";
+import { saveLights, getAllLights } from "../api/dmxApi";
 
 const StageLights = () => {
   const [lights, setLights] = useState([]);
@@ -20,6 +20,27 @@ const StageLights = () => {
   const [modalContent, setModalContent] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [color, setColor] = useState("#ffffff");
+  const [savedLights, setSavedLights] = useState([]);
+  const [selectedLightSetup, setSelectedLightSetup] = useState(null);
+
+  useEffect(() => {
+    const fetchLights = async () => {
+      const lightsData = await getAllLights();
+      setSavedLights(lightsData);
+    };
+    fetchLights();
+  }, []);
+
+  // for changing selected light setup
+  const handleSetupChange = (e) => {
+    const selectedId = e.target.value;
+    const selectedSetup = savedLights.find((light) => light._id === selectedId);
+    if (selectedSetup) {
+      setLights(selectedSetup.lights);
+      setNumLights(selectedSetup.lights.length);
+    }
+    setSelectedLightSetup(selectedId);
+  };
 
   const addLight = (channel, startAddress) => {
     console.log("Adding light");
@@ -96,6 +117,18 @@ const StageLights = () => {
 
     if (namePrompt !== null) {
       await saveLights(namePrompt, allLights);
+
+      // get updated list
+      const updatedLightsData = await getAllLights();
+      setSavedLights(updatedLightsData);
+
+      // set as currently selected
+      const newSetup = updatedLightsData.find(
+        (lightSetup) => lightSetup.name === namePrompt
+      );
+      if (newSetup) {
+        setSelectedLightSetup(newSetup._id);
+      }
     }
   };
 
@@ -143,6 +176,26 @@ const StageLights = () => {
   return (
     <div>
       <DndProvider backend={HTML5Backend}>
+        <div className="flex justify-center">
+          <label htmlFor="lightsetups-dropdown">
+            Select from saved setups:{" "}
+          </label>
+          <select
+            id="lights-dropdown"
+            value={selectedLightSetup || ""}
+            onChange={handleSetupChange}
+          >
+            <option value="" disabled>
+              ...
+            </option>
+            {savedLights.map((light) => (
+              <option key={light._id} value={light._id}>
+                {light.name}
+              </option>
+            ))}
+          </select>
+        </div>
+
         <div className="containers">
           <GridContainer
             containerId="container1"
