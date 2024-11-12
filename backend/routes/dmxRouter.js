@@ -1,5 +1,7 @@
 const express = require("express");
+const { MongoError } = require("mongodb");
 const DMX = require("dmx");
+const Lights = require("../models/lightsetup-model");
 
 const router = express.Router();
 
@@ -279,5 +281,39 @@ function hslToRgb(h, s, l) {
 
   return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)];
 }
+
+router.post("/save-lights", async (req, res) => {
+  try {
+    const name = req.body.name;
+    const lights = req.body.lights;
+    console.log(`saved lights ${name}:`, lights);
+
+    const newLigthSetup = new Lights({
+      name,
+      lights,
+    });
+
+    await newLigthSetup.save();
+
+    return res
+      .status(200)
+      .json({ message: "Setup saved", _id: newLigthSetup._id });
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ message: "other error: ", error: String(error) });
+  }
+});
+
+router.get("/get-saved-lights", async (req, res) => {
+  try {
+    const lights = await Lights.find();
+    return res.status(200).json(lights);
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ message: "Error getting lights: ", error: String(error) });
+  }
+});
 
 module.exports = router;
