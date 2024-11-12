@@ -44,3 +44,24 @@ export const testChannels = async () => {
     },
   });
 };
+
+export const saveLights = async (name, lights) => {
+  try {
+    const response = await fetch("http://localhost:5000/save-lights", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        name: name,
+        lights: lights,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+  } catch (error) {
+    console.error("Error making API call:", error);
+  }
+};

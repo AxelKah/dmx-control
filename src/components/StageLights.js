@@ -5,9 +5,13 @@ import GridContainer from "./GridContainer";
 import LightModal from "./LightModal";
 import SetupLights from "./SetupLights";
 import Light from "../models/Light";
-import { updateSelectedLights, makeApiCall, addMultipleLights } from "../utils/utils";
+import {
+  updateSelectedLights,
+  makeApiCall,
+  addMultipleLights,
+} from "../utils/utils";
 import GPTColorForm from "./GPTColorForm";
-
+import { saveLights } from "../api/dmxApi";
 
 const StageLights = () => {
   const [lights, setLights] = useState([]);
@@ -33,15 +37,13 @@ const StageLights = () => {
     );
   };
 
-
-const updateLight = (id, updates) => {
-  setLights((prevLights) =>
-    prevLights.map((light) =>
-      light.id === id ? { ...light, ...updates } : light
-    )
-  );
-};
-
+  const updateLight = (id, updates) => {
+    setLights((prevLights) =>
+      prevLights.map((light) =>
+        light.id === id ? { ...light, ...updates } : light
+      )
+    );
+  };
 
   const containerLights = (containerId) =>
     lights.filter((light) => light && light.containerId === containerId);
@@ -68,7 +70,6 @@ const updateLight = (id, updates) => {
     );
   };
 
-
   const handleIntensityChange = (e) => {
     const intensity = parseInt(e.target.value);
     setLights((prevLights) =>
@@ -83,14 +84,20 @@ const updateLight = (id, updates) => {
     await makeApiCall(url, selectedLights);
   };
 
-
   const handleFinishSetup = (values) => {
     console.log("Finished! Collected values:", values);
     addLightsFromSetup(values);
   };
 
+  const handleSave = async () => {
+    const name = "Config: " + new Date().toLocaleString();
+    const namePrompt = prompt("Enter name:", name);
+    const allLights = lights;
 
-
+    if (namePrompt !== null) {
+      await saveLights(namePrompt, allLights);
+    }
+  };
 
   const addLightsFromSetup = (values) => {
     const { left, back, right, front } = values.sides;
@@ -132,7 +139,6 @@ const updateLight = (id, updates) => {
     ]);
     setNumLights(currentId); // Update the number of lights
   };
-
 
   return (
     <div>
@@ -199,70 +205,90 @@ const updateLight = (id, updates) => {
       />
 
       <DndProvider backend={HTML5Backend}></DndProvider>
-      
+
       <div className="flex flex-row justify-center">
-      <div className="lighttools-container flex flex-col justify-center bg-gray-100 p-4 rounded-lg shadow-lg m-6 w-fit">
-      <input type="color" value={color} onChange={handleColorChange} className="self-center mb-1"  />
-      <button onClick={() => handleApplyChanges("http://localhost:5000/set-lights")}>Apply Color</button>
-      <div className="my-2">
-        <label htmlFor="intensitySlider">Intensity: </label>
-        <input
-          type="range"
-          id="intensitySlider"
-          min="0"
-          max="100"
-          value={lights.find((light) => light.selected)?.intensity || 0}
-          onChange={handleIntensityChange}
+        <div className="lighttools-container flex flex-col justify-center bg-gray-100 p-4 rounded-lg shadow-lg m-6 w-fit">
+          <input
+            type="color"
+            value={color}
+            onChange={handleColorChange}
+            className="self-center mb-1"
+          />
+          <button
+            onClick={() =>
+              handleApplyChanges("http://localhost:5000/set-lights")
+            }
+          >
+            Apply Color
+          </button>
+          <div className="my-2">
+            <label htmlFor="intensitySlider">Intensity: </label>
+            <input
+              type="range"
+              id="intensitySlider"
+              min="0"
+              max="100"
+              value={lights.find((light) => light.selected)?.intensity || 0}
+              onChange={handleIntensityChange}
+            />
+          </div>
+          <button
+            onClick={() =>
+              handleApplyChanges("http://localhost:5000/set-brightness")
+            }
+          >
+            Apply Brightness
+          </button>
+        </div>
+        <div className="flex flex-col justify-evenly">
+          <GPTColorForm></GPTColorForm>
+          <button onClick={() => handleSave()}>Save setup</button>
+        </div>
+        {/* Button to open the modal */}
+        <div className="lightsetup-container flex flex-row justify-center bg-gray-100 p-4 rounded-lg shadow-lg m-6 w-fit">
+          <button
+            onClick={() => {
+              setShowModal(true);
+              setModalContent("addLight");
+            }}
+            style={{
+              marginLeft: "10px",
+              padding: "5px",
+              borderRadius: "4px",
+              border: "1px solid #ccc",
+            }}
+          >
+            Add new light
+          </button>
+          <button
+            onClick={() => {
+              setModalContent("setupLights");
+              setShowModal(true);
+            }}
+            style={{
+              marginLeft: "10px",
+              padding: "5px",
+              borderRadius: "4px",
+              border: "1px solid #ccc",
+            }}
+          >
+            Lights setup
+          </button>
+        </div>
+        {/* Modal */}
+        <LightModal
+          showModal={showModal}
+          setShowModal={setShowModal}
+          addLight={addLight}
+          errorMessage={errorMessage}
+          setErrorMessage={setErrorMessage}
+          modalContent={modalContent}
+          handleFinishSetup={handleFinishSetup}
+          lights={lights}
         />
       </div>
-      <button onClick={() => handleApplyChanges("http://localhost:5000/set-brightness")}>Apply Brightness</button>
-      </div>
-            <GPTColorForm></GPTColorForm>
-      {/* Button to open the modal */}
-      <div className="lightsetup-container flex flex-row justify-center bg-gray-100 p-4 rounded-lg shadow-lg m-6 w-fit">
-      <button
-        onClick={() => {
-          setShowModal(true);
-          setModalContent("addLight");
-        }}
-        style={{
-          marginLeft: "10px",
-          padding: "5px",
-          borderRadius: "4px",
-          border: "1px solid #ccc",
-        }}
-      >
-        Add new light
-      </button>
-      <button
-        onClick={() => {
-          setModalContent("setupLights");
-          setShowModal(true);
-        }}
-        style={{
-          marginLeft: "10px",
-          padding: "5px",
-          borderRadius: "4px",
-          border: "1px solid #ccc",
-        }}
-      >
-        Lights setup
-      </button>
-      </div>
-      {/* Modal */}
-      <LightModal
-        showModal={showModal}
-        setShowModal={setShowModal}
-        addLight={addLight}
-        errorMessage={errorMessage}
-        setErrorMessage={setErrorMessage}
-        modalContent={modalContent}
-        handleFinishSetup={handleFinishSetup}
-        lights={lights}
-      />
-    </div>
     </div>
   );
-}; 
+};
 
 export default StageLights;
