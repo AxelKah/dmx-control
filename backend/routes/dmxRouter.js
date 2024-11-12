@@ -155,44 +155,122 @@ router.post("/clear-lights", (req, res) => {
 });
 
 
-// Route to set brightness
+let cycleIntervalId = null;
+
+// Route to set the cycle effect
+router.post("/set-cycle", (req, res) => {
+  const { lightsArray1, lightsArray2 } = req.body;
+  console.log(lightsArray1, lightsArray2);
+  const interval = 5000;
+
+  if (!Array.isArray(lightsArray1) || !Array.isArray(lightsArray2)) {
+    return res.status(400).send("Both lightsArray1 and lightsArray2 should be arrays.");
+  }
+
+  if (lightsArray1.length !== lightsArray2.length) {
+    return res.status(400).send("Both arrays should have the same length.");
+  }
+
+  if (cycleIntervalId) {
+    clearInterval(cycleIntervalId);
+  }
+
+  let toggle = true;
+
+  cycleIntervalId = setInterval(() => {
+    const currentLights = toggle ? lightsArray1 : lightsArray2;
+
+    currentLights.forEach((light) => {
+      const { startAddress, color, intensity } = light;
+      const dmxChannel = startAddress;
+      const { red, green, blue } = hexToRgb(color);
+
+      const startValues = {
+        red: universe.get(dmxChannel),
+        green: universe.get(dmxChannel + 1),
+        blue: universe.get(dmxChannel + 2),
+      };
+
+      const endValues = {
+        red: red * intensity / 100,
+        green: green * intensity / 100,
+        blue: blue * intensity / 100,
+      };
+
+      updateDmxSmoothly(startValues, endValues, 2000, (currentValues) => {
+        universe.update({
+          [dmxChannel]: currentValues.red,
+          [dmxChannel + 1]: currentValues.green,
+          [dmxChannel + 2]: currentValues.blue,
+        });
+      });
+    });
+
+    toggle = !toggle;
+  }, interval);
+
+  res.send("Cycle effect started");
+});
+
+// Route to stop the cycle effect
+router.post("/stop-cycle", (req, res) => {
+  if (cycleIntervalId) {
+    clearInterval(cycleIntervalId);
+    cycleIntervalId = null;
+
+    // Turn off the lights
+    universe.update({
+      1: 0, // Red channel
+      2: 0, // Green channel
+      3: 0, // Blue channel
+    });
+
+    res.send("Cycle effect stopped");
+  } else {
+    res.send("No cycle effect to stop");
+  }
+});
+
+
+
+// Route to set the brightness of multiple lights
 router.post('/set-brightness', (req, res) => {
   const lights = req.body.lights;
   console.log(lights);
   if (!Array.isArray(lights)) {
-    return res.status(400).send('Lights should be an array of objects with id and intensity properties.');
+      return res.status(400).send('Lights should be an array of objects with id and color properties.');
   }
 
   lights.forEach(light => {
-    const { startAddress, intensity } = light;
-    console.log(`Setting light at start address ${startAddress} to brightness ${intensity}`);
+      const { id, channel, color, startAddress, intensity } = light;
+      console.log(`Setting light ${id} channel ${channel} to brightness ${intensity}`);
 
-    // Map the light StartAddress to its DMX channel
-    const dmxChannel = startAddress;
+      // Map the light StartAddress to its DMX channel
+      const dmxChannel = startAddress;
 
-    const startValues = {
-      red: universe.get(dmxChannel),
-      green: universe.get(dmxChannel + 1),
-      blue: universe.get(dmxChannel + 2),
-    };
+      // Convert the color to DMX values (RGB)
+      const { red, green, blue } = hexToRgb(color)
 
-    const endValues = {
-      red: (startValues.red / 255) * (intensity / 100) * 255,
-      green: (startValues.green / 255) * (intensity / 100) * 255,
-      blue: (startValues.blue / 255) * (intensity / 100) * 255,
-    };
+      //const red = parseInt(color.substr(1, 2), 16);
+      //const green = parseInt(color.substr(3, 2), 16);
+      //const blue = parseInt(color.substr(5, 2), 16);
 
-    updateDmxSmoothly(startValues, endValues, 2000, (currentValues) => {
+      //Convert RBG values accorging to intensity
+     const redIntensity = red * intensity / 100;
+     const greenIntensity = green * intensity / 100;
+     const blueIntensity = blue * intensity / 100;
+      
+
+      // Set the DMX channels for the light
       universe.update({
-        [dmxChannel]: currentValues.red,
-        [dmxChannel + 1]: currentValues.green,
-        [dmxChannel + 2]: currentValues.blue,
+          [dmxChannel]: redIntensity,      // Red channel
+          [dmxChannel + 1]: greenIntensity, // Green channel
+          [dmxChannel + 2]: blueIntensity   // Blue channel
       });
-    });
   });
-
   res.send({ success: true });
-});
+}); 
+
 
 
 

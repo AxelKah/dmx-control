@@ -5,9 +5,11 @@ import GridContainer from "./GridContainer";
 import LightModal from "./LightModal";
 import SetupLights from "./SetupLights";
 import Light from "../models/Light";
-import { updateSelectedLights, makeApiCall, addMultipleLights } from "../utils/utils";
+import { updateSelectedLights, makeApiCall, addMultipleLights, makeCycleApiCall } from "../utils/utils";
 import GPTColorForm from "./GPTColorForm";
 import SceneList from "./SceneList";
+import SceneListBtn from "./SceneList";
+import SceneListDemo from "./SceneListDemo";
 
 
 const StageLights = () => {
@@ -149,6 +151,41 @@ const updateLight = (id, updates) => {
   };
 
 
+
+
+
+
+
+  const [cycleInterval, setCycleInterval] = useState(null);
+
+  const startSceneCycle = async (scene1, scene2, interval) => {
+    console.log("Starting scene cycle" + interval);
+    handleCycleApiCall(scene1, scene2, interval);
+  };
+
+  const stopSceneCycle = () => {
+
+  };
+
+const handleCycleApiCall = async (lightsArray1, lightsArray2, interval) => {
+  if (!Array.isArray(lightsArray1) || !Array.isArray(lightsArray2)) {
+    console.error("lightsArray1 and lightsArray2 must be arrays222222222222222222");
+    return;
+  }
+  console.log("arrays", lightsArray1, lightsArray2);
+
+  await makeCycleApiCall("http://localhost:5000/set-cycle", {
+    lightsArray1,
+    lightsArray2,
+    interval,
+  });
+};
+
+
+
+
+
+
   const saveCurrentScene = () => {
     const sceneName = "scene" + (scenes.length + 1);
     const scene = {
@@ -255,9 +292,10 @@ const updateLight = (id, updates) => {
       <button onClick={() => handleApplyChanges("http://localhost:5000/set-brightness")}>Apply Brightness</button>
       <button onClick={logCurrentLights}>test</button>
       <button onClick={saveCurrentScene}>Save current scene</button>
+      <SceneListDemo scenes={scenes} startSceneCycle={startSceneCycle} />
+      <button onClick={stopSceneCycle}>Stop cycle</button>
 
       </div>
-      <SceneList items={scenes} onItemClick={handleItemClick} />
             <GPTColorForm></GPTColorForm>
       {/* Button to open the modal */}
       <div className="lightsetup-container flex flex-row justify-center bg-gray-100 p-4 rounded-lg shadow-lg m-6 w-fit">
