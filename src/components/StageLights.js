@@ -15,7 +15,7 @@ const StageLights = () => {
   const [showModal, setShowModal] = useState(false);
   const [modalContent, setModalContent] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
-  const [color, setColor] = useState("#ffffff");
+  const [color, setColor] = useState("#ff0000");
 
   const addLight = (channel, startAddress) => {
     console.log("Adding light");
