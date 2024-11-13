@@ -161,7 +161,7 @@ let cycleIntervalId = null;
 router.post("/set-cycle", (req, res) => {
   const { lightsArray1, lightsArray2 } = req.body;
   console.log(lightsArray1, lightsArray2);
-  const interval = 5000;
+  const interval = 2500;
 
   if (!Array.isArray(lightsArray1) || !Array.isArray(lightsArray2)) {
     return res.status(400).send("Both lightsArray1 and lightsArray2 should be arrays.");
@@ -197,7 +197,7 @@ router.post("/set-cycle", (req, res) => {
         blue: blue * intensity / 100,
       };
 
-      updateDmxSmoothly(startValues, endValues, 2000, (currentValues) => {
+      updateDmxSmoothly(startValues, endValues, 1000, (currentValues) => {
         universe.update({
           [dmxChannel]: currentValues.red,
           [dmxChannel + 1]: currentValues.green,

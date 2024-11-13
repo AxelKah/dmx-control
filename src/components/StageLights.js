@@ -163,8 +163,8 @@ const updateLight = (id, updates) => {
     handleCycleApiCall(scene1, scene2, interval);
   };
 
-  const stopSceneCycle = () => {
-
+  const stopSceneCycle = async () => {
+    await makeApiCall("http://localhost:5000/stop-cycle", []);
   };
 
 const handleCycleApiCall = async (lightsArray1, lightsArray2, interval) => {
