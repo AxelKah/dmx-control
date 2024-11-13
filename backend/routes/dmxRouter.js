@@ -301,7 +301,56 @@ router.post("/save-lights", async (req, res) => {
   } catch (error) {
     return res
       .status(500)
-      .json({ message: "other error: ", error: String(error) });
+      .json({ message: "error: ", error: String(error) });
+  }
+});
+
+router.post("/update-saved-lights", async (req, res) => {
+  try {
+    const id = req.body._id;
+    const updatedName = req.body.name;
+    const updatedLights = req.body.lights;
+
+    const updatedLightSetup = await Lights.findByIdAndUpdate(
+      id,
+      {
+        name: updatedName,
+        lights: updatedLights,
+      },
+      { new: true }
+    );
+
+    if (!updatedLightSetup) {
+      return res.status(404).json({ message: "Setup not found" });
+    }
+
+    console.log(`updated lights ${updatedName}:`, updatedLights);
+
+    return res
+      .status(200)
+      .json({ message: "Setup updated", updatedSetup: updatedLightSetup });
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ message: "error: ", error: String(error) });
+  }
+}); 
+
+router.delete("/delete-saved-lights", async (req, res) => {
+  try {
+    const id = req.body._id;
+
+    const deletedLightSetup = await Lights.findByIdAndDelete(id);
+
+    if (!deletedLightSetup) {
+      return res.status(404).json({ message: "Setup not found" });
+    }
+
+    console.log(`deleted lights with id: ${id}`);
+
+    return res.status(200).json({ message: "Setup deleted", deletedSetup: deletedLightSetup });
+  } catch (error) {
+    return res.status(500).json({ message: "error: ", error: String(error) });
   }
 });
 

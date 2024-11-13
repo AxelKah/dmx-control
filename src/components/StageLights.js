@@ -11,7 +11,13 @@ import {
   addMultipleLights,
 } from "../utils/utils";
 import GPTColorForm from "./GPTColorForm";
-import { saveLights, getAllLights } from "../api/dmxApi";
+import {
+  saveLights,
+  deleteSavedLightSetup,
+  getAllLights,
+  updateSavedLightSetup,
+} from "../api/dmxApi";
+import { FaSave, FaEdit, FaTrash } from "react-icons/fa";
 
 const StageLights = () => {
   const [lights, setLights] = useState([]);
@@ -40,6 +46,44 @@ const StageLights = () => {
       setNumLights(selectedSetup.lights.length);
     }
     setSelectedLightSetup(selectedId);
+  };
+
+  const handleUpdate = async () => {
+    if (selectedLightSetup) {
+      const foundSelectedSetup = savedLights.find(
+        (light) => light._id === selectedLightSetup
+      );
+
+      if (foundSelectedSetup) {
+        const updatedName = prompt("Enter new name:", foundSelectedSetup.name);
+        if (updatedName !== null) {
+          await updateSavedLightSetup(selectedLightSetup, updatedName, lights);
+
+          // get updated list
+          const updatedLightsData = await getAllLights();
+          setSavedLights(updatedLightsData);
+        }
+      }
+    } else {
+      alert("Please select a setup to update.");
+    }
+  };
+
+  const handleDelete = async () => {
+    if (selectedLightSetup) {
+      if (window.confirm("Are you sure you want to delete this setup?")) {
+        await deleteSavedLightSetup(selectedLightSetup);
+
+        // get updated list
+        const updatedLightsData = await getAllLights();
+        setSavedLights(updatedLightsData);
+        setSelectedLightSetup(null);
+        setLights([]);
+        setNumLights(0);
+      }
+    } else {
+      alert("Please select a setup to delete.");
+    }
   };
 
   const addLight = (channel, startAddress) => {
@@ -176,14 +220,13 @@ const StageLights = () => {
   return (
     <div>
       <DndProvider backend={HTML5Backend}>
-        <div className="flex justify-center">
-          <label htmlFor="lightsetups-dropdown">
-            Select from saved setups:{" "}
-          </label>
+        <div className="flex justify-center items-center">
+          <label htmlFor="lightsetups-dropdown">Saved light setups: </label>
           <select
             id="lights-dropdown"
             value={selectedLightSetup || ""}
             onChange={handleSetupChange}
+            className="ml-2 bg-white border border-white text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-fit p-2.5"
           >
             <option value="" disabled>
               ...
@@ -194,6 +237,25 @@ const StageLights = () => {
               </option>
             ))}
           </select>
+          <button
+            onClick={handleUpdate}
+            className="ml-2 flex flex-row items-center"
+          >
+            <FaEdit className="mr-1" /> Update
+          </button>
+          <button
+            onClick={handleDelete}
+            className="ml-2 flex flex-row items-center"
+          >
+            <FaTrash className="mr-1" /> Delete
+          </button>
+          <button
+            onClick={handleSave}
+            className="ml-2 flex flex-row items-center"
+          >
+            <FaSave className="mr-1" />
+            Save
+          </button>
         </div>
 
         <div className="containers">
@@ -295,7 +357,6 @@ const StageLights = () => {
         </div>
         <div className="flex flex-col justify-evenly">
           <GPTColorForm></GPTColorForm>
-          <button onClick={() => handleSave()}>Save setup</button>
         </div>
         {/* Button to open the modal */}
         <div className="lightsetup-container flex flex-row justify-center bg-gray-100 p-4 rounded-lg shadow-lg m-6 w-fit">

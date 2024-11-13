@@ -59,10 +59,52 @@ export const saveLights = async (name, lights) => {
     });
 
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      throw new Error(`Error! HTTP status: ${response.status}`);
     }
   } catch (error) {
     console.error("Error making API call:", error);
+  }
+};
+
+export const updateSavedLightSetup = async (id, updatedName, updatedLights) => {
+  try {
+    const response = await fetch("http://localhost:5000/update-saved-lights", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        _id: id,
+        name: updatedName,
+        lights: updatedLights,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP status:  ${response.status}`);
+    }
+  } catch (error) {
+    console.error("Error updating lights:", error);
+  }
+};
+
+export const deleteSavedLightSetup = async (id) => {
+  try {
+    const response = await fetch("http://localhost:5000/delete-saved-lights", {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        _id: id,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP status: ${response.status}`);
+    }
+  } catch (error) {
+    console.error("Error deleting:", error);
   }
 };
 
@@ -76,7 +118,7 @@ export const getAllLights = async () => {
     });
 
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      throw new Error(`HTTP status:  ${response.status}`);
     }
 
     const lights = await response.json();
