@@ -15,10 +15,20 @@
     grid-row: 1 / span 1; /* Span only one row */
     background-color: #ababab;
     display: grid;
+    grid-auto-flow: row;
     grid-template-columns: 100px; /* 1 column */
-    grid-template-rows: repeat(5, 100px); /* 5 rows */
+    grid-template-rows: repeat(auto-fill, 100px);
+    gap: 3px;
     width: 100px;
     height: 500px;
+    padding: 10px 17px 10px 17px;
+    border-radius: 8px;
+    box-sizing: content-box;
+    overflow-x: hidden;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    text-align: center;
+    direction: rtl; /* to move scrollbar to left side */
 }
 
 /* Horizontal row between the columns */
@@ -27,10 +37,19 @@
     grid-row: 1 / span 1; /* Span only one row */
     background-color: #ababab;
     display: grid;
-    grid-template-columns: repeat(5, 100px); /* 5 columns */
+    grid-auto-flow: column;
+    grid-template-columns: repeat(auto-fill, 100px);
     grid-template-rows: 100px; /* 1 row */
+    gap: 3px;
     width: 500px;
     height: 100px;
+    padding: 17px 10px 17px 10px; 
+    border-radius: 8px;
+    box-sizing: content-box;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: thin;
+    text-align: center;
 }
 
 /* Second vertical column */
@@ -39,10 +58,19 @@
     grid-row: 1 / span 1; /* Span only one row */
     background-color: #ababab;
     display: grid;
+    grid-auto-flow: row;
     grid-template-columns: 100px; /* 1 column */
-    grid-template-rows: repeat(5, 100px); /* 5 rows */
+    grid-template-rows: repeat(auto-fill, 100px);
+    gap: 3px;
     width: 100px;
     height: 500px;
+    padding: 10px 17px 10px 17px;
+    border-radius: 8px;
+    box-sizing: content-box;
+    overflow-x: hidden;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    text-align: center;
 }
 
 /* Bottom horizontal row that spans the middle column */
@@ -51,10 +79,19 @@
     grid-row: 2; /* Place it in the second row */
     background-color: #ababab;
     display: grid;
-    grid-template-columns: repeat(5, 100px); /* 5 columns */
+    grid-auto-flow: column;
+    grid-template-columns: repeat(auto-fill, 100px);
     grid-template-rows: 100px; /* 1 row */
+    gap: 3px;
     width: 500px;
     height: 100px;
+    padding: 17px 10px 17px 10px; 
+    border-radius: 8px;
+    box-sizing: content-box;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: thin;
+    text-align: center;
 }
 
 
