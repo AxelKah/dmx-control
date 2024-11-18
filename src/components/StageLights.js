@@ -21,7 +21,7 @@ const StageLights = () => {
   const [modalContent, setModalContent] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [color, setColor] = useState("#ffffff");
-
+  const selectedLights = lights.filter((light) => light.selected);
 
   const addLight = (channel, startAddress) => {
     console.log("Adding light");
@@ -91,9 +91,6 @@ const StageLights = () => {
     await makeApiCall(url, sceneLights);
   };
 
-  
-
-
   const handleFinishSetup = (values) => {
     console.log("Finished! Collected values:", values);
     addLightsFromSetup(values);
@@ -147,12 +144,6 @@ const StageLights = () => {
     console.log(scenes);
   };
 
-
-
-
-
-
-
   const [cycleInterval, setCycleInterval] = useState(null);
 
   const startSceneCycle = async (scene1, scene2, interval) => {
@@ -164,24 +155,21 @@ const StageLights = () => {
     await makeApiCall("http://localhost:5000/stop-cycle", []);
   };
 
-const handleCycleApiCall = async (lightsArray1, lightsArray2, interval) => {
-  if (!Array.isArray(lightsArray1) || !Array.isArray(lightsArray2)) {
-    console.error("lightsArray1 and lightsArray2 must be arrays222222222222222222");
-    return;
-  }
-  console.log("arrays", lightsArray1, lightsArray2);
+  const handleCycleApiCall = async (lightsArray1, lightsArray2, interval) => {
+    if (!Array.isArray(lightsArray1) || !Array.isArray(lightsArray2)) {
+      console.error(
+        "lightsArray1 and lightsArray2 must be arrays222222222222222222"
+      );
+      return;
+    }
+    console.log("arrays", lightsArray1, lightsArray2);
 
-  await makeCycleApiCall("http://localhost:5000/set-cycle", {
-    lightsArray1,
-    lightsArray2,
-    interval,
-  });
-};
-
-
-
-
-
+    await makeCycleApiCall("http://localhost:5000/set-cycle", {
+      lightsArray1,
+      lightsArray2,
+      interval,
+    });
+  };
 
   const saveCurrentScene = () => {
     const sceneName = "scene" + (scenes.length + 1);
@@ -197,18 +185,18 @@ const handleCycleApiCall = async (lightsArray1, lightsArray2, interval) => {
       })),
     };
     setScenes([...scenes, scene]);
-    console.log(scenes)
+    console.log(scenes);
   };
-
 
   const handleItemClick = (item) => {
     handleSceneChanges("http://localhost:5000/set-scene", item.lights);
   };
 
+
   return (
     <div>
       <DndProvider backend={HTML5Backend}>
-      <LightSetupSelector
+        <LightSetupSelector
           lights={lights}
           setLights={setLights}
           setNumLights={setNumLights}
@@ -276,43 +264,55 @@ const handleCycleApiCall = async (lightsArray1, lightsArray2, interval) => {
 
       <DndProvider backend={HTML5Backend}></DndProvider>
 
-      <div className="flex flex-row justify-center">
-        <div className="lighttools-container flex flex-col justify-center bg-gray-100 p-4 rounded-lg shadow-lg m-6 w-fit">
-          <input
-            type="color"
-            value={color}
-            onChange={handleColorChange}
-            className="self-center mb-1"
-          />
-          <button
-            onClick={() =>
-              handleApplyChanges("http://localhost:5000/set-lights")
-            }
-          >
-            Apply Color
-          </button>
-          <div className="my-2">
-            <label htmlFor="intensitySlider">Intensity: </label>
+      {/* show color/brightness editor only when light is selected*/}
+      {selectedLights.length > 0 && (
+        <div className="fixed inset-0 flex items-center justify-center pointer-events-none z-[100]">
+          <div className="bg-white p-6 rounded-lg shadow-lg flex flex-col pointer-events-auto">
             <input
-              type="range"
-              id="intensitySlider"
-              min="0"
-              max="100"
-              value={lights.find((light) => light.selected)?.intensity || 0}
-              onChange={handleIntensityChange}
+              type="color"
+              value={color}
+              onChange={handleColorChange}
+              className="self-center mb-1 w-full h-8"
             />
+            <button
+              onClick={() =>
+                handleApplyChanges("http://localhost:5000/set-lights")
+              }
+            >
+              Apply Color
+            </button>
+            <div className="my-2">
+              <label htmlFor="intensitySlider">Intensity: </label>
+              <input
+                type="range"
+                id="intensitySlider"
+                min="0"
+                max="100"
+                value={lights.find((light) => light.selected)?.intensity || 0}
+                onChange={handleIntensityChange}
+              />
+            </div>
+            <button
+              onClick={() =>
+                handleApplyChanges("http://localhost:5000/set-brightness")
+              }
+            >
+              Apply Brightness
+            </button>
           </div>
-          <button
-            onClick={() =>
-              handleApplyChanges("http://localhost:5000/set-brightness")
-            }
-          >
-            Apply Brightness
-          </button>
+        </div>
+      )}
+
+      <div className="flex flex-row justify-center">
+        <div className="lighttools-container flex justify-center bg-gray-100 p-4 rounded-lg shadow-lg m-6 w-fit">
           <button onClick={logCurrentLights}>test</button>
-      <button onClick={saveCurrentScene}>Save current scene</button>
-      <SceneListDemo scenes={scenes} startSceneCycle={startSceneCycle} />
-      <button onClick={stopSceneCycle}>Stop cycle</button>
+          <button onClick={saveCurrentScene} className="mx-2">
+            Save current scene
+          </button>
+          <SceneListDemo scenes={scenes} startSceneCycle={startSceneCycle} />
+          <button onClick={stopSceneCycle} className="ml-2">
+            Stop cycle
+          </button>
         </div>
         <div className="flex flex-col justify-evenly">
           <GPTColorForm></GPTColorForm>
