@@ -33,7 +33,7 @@ router.post("/completions", async (req, res) => {
 
 const allowedRoles = {
   colors: `
-    Your job is to get given company's brand colors without any other explanations. 
+    Your job is to suggest colors for received prompt without any other explanations. 
     Ensure it is in hex format and return only the hex codes.
     Separate the values with a comma. 
     `,

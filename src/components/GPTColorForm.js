@@ -21,8 +21,8 @@ const GPTColorForm = () => {
       const result = await getCompanyColors(prompt);
       setColors(result);
     } catch (err) {
-      console.error("Error getting company colors:", err);
-      setError("Failed to fetch company colors. Please try again.");
+      console.error("Error getting colors:", err);
+      setError("Failed to fetch colors. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -41,28 +41,27 @@ const GPTColorForm = () => {
   }, [isVisible, colors]);
 
   return (
-    <div className="relative inline-block">
+    <div className="fixed bottom-20 md:bottom-4 right-4">
       <button
         onClick={toggleVisibility}
-        className="px-4 py-2 text-white rounded-md focus:outline-none min-w-28"
+        className="px-4 py-2 text-white rounded-md focus:outline-none min-w-28 bg-black"
       >
-        {isVisible ? "Close" : "Ask from AI"}
+        {isVisible ? "Close" : "🤖 Ask colors from AI"}
       </button>
 
       {isVisible && (
         <div
           ref={modalRef}
-          className="absolute left-1/2 transform -translate-x-1/2 bg-white p-4 rounded-lg shadow-lg w-72 z-40 transition-all duration-300"
+          className="absolute left-1/2 transform -translate-x-[80%] bg-white p-4 rounded-lg shadow-lg w-72 z-40 transition-all duration-300"
           style={{ top: topOffset }}
         >
-          <h2 className="text-lg font-semibold mb-3">Get colors:</h2>
           <form onSubmit={handleSubmit} className="space-y-3">
             <div>
               <label
                 htmlFor="prompt"
-                className="block text-sm font-medium text-gray-700"
+                className="block text-gray-70 text-lg font-semibold mb-3"
               >
-                Enter company name:
+                Get colors for:
               </label>
               <input
                 type="text"
