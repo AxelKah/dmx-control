@@ -1,5 +1,4 @@
 const express = require("express");
-const { MongoError } = require("mongodb");
 const DMX = require("dmx");
 const Lights = require("../models/lightsetup-model");
 
@@ -286,69 +285,67 @@ router.post("/save-lights", async (req, res) => {
   try {
     const name = req.body.name;
     const lights = req.body.lights;
-    console.log(`saved lights ${name}:`, lights);
+    console.log(`saved lights setup: ${name}:`, lights);
 
-    const newLigthSetup = new Lights({
+    const newLightSetup = await Lights.create({
       name,
       lights,
     });
 
-    await newLigthSetup.save();
-
     return res
       .status(200)
-      .json({ message: "Setup saved", _id: newLigthSetup._id });
+      .json({ message: "Setup saved", id: newLightSetup.id });
   } catch (error) {
-    return res
-      .status(500)
-      .json({ message: "error: ", error: String(error) });
+    return res.status(500).json({ message: "Error: ", error: String(error) });
   }
 });
 
 router.post("/update-saved-lights", async (req, res) => {
   try {
-    const id = req.body._id;
+    const id = req.body.id;
     const updatedName = req.body.name;
     const updatedLights = req.body.lights;
 
-    const updatedLightSetup = await Lights.findByIdAndUpdate(
-      id,
+    const [updatedRows] = await Lights.update(
       {
         name: updatedName,
         lights: updatedLights,
       },
-      { new: true }
+      {
+        where: { id: id },
+      }
     );
 
-    if (!updatedLightSetup) {
+    if (updatedRows === 0) {
       return res.status(404).json({ message: "Setup not found" });
     }
 
-    console.log(`updated lights ${updatedName}:`, updatedLights);
+    const updatedLightSetup = await Lights.findOne({ where: { id: id } });
+    console.log(`updated lights setup ${updatedName}:`, updatedLights);
 
     return res
       .status(200)
       .json({ message: "Setup updated", updatedSetup: updatedLightSetup });
   } catch (error) {
-    return res
-      .status(500)
-      .json({ message: "error: ", error: String(error) });
+    return res.status(500).json({ message: "error: ", error: String(error) });
   }
 }); 
 
 router.delete("/delete-saved-lights", async (req, res) => {
   try {
-    const id = req.body._id;
+    const id = req.body.id;
 
-    const deletedLightSetup = await Lights.findByIdAndDelete(id);
+    const deletedRows = await Lights.destroy({
+      where: { id: id },
+    });
 
-    if (!deletedLightSetup) {
+    if (deletedRows === 0) {
       return res.status(404).json({ message: "Setup not found" });
     }
 
-    console.log(`deleted lights with id: ${id}`);
+    console.log(`deleted lights setup with id: ${id}`);
 
-    return res.status(200).json({ message: "Setup deleted", deletedSetup: deletedLightSetup });
+    return res.status(200).json({ message: "Setup deleted", id: id });
   } catch (error) {
     return res.status(500).json({ message: "error: ", error: String(error) });
   }
@@ -356,7 +353,7 @@ router.delete("/delete-saved-lights", async (req, res) => {
 
 router.get("/get-saved-lights", async (req, res) => {
   try {
-    const lights = await Lights.find();
+    const lights = await Lights.findAll();
     return res.status(200).json(lights);
   } catch (error) {
     return res

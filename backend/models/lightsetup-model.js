@@ -1,24 +1,26 @@
-const mongoose = require("mongoose");
-const { Schema, model } = mongoose;
+const { DataTypes } = require("sequelize");
+const sequelize = require("../db");
 
-const lightsarraySchema = new Schema({
-  channel: Number,
-  color: String,
-  containerId: String,
-  id: Number,
-  intensity: Number,
-  selected: Boolean,
-  startAddress: Number,
-});
-
-const lightsSchema = new Schema(
+const Lights = sequelize.define(
+  "Lights",
   {
-    name: { type: String, required: true },
-    lights: { type: [lightsarraySchema], required: true },
+    name: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    lights: {
+      type: DataTypes.JSON,
+      allowNull: false,
+    },
   },
-  { timestamps: true, collection: "SAVED_LIGHTSETUPS" }
+  {
+    timestamps: true,
+    tableName: "SAVED_LIGHTSETUPS",
+  }
 );
 
-const Lights = model("Lights", lightsSchema);
+Lights.sync()
+  .then(() => console.log("Lights table synced"))
+  .catch((err) => console.log("Error syncing Lights table: ", err));
 
 module.exports = Lights;

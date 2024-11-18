@@ -39,8 +39,8 @@ const StageLights = () => {
 
   // for changing selected light setup
   const handleSetupChange = (e) => {
-    const selectedId = e.target.value;
-    const selectedSetup = savedLights.find((light) => light._id === selectedId);
+    const selectedId = parseInt(e.target.value);
+    const selectedSetup = savedLights.find((light) => light.id === selectedId);
     if (selectedSetup) {
       setLights(selectedSetup.lights);
       setNumLights(selectedSetup.lights.length);
@@ -51,7 +51,7 @@ const StageLights = () => {
   const handleUpdate = async () => {
     if (selectedLightSetup) {
       const foundSelectedSetup = savedLights.find(
-        (light) => light._id === selectedLightSetup
+        (light) => light.id === selectedLightSetup
       );
 
       if (foundSelectedSetup) {
@@ -171,7 +171,7 @@ const StageLights = () => {
         (lightSetup) => lightSetup.name === namePrompt
       );
       if (newSetup) {
-        setSelectedLightSetup(newSetup._id);
+        setSelectedLightSetup(newSetup.id);
       }
     }
   };
@@ -232,7 +232,7 @@ const StageLights = () => {
               ...
             </option>
             {savedLights.map((light) => (
-              <option key={light._id} value={light._id}>
+              <option key={light.id} value={light.id}>
                 {light.name}
               </option>
             ))}

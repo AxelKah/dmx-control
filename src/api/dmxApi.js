@@ -74,7 +74,7 @@ export const updateSavedLightSetup = async (id, updatedName, updatedLights) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        _id: id,
+        id: id,
         name: updatedName,
         lights: updatedLights,
       }),
@@ -96,7 +96,7 @@ export const deleteSavedLightSetup = async (id) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        _id: id,
+        id: id,
       }),
     });
 
