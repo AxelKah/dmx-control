@@ -5,22 +5,17 @@ import GridContainer from "./GridContainer";
 import LightModal from "./LightModal";
 import SetupLights from "./SetupLights";
 import Light from "../models/Light";
-import {
-  updateSelectedLights,
-  makeApiCall,
-  addMultipleLights,
-} from "../utils/utils";
+import { updateSelectedLights, makeApiCall, addMultipleLights, makeCycleApiCall } from "../utils/utils";
 import GPTColorForm from "./GPTColorForm";
-import {
-  saveLights,
-  deleteSavedLightSetup,
-  getAllLights,
-  updateSavedLightSetup,
-} from "../api/dmxApi";
+import { saveLights, deleteSavedLightSetup, getAllLights, updateSavedLightSetup } from "../api/dmxApi";
 import { FaSave, FaEdit, FaTrash } from "react-icons/fa";
+import SceneList from "./SceneList";
+import SceneListBtn from "./SceneList";
+import SceneListDemo from "./SceneListDemo";
 
 const StageLights = () => {
   const [lights, setLights] = useState([]);
+  const [scenes, setScenes] = useState([]);
   const [numLights, setNumLights] = useState(0);
   const [showModal, setShowModal] = useState(false);
   const [modalContent, setModalContent] = useState("");
@@ -149,6 +144,14 @@ const StageLights = () => {
     await makeApiCall(url, selectedLights);
   };
 
+  const handleSceneChanges = async (url, sceneLights) => {
+    setLights(sceneLights);
+    await makeApiCall(url, sceneLights);
+  };
+
+  
+
+
   const handleFinishSetup = (values) => {
     console.log("Finished! Collected values:", values);
     addLightsFromSetup(values);
@@ -215,6 +218,71 @@ const StageLights = () => {
       ...frontLights,
     ]);
     setNumLights(currentId); // Update the number of lights
+  };
+
+  const logCurrentLights = () => {
+    lights.forEach((light) => {
+      console.log(`Light ID: ${light.id}, Color: ${light.color}`);
+    });
+    console.log(scenes);
+  };
+
+
+
+
+
+
+
+  const [cycleInterval, setCycleInterval] = useState(null);
+
+  const startSceneCycle = async (scene1, scene2, interval) => {
+    console.log("Starting scene cycle" + interval);
+    handleCycleApiCall(scene1, scene2, interval);
+  };
+
+  const stopSceneCycle = async () => {
+    await makeApiCall("http://localhost:5000/stop-cycle", []);
+  };
+
+const handleCycleApiCall = async (lightsArray1, lightsArray2, interval) => {
+  if (!Array.isArray(lightsArray1) || !Array.isArray(lightsArray2)) {
+    console.error("lightsArray1 and lightsArray2 must be arrays222222222222222222");
+    return;
+  }
+  console.log("arrays", lightsArray1, lightsArray2);
+
+  await makeCycleApiCall("http://localhost:5000/set-cycle", {
+    lightsArray1,
+    lightsArray2,
+    interval,
+  });
+};
+
+
+
+
+
+
+  const saveCurrentScene = () => {
+    const sceneName = "scene" + (scenes.length + 1);
+    const scene = {
+      name: prompt("Enter scene name"),
+      lights: lights.map((light) => ({
+        id: light.id,
+        color: light.color,
+        intensity: light.intensity,
+        channel: light.channel,
+        startAddress: light.startAddress,
+        containerId: light.containerId,
+      })),
+    };
+    setScenes([...scenes, scene]);
+    console.log(scenes)
+  };
+
+
+  const handleItemClick = (item) => {
+    handleSceneChanges("http://localhost:5000/set-scene", item.lights);
   };
 
   return (
@@ -354,6 +422,10 @@ const StageLights = () => {
           >
             Apply Brightness
           </button>
+          <button onClick={logCurrentLights}>test</button>
+      <button onClick={saveCurrentScene}>Save current scene</button>
+      <SceneListDemo scenes={scenes} startSceneCycle={startSceneCycle} />
+      <button onClick={stopSceneCycle}>Stop cycle</button>
         </div>
         <div className="flex flex-col justify-evenly">
           <GPTColorForm></GPTColorForm>

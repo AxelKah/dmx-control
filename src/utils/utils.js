@@ -41,4 +41,48 @@ export const makeApiCall = async (url, selectedLights) => {
         console.error("Error making API call:", error);
       }
     }
+    else {
+      console.log("No lights selected");
+    }
+  };
+
+
+  // Helper function to make an API call to set the cycle effect
+  export const makeCycleApiCall = async (url, lightsArray1, lightsArray2, interval) => {
+    if (!Array.isArray(lightsArray1.lightsArray1) || !Array.isArray(lightsArray1.lightsArray2)) {
+      console.log("lightsArray1asdsads:", lightsArray1.lightsArray1);
+      console.log("lightsArray2:",lightsArray1.lightsArray2);
+      return;
+    }
+    try {
+      console.log("kerrant täällää")
+      console.log(interval + "interval")
+      const response = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          lightsArray1: lightsArray1.lightsArray1.map((light) => ({
+            id: light.id,
+            color: light.color,
+            channel: light.channel,
+            startAddress: light.startAddress,
+            intensity: light.intensity,
+          })),
+          lightsArray2: lightsArray1.lightsArray2.map((light) => ({
+            id: light.id,
+            color: light.color,
+            channel: light.channel,
+            startAddress: light.startAddress,
+            intensity: light.intensity,
+          })),
+          interval,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+    } catch (error) {
+      console.error("Error making API call:", error);
+    }
   };

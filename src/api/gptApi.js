@@ -15,7 +15,7 @@ export const getCompanyColors = async (prompt) => {
   if (response.ok) {
     const data = await response.json();
     const colors = data.completion.split(",").map((color) => color.trim());
-
+    console.log(colors)
     // check if valid hex
     for (const color of colors) {
       if (!/^#([0-9A-F]{3}){1,2}([0-9A-F]{2})?$/i.test(color)) {
