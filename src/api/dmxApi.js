@@ -47,6 +47,8 @@ export const testChannels = async () => {
 
 export const saveLights = async (name, lights) => {
   try {
+    const filteredLights = lights.map(({ selected, ...rest }) => rest);
+
     const response = await fetch("http://localhost:5000/save-lights", {
       method: "POST",
       headers: {
@@ -54,7 +56,7 @@ export const saveLights = async (name, lights) => {
       },
       body: JSON.stringify({
         name: name,
-        lights: lights,
+        lights: filteredLights,
       }),
     });
 
@@ -68,6 +70,8 @@ export const saveLights = async (name, lights) => {
 
 export const updateSavedLightSetup = async (id, updatedName, updatedLights) => {
   try {
+    const filteredUpdatedLights = updatedLights.map(({ selected, ...rest }) => rest);
+
     const response = await fetch("http://localhost:5000/update-saved-lights", {
       method: "POST",
       headers: {
@@ -76,7 +80,7 @@ export const updateSavedLightSetup = async (id, updatedName, updatedLights) => {
       body: JSON.stringify({
         id: id,
         name: updatedName,
-        lights: updatedLights,
+        lights: filteredUpdatedLights,
       }),
     });
 
