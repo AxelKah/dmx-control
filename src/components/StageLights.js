@@ -201,7 +201,7 @@ const StageLights = () => {
           setLights={setLights}
           setNumLights={setNumLights}
         />
-        <div className="containers">
+        <div className="containers w-full lg:w-1/2">
           <GridContainer
             containerId="container1"
             lights={containerLights("container1")}
