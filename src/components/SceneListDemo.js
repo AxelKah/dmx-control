@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
+import '../SceneList.css'; // Ensure you import the CSS file for styling
 
 const SceneListDemo = ({ scenes, startSceneCycle }) => {
   const [selectedScenes, setSelectedScenes] = useState([]);
@@ -19,17 +20,18 @@ const SceneListDemo = ({ scenes, startSceneCycle }) => {
       alert('Please select exactly two items.');
     }
   };
-const sendSelection = async (scene) => {
+
+  const sendSelection = async (scene) => {
     console.log('Selected items:', scene);
     await startSceneCycle(scene[0].lights, scene[1].lights, 10000);
-    // Add your function logic here
-};
+  };
 
   return (
     <div>
-      <ul>
+      <ul id="scene-list">
         {scenes.map((item, index) => (
           <li
+            id="scene-list-item"
             key={index}
             onClick={() => handleSelect(item)}
             style={{
@@ -37,7 +39,9 @@ const sendSelection = async (scene) => {
               backgroundColor: selectedScenes.includes(item) ? 'lightblue' : 'white',
             }}
           >
-            {item.name}
+            <button id="scene-list-button">
+              {item.name}
+            </button>
           </li>
         ))}
       </ul>

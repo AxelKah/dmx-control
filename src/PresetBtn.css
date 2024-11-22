@@ -1,0 +1,35 @@
+/* PresetBtn.css */
+
+.button-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 10px;
+    margin: 20px 0;
+    width: 15%;
+    height: 25%;
+}
+
+.preset-button {
+    padding: 25px 20px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 26px;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.preset-button:hover {
+    background-color: #0056b3;
+}
+
+.preset-button:focus {
+    outline: none;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+
+.preset-button:active {
+    transform: scale(0.95);
+}

@@ -112,6 +112,26 @@ export const deleteSavedLightSetup = async (id) => {
   }
 };
 
+export const  presetLights = async () => {
+  try {
+    const response = await fetch("http://localhost:5000/preset", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+       
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP status: ${response.status}`);
+    }
+  } catch (error) {
+    console.error("Error presetting lights:", error);
+  }
+};
+
 export const getAllLights = async () => {
   try {
     const response = await fetch("http://localhost:5000/get-saved-lights", {

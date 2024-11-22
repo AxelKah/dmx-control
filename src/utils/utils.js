@@ -42,6 +42,8 @@ export const makeApiCall = async (url, selectedLights) => {
       }
     }
     else {
+      console.log("selectedLights", selectedLights);
+
       console.log("No lights selected");
     }
   };

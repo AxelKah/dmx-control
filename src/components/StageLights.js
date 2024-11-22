@@ -12,6 +12,9 @@ import SceneList from "./SceneList";
 import SceneListBtn from "./SceneList";
 import SceneListDemo from "./SceneListDemo";
 import LightSetupSelector from "./SetupSelector";
+import PresetBtn from "./PresetBtn";
+import { PresetScene1, PresetScene2 } from "./PresetScene";
+
 
 const StageLights = () => {
   const [lights, setLights] = useState([]);
@@ -22,6 +25,18 @@ const StageLights = () => {
   const [errorMessage, setErrorMessage] = useState("");
   const [color, setColor] = useState("#ffffff");
   const selectedLights = lights.filter((light) => light.selected);
+
+
+
+  const valotlogiin = () => {
+    console.log("valotlogiin");
+    console.log(lights);
+  };
+
+
+
+
+
 
   const addLight = (channel, startAddress) => {
     console.log("Adding light");
@@ -137,22 +152,74 @@ const StageLights = () => {
     setNumLights(currentId); // Update the number of lights
   };
 
-  const logCurrentLights = () => {
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  const getCurrentLights = () => {
     lights.forEach((light) => {
       console.log(`Light ID: ${light.id}, Color: ${light.color}`);
     });
     console.log(scenes);
+    return lights;
   };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
   const [cycleInterval, setCycleInterval] = useState(null);
 
   const startSceneCycle = async (scene1, scene2, interval) => {
+    if (scene1.length === 0 || scene2.length === 0) {
+      console.error("Both scenes must have at least one light");
+      scene1 = PresetScene1
+      scene2  = PresetScene2
+    
+    }
     console.log("Starting scene cycle" + interval);
     handleCycleApiCall(scene1, scene2, interval);
   };
 
   const stopSceneCycle = async () => {
-    await makeApiCall("http://localhost:5000/stop-cycle", []);
+    await makeApiCall("http://localhost:5000/stop-cycle", [0]);
   };
 
   const handleCycleApiCall = async (lightsArray1, lightsArray2, interval) => {
@@ -194,6 +261,9 @@ const StageLights = () => {
 
 
   return (
+    <div>
+            <PresetBtn lights={lights} startCycle={startSceneCycle}></PresetBtn>
+
     <div>
       <DndProvider backend={HTML5Backend}>
         <LightSetupSelector
@@ -305,14 +375,8 @@ const StageLights = () => {
 
       <div className="flex flex-row justify-center">
         <div className="lighttools-container flex justify-center bg-gray-100 p-4 rounded-lg shadow-lg m-6 w-fit">
-          <button onClick={logCurrentLights}>test</button>
-          <button onClick={saveCurrentScene} className="mx-2">
-            Save current scene
-          </button>
-          <SceneListDemo scenes={scenes} startSceneCycle={startSceneCycle} />
-          <button onClick={stopSceneCycle} className="ml-2">
-            Stop cycle
-          </button>
+          <button onClick={getCurrentLights}>tessadsadt</button>
+
         </div>
         <div className="flex flex-col justify-evenly">
           <GPTColorForm></GPTColorForm>
@@ -360,7 +424,20 @@ const StageLights = () => {
           lights={lights}
         />
       </div>
+      <div className="flex flex-row justify-center">
+        
+      <button onClick={saveCurrentScene} className="mx-2">
+            Save current scene
+          </button>
+          <SceneListDemo scenes={scenes} startSceneCycle={startSceneCycle} />
+          <button onClick={stopSceneCycle} className="ml-2">
+            Stop cycle
+          </button>
+        
+        </div>
     </div>
+    </div>
+
   );
 };
 
