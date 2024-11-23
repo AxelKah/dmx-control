@@ -39,7 +39,6 @@ const LightFixture = ({ light, moveLight, onClick, index, updateStartAddress, co
 
 
   const handleClick = () => {
-    setSelected(!selected);
     onClick(light);
   };
 
@@ -50,7 +49,7 @@ const LightFixture = ({ light, moveLight, onClick, index, updateStartAddress, co
       style={{
         backgroundColor: light.color,
         opacity: isDragging ? 0.5 : 1,
-        border: selected ? "3px solid black" : "none",
+        border: light.selected ? "3px solid black" : "none",
       }}
       onClick={handleClick}
       onDoubleClick={handleDoubleClick}
