@@ -157,29 +157,26 @@ router.post("/clear-lights", (req, res) => {
 
 
 let cycleIntervalId = null;
+let cycleindx = 0;
 
-// Route to set the cycle effect
 router.post("/set-cycle", (req, res) => {
-  const { lightsArray1, lightsArray2 } = req.body;
-  console.log(lightsArray1, lightsArray2);
+  const { sceneLightsArrays } = req.body;
+  console.log(sceneLightsArrays);
+  console.log("amount of scenes: ", sceneLightsArrays.length);
   const interval = 2500;
 
-  if (!Array.isArray(lightsArray1) || !Array.isArray(lightsArray2)) {
-    return res.status(400).send("Both lightsArray1 and lightsArray2 should be arrays.");
-  }
-
-  if (lightsArray1.length !== lightsArray2.length) {
-    return res.status(400).send("Both arrays should have the same length.");
+  if (!Array.isArray(sceneLightsArrays)) {
+    return res.status(400).send("should be arrays");
   }
 
   if (cycleIntervalId) {
     clearInterval(cycleIntervalId);
   }
 
-  let toggle = true;
+  cycleindx = 0;
 
   cycleIntervalId = setInterval(() => {
-    const currentLights = toggle ? lightsArray1 : lightsArray2;
+    const currentLights = sceneLightsArrays[cycleindx];
 
     currentLights.forEach((light) => {
       const { startAddress, color, intensity } = light;
@@ -193,9 +190,9 @@ router.post("/set-cycle", (req, res) => {
       };
 
       const endValues = {
-        red: red * intensity / 100,
-        green: green * intensity / 100,
-        blue: blue * intensity / 100,
+        red: (red * intensity) / 100,
+        green: (green * intensity) / 100,
+        blue: (blue * intensity) / 100,
       };
 
       updateDmxSmoothly(startValues, endValues, 1000, (currentValues) => {
@@ -207,7 +204,8 @@ router.post("/set-cycle", (req, res) => {
       });
     });
 
-    toggle = !toggle;
+    cycleindx = (cycleindx + 1) % sceneLightsArrays.length; // Loop back to 0 when reaching the end
+    console.log("cycle index:", cycleindx);
   }, interval);
 
   res.send("Cycle effect started");
@@ -217,18 +215,13 @@ router.post("/set-cycle", (req, res) => {
 router.post("/stop-cycle", (req, res) => {
   if (cycleIntervalId) {
     clearInterval(cycleIntervalId);
+
     cycleIntervalId = null;
+    cycleindx = 0;
 
-    // Turn off the lights
-    universe.update({
-      1: 0, // Red channel
-      2: 0, // Green channel
-      3: 0, // Blue channel
-    });
-
-    res.send("Cycle effect stopped");
+    res.json({ message: "Cycle effect stopped" });
   } else {
-    res.send("No cycle effect to stop");
+    res.json({ message: "No cycle effect to stop" });
   }
 });
 

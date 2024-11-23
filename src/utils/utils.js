@@ -48,13 +48,13 @@ export const makeApiCall = async (url, receivedLights = []) => {
 
 
   // Helper function to make an API call to set the cycle effect
-  export const makeCycleApiCall = async (url, lightsArray, interval) => {
+  export const makeCycleApiCall = async (url, sceneLightsArrays, interval) => {
     if (
-      !Array.isArray(lightsArray) ||
-      lightsArray.some((subArray) => !Array.isArray(subArray))
+      !Array.isArray(sceneLightsArrays) ||
+      sceneLightsArrays.some((subArray) => !Array.isArray(subArray))
     ) {
       console.error("lightsArray must be an array that has arrays");
-      console.log("lightsArray:", lightsArray);
+      console.log("lightsArray:", sceneLightsArrays);
       return;
     }
 
@@ -63,7 +63,7 @@ export const makeApiCall = async (url, receivedLights = []) => {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          lightsArray: lightsArray.map((subArray) =>
+          sceneLightsArrays: sceneLightsArrays.map((subArray) =>
             subArray.map((light) => ({
               id: light.id,
               color: light.color,
