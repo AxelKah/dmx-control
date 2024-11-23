@@ -1,6 +1,6 @@
 const express = require("express");
 const DMX = require("dmx");
-const Lights = require("../models/lightsetup-model");
+const { Lights, Scenes } = require("../models/associations");
 
 const router = express.Router();
 
@@ -515,6 +515,102 @@ router.get("/get-saved-lights", async (req, res) => {
     return res
       .status(500)
       .json({ message: "Error getting lights: ", error: String(error) });
+  }
+});
+
+//scenes
+router.post("/create-scene", async (req, res) => {
+  const { name, lightSetupId, colors } = req.body;
+
+  try {
+    const lightSetup = await Lights.findByPk(lightSetupId);
+
+    if (!lightSetup) {
+      return res.status(404).json({ message: "Light setup not found" });
+    }
+
+    // validate colors against the lights in setup
+    const lightIds = lightSetup.lights.map((light) => light.id);
+    const invalidColors = colors.filter(
+      (color) => !lightIds.includes(color.lightId)
+    );
+
+    if (invalidColors.length > 0) {
+      return res.status(400).json({
+        message: "Invalid light IDs in colors",
+        invalidLightIds: invalidColors.map((color) => color.lightId),
+      });
+    }
+
+    const newScene = await Scenes.create({
+      name,
+      lightSetupId,
+      colors,
+    });
+
+    return res
+      .status(201)
+      .json({ message: "Scene created successfully", scene: newScene });
+  } catch (error) {
+    return res.status(500).json({
+      message: "Error creating scene",
+      error: String(error),
+    });
+  }
+});
+
+router.delete("/delete-scene/:sceneId", async (req, res) => {
+  const { sceneId } = req.params;
+
+  try {
+    const scene = await Scenes.findByPk(sceneId);
+
+    if (!scene) {
+      return res.status(404).json({ message: "Scene not found" });
+    }
+
+    await scene.destroy();
+
+    return res.status(200).json({ message: "Scene deleted" });
+  } catch (error) {
+    return res.status(500).json({
+      message: "Error deleting scene",
+      error: String(error),
+    });
+  }
+});
+
+router.get("/get-saved-scenes/:lightSetupId", async (req, res) => {
+  const { lightSetupId } = req.params;
+
+  try {
+    const lightSetup = await Lights.findByPk(lightSetupId, {
+      include: {
+        model: Scenes,
+        as: "scenes",
+      },
+    });
+
+    if (!lightSetup) {
+      return res.status(404).json({ message: "Light setup not found" });
+    }
+
+    return res.status(200).json({
+      lightSetup: {
+        name: lightSetup.name,
+        lights: lightSetup.lights,
+      },
+      scenes: lightSetup.scenes.map((scene) => ({
+        id: scene.id,
+        name: scene.name,
+        colors: scene.colors,
+      })),
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: "Error getting scenes for light setup",
+      error: String(error),
+    });
   }
 });
 
