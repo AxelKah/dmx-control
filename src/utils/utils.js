@@ -17,64 +17,61 @@ export const updateSelectedLights = (lights, updates) => {
   };
 
 // Helper function to make an API call to the server
-export const makeApiCall = async (url, selectedLights) => {
-    if (selectedLights.length > 0) {
-      try {
-        const response = await fetch(url, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            lights: selectedLights.map((light) => ({
+export const makeApiCall = async (url, receivedLights = []) => {
+  try {
+    const body =
+      receivedLights.length > 0
+        ? JSON.stringify({
+            lights: receivedLights.map((light) => ({
               id: light.id,
               color: light.color,
               channel: light.channel,
               startAddress: light.startAddress,
               intensity: light.intensity,
             })),
-          }),
-        });
-  
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-      } catch (error) {
-        console.error("Error making API call:", error);
-      }
+          })
+        : null;
+
+    const response = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      ...(body && { body }), // include the body only if not null
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
-    else {
-      console.log("No lights selected");
-    }
-  };
+  } catch (error) {
+    console.error("Error making API call:", error);
+  }
+};
 
 
   // Helper function to make an API call to set the cycle effect
-  export const makeCycleApiCall = async (url, lightsArray1, lightsArray2, interval) => {
-    if (!Array.isArray(lightsArray1.lightsArray1) || !Array.isArray(lightsArray1.lightsArray2)) {
-      console.log("lightsArray1asdsads:", lightsArray1.lightsArray1);
-      console.log("lightsArray2:",lightsArray1.lightsArray2);
+  export const makeCycleApiCall = async (url, lightsArray, interval) => {
+    if (
+      !Array.isArray(lightsArray) ||
+      lightsArray.some((subArray) => !Array.isArray(subArray))
+    ) {
+      console.error("lightsArray must be an array that has arrays");
+      console.log("lightsArray:", lightsArray);
       return;
     }
+
     try {
-      console.log("kerrant täällää")
-      console.log(interval + "interval")
       const response = await fetch(url, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          lightsArray1: lightsArray1.lightsArray1.map((light) => ({
-            id: light.id,
-            color: light.color,
-            channel: light.channel,
-            startAddress: light.startAddress,
-            intensity: light.intensity,
-          })),
-          lightsArray2: lightsArray1.lightsArray2.map((light) => ({
-            id: light.id,
-            color: light.color,
-            channel: light.channel,
-            startAddress: light.startAddress,
-            intensity: light.intensity,
-          })),
+          lightsArray: lightsArray.map((subArray) =>
+            subArray.map((light) => ({
+              id: light.id,
+              color: light.color,
+              channel: light.channel,
+              startAddress: light.startAddress,
+              intensity: light.intensity,
+            }))
+          ),
           interval,
         }),
       });
@@ -84,5 +81,7 @@ export const makeApiCall = async (url, selectedLights) => {
       }
     } catch (error) {
       console.error("Error making API call:", error);
+      throw error;
     }
   };
+  
