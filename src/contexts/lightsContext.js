@@ -3,12 +3,12 @@ import React, { createContext, useState, useContext } from "react";
 export const LightsContext = createContext();
 
 const LightsProvider = ({ children }) => {
-  const [selectedLightSetuppi, setSelectedLightSetuppi] = useState(null);
+  const [selectedLightSetup, setSelectedLightSetup] = useState(null);
   const [selectedScenes, setSelectedScene] = useState([]);
 
   return (
     <LightsContext.Provider
-      value={{ selectedLightSetuppi, setSelectedLightSetuppi, selectedScenes, setSelectedScene }}
+      value={{ selectedLightSetup, setSelectedLightSetup, selectedScenes, setSelectedScene }}
     >
       {children}
     </LightsContext.Provider>
