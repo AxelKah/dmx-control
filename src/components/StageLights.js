@@ -485,7 +485,9 @@ const StageLights = () => {
         <div className="lighttools-container flex justify-center bg-gray-100 p-4 rounded-xl shadow-lg m-6 w-fit relative">
           <div className="relative" ref={dropdownToggleRef}>
             <div
-              className="flex flex-row items-center border rounded-xl border-gray-300 bg-gray-200 px-4 py-2 pr-4 text-gray-700 cursor-pointer focus:border-blue-500 focus:outline-none w-40 h-11 overflow-hidden"
+              className={`flex flex-row items-center border rounded-xl border-gray-300 bg-gray-200 px-4 py-2 pr-4 text-gray-700 cursor-pointer focus:border-blue-500 focus:outline-none w-40 h-11 overflow-hidden ${
+                isCycleRunning ? "opacity-50 cursor-not-allowed" : ""
+              }`}
               onClick={() => setIsOpen((prev) => !prev)}
             >
               <span className="truncate">
@@ -495,7 +497,7 @@ const StageLights = () => {
                 {isOpen ? <FaAngleUp /> : <FaAngleDown />}
               </span>
             </div>
-            {isOpen && (
+            {isOpen && !isCycleRunning && (
               <ul className="absolute bottom-full left-0 mb-2 w-full bg-gray-300 border border-gray-400 shadow-lg rounded overflow-hidden">
                 {scenes.length > 0 ? (
                   scenes.map((scene, index) => (
@@ -517,22 +519,35 @@ const StageLights = () => {
             )}
           </div>
 
-          <button onClick={saveCurrentScene} className="mx-2">
+          <button
+            disabled={isCycleRunning}
+            onClick={saveCurrentScene}
+            className={`flex flex-row mx-2 ${
+              isCycleRunning ? "opacity-50 cursor-not-allowed" : ""
+            }`}
+          >
             Save scene
           </button>
           <button
+            disabled={isCycleRunning}
             onClick={(e) => {
               if (selectedScene) {
                 deleteCurrentScene(selectedScene.id);
               }
             }}
-            className="flex flex-row"
+            // className="flex flex-row"
+            className={`flex flex-row ${
+              isCycleRunning ? "opacity-50 cursor-not-allowed" : ""
+            }`}
           >
             Delete scene
           </button>
           <button
+            disabled={isCycleRunning}
             onClick={resetLights}
-            className="bg-red-500 text-white px-4 py-2 rounded shadow hover:bg-red-600 ml-2"
+            className={`ml-2 bg-red-500 text-white px-4 py-2 rounded shadow hover:bg-red-600 ${
+              isCycleRunning ? "opacity-50 cursor-not-allowed" : ""
+            }`}
           >
             Reset
           </button>
@@ -569,6 +584,10 @@ const StageLights = () => {
         {/* Button to open the modal */}
         <div className="lightsetup-container flex flex-row justify-center bg-gray-100 p-4 rounded-xl shadow-lg m-6 w-fit">
           <button
+            className={`${
+              isCycleRunning ? "opacity-50 cursor-not-allowed" : ""
+            }`}
+            disabled={isCycleRunning}
             onClick={() => {
               setShowModal(true);
               setModalContent("addLight");
@@ -577,11 +596,14 @@ const StageLights = () => {
             Add new light
           </button>
           <button
+            className={`ml-2 ${
+              isCycleRunning ? "opacity-50 cursor-not-allowed" : ""
+            }`}
+            disabled={isCycleRunning}
             onClick={() => {
               setModalContent("setupLights");
               setShowModal(true);
             }}
-            className="ml-2"
           >
             Lights setup
           </button>

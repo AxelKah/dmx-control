@@ -49,11 +49,7 @@ const LightSetupSelector = ({
       if (foundSelectedSetup) {
         const updatedName = prompt("Enter new name:", foundSelectedSetup.name);
         if (updatedName !== null) {
-          await updateSavedLightSetup(
-            selectedLightSetup,
-            updatedName,
-            lights
-          );
+          await updateSavedLightSetup(selectedLightSetup, updatedName, lights);
 
           // get updated list
           const updatedLightsData = await getAllLights();
@@ -119,7 +115,9 @@ const LightSetupSelector = ({
           value={selectedLightSetup || ""}
           onChange={handleSetupChange}
           disabled={isCycleRunning}
-          className="ml-2 bg-gray-300 border border-white text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 w-56"
+          className={`ml-2 bg-gray-300 border border-white text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 w-56 ${
+            isCycleRunning ? "opacity-50 cursor-not-allowed" : ""
+          }`}
         >
           <option value="" disabled>
             ...
@@ -133,19 +131,27 @@ const LightSetupSelector = ({
         <div className="flex flex-row mt-2 sm:mt-0">
           <button
             onClick={handleUpdate}
-            className="ml-2 flex flex-row items-center"
+            disabled={isCycleRunning}
+            className={`ml-2 flex flex-row items-center ${
+              isCycleRunning ? "opacity-50 cursor-not-allowed" : ""
+            }`}
           >
             <FaEdit className="mr-1" /> Update selected
           </button>
           <button
             onClick={handleDelete}
-            className="ml-2 flex flex-row items-center"
+            className={`ml-2 flex flex-row items-center ${
+              isCycleRunning ? "opacity-50 cursor-not-allowed" : ""
+            }`}
           >
             <FaTrash className="mr-1" /> Delete
           </button>
           <button
             onClick={handleSave}
-            className="ml-2 flex flex-row items-center"
+            disabled={isCycleRunning}
+            className={`ml-2 flex flex-row items-center ${
+              isCycleRunning ? "opacity-50 cursor-not-allowed" : ""
+            }`}
           >
             <FaSave className="mr-1" />
             Save as new
