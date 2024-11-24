@@ -140,6 +140,7 @@ const LightSetupSelector = ({
           </button>
           <button
             onClick={handleDelete}
+            disabled={isCycleRunning}
             className={`ml-2 flex flex-row items-center ${
               isCycleRunning ? "opacity-50 cursor-not-allowed" : ""
             }`}
