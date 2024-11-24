@@ -158,12 +158,56 @@ router.post("/clear-lights", (req, res) => {
 
 let cycleIntervalId = null;
 let cycleindx = 0;
+let cycleinterval = 0;
+let cyclingsceneLightsArrays = null;
+
+const cycleLigths = () => {
+  if (cycleIntervalId) {
+    clearInterval(cycleIntervalId);
+  }
+
+  console.log("cycleligths indexid: ", cycleindx);
+  const currentLights = cyclingsceneLightsArrays[cycleindx];
+
+  currentLights.forEach((light) => {
+    const { startAddress, color, intensity } = light;
+    const dmxChannel = startAddress;
+    const { red, green, blue } = hexToRgb(color);
+
+    const startValues = {
+      red: universe.get(dmxChannel),
+      green: universe.get(dmxChannel + 1),
+      blue: universe.get(dmxChannel + 2),
+    };
+
+    const endValues = {
+      red: (red * intensity) / 100,
+      green: (green * intensity) / 100,
+      blue: (blue * intensity) / 100,
+    };
+
+    updateDmxSmoothly(startValues, endValues, 1000, (currentValues) => {
+      universe.update({
+        [dmxChannel]: currentValues.red,
+        [dmxChannel + 1]: currentValues.green,
+        [dmxChannel + 2]: currentValues.blue,
+      });
+    });
+
+    // Log the color visually
+    const logColor = `\x1b[38;2;${red};${green};${blue}m██\x1b[0m`;
+    console.log(`Color: ${logColor} (${color}), Intensity: ${intensity}%`);
+  });
+
+  cycleindx = (cycleindx + 1) % cyclingsceneLightsArrays.length; // Loop back to 0 when reaching the end
+
+  cycleIntervalId = setInterval(cycleLigths, cycleinterval);
+};
 
 router.post("/set-cycle", (req, res) => {
-  const { sceneLightsArrays } = req.body;
-  console.log(sceneLightsArrays);
+  const { sceneLightsArrays, interval } = req.body;
   console.log("amount of scenes: ", sceneLightsArrays.length);
-  const interval = 2500;
+  console.log("Cycle interval: ", interval);
 
   if (!Array.isArray(sceneLightsArrays)) {
     return res.status(400).send("should be arrays");
@@ -174,39 +218,12 @@ router.post("/set-cycle", (req, res) => {
   }
 
   cycleindx = 0;
+  // set for function
+  cyclingsceneLightsArrays = sceneLightsArrays;
+  cycleinterval = interval;
 
-  cycleIntervalId = setInterval(() => {
-    const currentLights = sceneLightsArrays[cycleindx];
-
-    currentLights.forEach((light) => {
-      const { startAddress, color, intensity } = light;
-      const dmxChannel = startAddress;
-      const { red, green, blue } = hexToRgb(color);
-
-      const startValues = {
-        red: universe.get(dmxChannel),
-        green: universe.get(dmxChannel + 1),
-        blue: universe.get(dmxChannel + 2),
-      };
-
-      const endValues = {
-        red: (red * intensity) / 100,
-        green: (green * intensity) / 100,
-        blue: (blue * intensity) / 100,
-      };
-
-      updateDmxSmoothly(startValues, endValues, 1000, (currentValues) => {
-        universe.update({
-          [dmxChannel]: currentValues.red,
-          [dmxChannel + 1]: currentValues.green,
-          [dmxChannel + 2]: currentValues.blue,
-        });
-      });
-    });
-
-    cycleindx = (cycleindx + 1) % sceneLightsArrays.length; // Loop back to 0 when reaching the end
-    console.log("cycle index:", cycleindx);
-  }, interval);
+  // call function to run immediately and then call function again with set interval
+  cycleLigths();
 
   res.send("Cycle effect started");
 });
