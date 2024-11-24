@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 
-const SceneList = ({ scenes = [], startSceneCycle }) => {
+const SceneList = ({ scenes = [], startSceneCycle, stopSceneCycle }) => {
   const [selectedScenes, setSelectedScenes] = useState([]);
 
   useEffect(() => {
@@ -33,24 +33,34 @@ const SceneList = ({ scenes = [], startSceneCycle }) => {
 
   return (
     <div>
-      <ul>
-        {scenes.map((item, index) => (
-          <li
-            key={index}
-            onClick={() => handleSelect(item)}
-            style={{
-              cursor: "pointer",
-              backgroundColor: selectedScenes.includes(item)
-                ? "lightblue"
-                : "white",
-            }}
-          >
-            {item.name}
-          </li>
-        ))}
-      </ul>
-      <div className="flex flex-row">
-        <button onClick={handleSubmit}>Start cycle</button>
+      {scenes.length > 0 ? (
+        <ul className="border rounded overflow-hidden">
+          {scenes.map((item, index) => (
+            <li
+              key={index}
+              onClick={() => handleSelect(item)}
+              style={{
+                cursor: "pointer",
+                backgroundColor: selectedScenes.includes(item)
+                  ? "lightblue"
+                  : "white",
+              }}
+              className="p-1 border-b border-gray-200"
+            >
+              {item.name}
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <div className="text-gray-500 text-center p-2">No saved scenes</div>
+      )}
+      <div className="flex flex-row justify-center">
+        <button onClick={handleSubmit} className="m-2">
+          Start cycle
+        </button>
+        <button onClick={stopSceneCycle} className="bg-red-500 shadow m-2">
+          Stop Cycle
+        </button>
       </div>
     </div>
   );
