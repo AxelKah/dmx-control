@@ -314,8 +314,15 @@ const StageLights = () => {
   };
 
   const saveCurrentScene = () => {
+    const sceneName = prompt("Enter scene name");
+
+    if (!sceneName || sceneName.trim() === "") {
+      alert("Scene name cannot be empty. Please enter a valid name.");
+      return;
+    }
+
     const scene = {
-      name: prompt("Enter scene name"),
+      name: sceneName,
       lightSetupId: selectedLightSetup,
       colors: lights.map((light) => ({
         lightId: light.id,
