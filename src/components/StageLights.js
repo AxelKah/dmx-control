@@ -1,17 +1,22 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import GridContainer from "./GridContainer";
 import LightModal from "./LightModal";
 import SetupLights from "./SetupLights";
 import Light from "../models/Light";
-import { updateSelectedLights, makeApiCall, addMultipleLights, makeCycleApiCall } from "../utils/utils";
+import {
+  updateSelectedLights,
+  makeApiCall,
+  addMultipleLights,
+  makeCycleApiCall,
+} from "../utils/utils";
 import GPTColorForm from "./GPTColorForm";
-import { FaSave, FaEdit, FaTrash } from "react-icons/fa";
+import { FaAngleUp, FaAngleDown } from "react-icons/fa";
 import SceneList from "./SceneList";
-import SceneListBtn from "./SceneList";
-import SceneListDemo from "./SceneListDemo";
 import LightSetupSelector from "./SetupSelector";
+import { useLightData } from "../contexts/lightsContext";
+import { saveScenes, getScenes, deleteScene } from "../api/dmxApi";
 
 const StageLights = () => {
   const [lights, setLights] = useState([]);
@@ -21,7 +26,49 @@ const StageLights = () => {
   const [modalContent, setModalContent] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [color, setColor] = useState("#ffffff");
+  const [selectedScene, setSelectedScene] = useState(null);
+  const [showSceneDropdown, setShowSceneDropdown] = useState(false);
+  const [isCycleRunning, setIsCycleRunning] = useState(false);
   const selectedLights = lights.filter((light) => light.selected);
+  const { selectedLightSetup } = useLightData();
+  const dropdownToggleRef = useRef(null);
+  const dropdownRef = useRef(null);
+  const [isOpen, setIsOpen] = useState(false);
+
+  useEffect(() => {
+    // to close select scene modal if user clicks outside of it
+    const handleClickOutside = (event) => {
+      if (
+        dropdownToggleRef.current &&
+        !dropdownToggleRef.current.contains(event.target)
+      ) {
+        setIsOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!selectedLightSetup) return;
+
+    const fetchSetupsScenes = async () => {
+      try {
+        const fetchedScenes = await getScenes(selectedLightSetup);
+        const scenesArray =
+          fetchedScenes && fetchedScenes.scenes ? fetchedScenes.scenes : [];
+        setScenes(scenesArray);
+      } catch (error) {
+        console.error("Error fetching scenes:", error);
+      }
+    };
+
+    setSelectedScene(null);
+    fetchSetupsScenes();
+  }, [selectedLightSetup]);
 
   const addLight = (channel, startAddress) => {
     console.log("Adding light");
@@ -86,8 +133,27 @@ const StageLights = () => {
     await makeApiCall(url, selectedLights);
   };
 
+  const resetLights = async () => {
+    const resetColor = "#ffffff";
+    const resetIntensity = 100;
+
+    const resetLightsArray = lights.map((light) => ({
+      ...light,
+      color: resetColor,
+      intensity: resetIntensity,
+    }));
+
+    setLights(resetLightsArray);
+    setSelectedScene(null);
+
+    await handleSceneChanges(
+      "http://localhost:5000/set-lights",
+      resetLightsArray
+    );
+  };
+
   const handleSceneChanges = async (url, sceneLights) => {
-    setLights(sceneLights);
+    console.log("sceneLights: ", sceneLights);
     await makeApiCall(url, sceneLights);
   };
 
@@ -146,52 +212,159 @@ const StageLights = () => {
 
   const [cycleInterval, setCycleInterval] = useState(null);
 
-  const startSceneCycle = async (scene1, scene2, interval) => {
-    console.log("Starting scene cycle" + interval);
-    handleCycleApiCall(scene1, scene2, interval);
+  const startSceneCycle = async (selectedScenes, interval = 1500) => {
+    if (!Array.isArray(selectedScenes) || selectedScenes.length !== 2) {
+      alert("Please select exactly two scenes.");
+      return;
+    }
+
+    const [scene1, scene2] = selectedScenes;
+
+    // scenes should have valid "colors" arrays
+    if (!Array.isArray(scene1.colors) || !Array.isArray(scene2.colors)) {
+      console.error(
+        "One or both selected scenes are missing 'colors': ",
+        scene1,
+        scene2
+      );
+      alert("Selected scenes must have light configurations.");
+      return;
+    }
+
+    try {
+      const sceneLightsArrays = [scene1.colors, scene2.colors];
+
+      console.log("Starting scene cycle with lightsArray:", sceneLightsArrays);
+
+      setIsCycleRunning(true);
+
+      await makeCycleApiCall(
+        "http://localhost:5000/set-cycle",
+        sceneLightsArrays,
+        interval
+      );
+
+      let currentIndex = 0;
+
+      const updateLightsState = () => {
+        const currentSceneLights = sceneLightsArrays[currentIndex];
+        const currentScene = selectedScenes[currentIndex];
+
+        if (currentSceneLights) {
+          const updatedLights = lights.map((existingLight) => {
+            const matchingColor = currentSceneLights.find(
+              (color) => color.lightId === existingLight.id
+            );
+
+            if (matchingColor) {
+              return {
+                ...existingLight,
+                color: matchingColor.color,
+                intensity: matchingColor.intensity,
+                selected: false,
+              };
+            }
+
+            return {
+              ...existingLight,
+              selected: false,
+            };
+          });
+
+          setLights(updatedLights);
+          setSelectedScene(currentScene);
+        }
+
+        // cycle to the next scene
+        currentIndex = (currentIndex + 1) % sceneLightsArrays.length;
+      };
+
+      // Clear intervals before starting a new one
+      if (cycleInterval) {
+        clearInterval(cycleInterval);
+      }
+
+      // Update lights immediately for the first scene
+      updateLightsState();
+
+      const intervalId = setInterval(updateLightsState, interval);
+      setCycleInterval(intervalId);
+    } catch (error) {
+      console.error("Failed to start scene cycle:", error);
+      alert("Failed to start scene cycle. Please try again.");
+      setIsCycleRunning(false);
+    }
   };
 
   const stopSceneCycle = async () => {
-    await makeApiCall("http://localhost:5000/stop-cycle", []);
-  };
-
-  const handleCycleApiCall = async (lightsArray1, lightsArray2, interval) => {
-    if (!Array.isArray(lightsArray1) || !Array.isArray(lightsArray2)) {
-      console.error(
-        "lightsArray1 and lightsArray2 must be arrays222222222222222222"
-      );
-      return;
+    // stop frontend updates
+    if (cycleInterval) {
+      clearInterval(cycleInterval);
+      setCycleInterval(null);
     }
-    console.log("arrays", lightsArray1, lightsArray2);
 
-    await makeCycleApiCall("http://localhost:5000/set-cycle", {
-      lightsArray1,
-      lightsArray2,
-      interval,
-    });
+    // stop backend updates
+    try {
+      await makeApiCall("http://localhost:5000/stop-cycle", {});
+    } catch (error) {
+      console.error("Failed to stop scene cycle:", error);
+    } finally {
+      setIsCycleRunning(false);
+    }
   };
 
   const saveCurrentScene = () => {
-    const sceneName = "scene" + (scenes.length + 1);
     const scene = {
       name: prompt("Enter scene name"),
-      lights: lights.map((light) => ({
-        id: light.id,
+      lightSetupId: selectedLightSetup,
+      colors: lights.map((light) => ({
+        lightId: light.id,
         color: light.color,
         intensity: light.intensity,
-        channel: light.channel,
-        startAddress: light.startAddress,
-        containerId: light.containerId,
       })),
     };
     setScenes([...scenes, scene]);
-    console.log(scenes);
+    saveScenes(scene);
+  };
+
+  const deleteCurrentScene = (sceneId) => {
+    console.log("Deleting scene with ID: ", sceneId);
+
+    // update local state to remove scene from the list
+    setScenes((prevScenes) => {
+      const updatedScenes = prevScenes.filter((scene) => scene.id !== sceneId);
+
+      // reset selectedScene
+      if (selectedScene && selectedScene.id === sceneId) {
+        setSelectedScene(null);
+      }
+
+      return updatedScenes;
+    });
+
+    deleteScene(sceneId);
   };
 
   const handleItemClick = (item) => {
-    handleSceneChanges("http://localhost:5000/set-scene", item.lights);
-  };
+    // updated array of lights with the changes
+    const updatedLights = lights.map((light) => {
+      const matchingColor = item.colors.find(
+        (color) => color.lightId === light.id
+      );
+      if (matchingColor) {
+        return {
+          ...light,
+          color: matchingColor.color,
+          intensity: matchingColor.intensity,
+        };
+      }
+      return light;
+    });
 
+    setLights(updatedLights);
+    setSelectedScene(item);
+    handleSceneChanges("http://localhost:5000/set-scene", updatedLights);
+  };
 
   return (
     <div>
@@ -200,8 +373,13 @@ const StageLights = () => {
           lights={lights}
           setLights={setLights}
           setNumLights={setNumLights}
+          isCycleRunning={isCycleRunning}
         />
-        <div className="containers w-full lg:w-1/2">
+        <div
+          className={`containers w-full lg:w-1/2 ${
+            isCycleRunning ? "pointer-events-none" : ""
+          }`}
+        >
           <GridContainer
             containerId="container1"
             lights={containerLights("container1")}
@@ -304,31 +482,96 @@ const StageLights = () => {
       )}
 
       <div className="flex flex-row justify-center">
-        <div className="lighttools-container flex justify-center bg-gray-100 p-4 rounded-lg shadow-lg m-6 w-fit">
-          <button onClick={logCurrentLights}>test</button>
+        <div className="lighttools-container flex justify-center bg-gray-100 p-4 rounded-xl shadow-lg m-6 w-fit relative">
+          <div className="relative" ref={dropdownToggleRef}>
+            <div
+              className="flex flex-row items-center border rounded-xl border-gray-300 bg-gray-200 px-4 py-2 pr-4 text-gray-700 cursor-pointer focus:border-blue-500 focus:outline-none w-40 h-11 overflow-hidden"
+              onClick={() => setIsOpen((prev) => !prev)}
+            >
+              <span className="truncate">
+                {selectedScene ? selectedScene.name : "Select scene"}
+              </span>
+              <span className="ml-auto">
+                {isOpen ? <FaAngleUp /> : <FaAngleDown />}
+              </span>
+            </div>
+            {isOpen && (
+              <ul className="absolute bottom-full left-0 mb-2 w-full bg-gray-300 border border-gray-400 shadow-lg rounded overflow-hidden">
+                {scenes.length > 0 ? (
+                  scenes.map((scene, index) => (
+                    <li
+                      key={index}
+                      className="px-4 py-2 cursor-pointer hover:bg-gray-100 flex justify-between items-center"
+                      onClick={() => {
+                        handleItemClick(scene);
+                        setIsOpen(false);
+                      }}
+                    >
+                      {scene.name}
+                    </li>
+                  ))
+                ) : (
+                  <li className="px-4 py-2 text-gray-500">No saved scenes</li>
+                )}
+              </ul>
+            )}
+          </div>
+
           <button onClick={saveCurrentScene} className="mx-2">
-            Save current scene
+            Save scene
           </button>
-          <SceneListDemo scenes={scenes} startSceneCycle={startSceneCycle} />
-          <button onClick={stopSceneCycle} className="ml-2">
-            Stop cycle
+          <button
+            onClick={(e) => {
+              if (selectedScene) {
+                deleteCurrentScene(selectedScene.id);
+              }
+            }}
+            className="flex flex-row"
+          >
+            Delete scene
           </button>
+          <button
+            onClick={resetLights}
+            className="bg-red-500 text-white px-4 py-2 rounded shadow hover:bg-red-600 ml-2"
+          >
+            Reset
+          </button>
+        </div>
+
+        <div className="flex justify-center bg-gray-100 p-4 rounded-xl shadow-lg m-6 w-fit relative">
+          <div className="relative">
+            <button
+              onClick={() => setShowSceneDropdown((prev) => !prev)}
+              className="flex items-center border rounded-lg px-4 py-2 shadow"
+            >
+              <span>Scene cycler</span>
+              <span className="ml-2">
+                {showSceneDropdown ? <FaAngleUp /> : <FaAngleDown />}
+              </span>
+            </button>
+            {showSceneDropdown && (
+              <div
+                ref={dropdownRef}
+                className="absolute bottom-full left-0 mb-2 w-fit p-2 bg-gray-300 border border-gray-400 shadow-lg rounded z-10 min-w-64"
+              >
+                <SceneList
+                  scenes={scenes}
+                  startSceneCycle={startSceneCycle}
+                  stopSceneCycle={stopSceneCycle}
+                />
+              </div>
+            )}
+          </div>
         </div>
         <div className="flex flex-col justify-evenly">
           <GPTColorForm></GPTColorForm>
         </div>
         {/* Button to open the modal */}
-        <div className="lightsetup-container flex flex-row justify-center bg-gray-100 p-4 rounded-lg shadow-lg m-6 w-fit">
+        <div className="lightsetup-container flex flex-row justify-center bg-gray-100 p-4 rounded-xl shadow-lg m-6 w-fit">
           <button
             onClick={() => {
               setShowModal(true);
               setModalContent("addLight");
-            }}
-            style={{
-              marginLeft: "10px",
-              padding: "5px",
-              borderRadius: "4px",
-              border: "1px solid #ccc",
             }}
           >
             Add new light
@@ -338,12 +581,7 @@ const StageLights = () => {
               setModalContent("setupLights");
               setShowModal(true);
             }}
-            style={{
-              marginLeft: "10px",
-              padding: "5px",
-              borderRadius: "4px",
-              border: "1px solid #ccc",
-            }}
+            className="ml-2"
           >
             Lights setup
           </button>
