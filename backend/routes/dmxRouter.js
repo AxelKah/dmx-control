@@ -7,7 +7,26 @@ const router = express.Router();
 // Initialize the controller
 const dmx = new DMX();
 
-const universe = dmx.addUniverse("demo", "enttec-open-usb-dmx", "COM9");
+const universe = dmx.addUniverse("enttec-usb-dmx-pro", "enttec-open-usb-dmx", "COM9",);
+
+let allLights = [];
+
+// Route to track all lights
+router.post("/track-lights", (req, res) => {
+  const { lights } = req.body;
+  if (!Array.isArray(lights)) {
+    return res.status(400).send("Lights should be an array.");
+  }
+  allLights = lights;
+  console.log("Tracking lights:", allLights);
+  res.send({ success: true, message: "Lights are being tracked." });
+});
+
+// Function to get all tracked lights
+const getAllLights = () => {
+  return allLights;
+};
+
 
 
 // Helper function to convert hex color to RGB
@@ -17,6 +36,37 @@ const hexToRgb = (hex) => {
   const blue = parseInt(hex.substr(5, 2), 16);
   return { red, green, blue };
 };
+
+// Master Brighness
+router.post ("/master-brigthness", (req, res) => {
+  const { value } = req.body;
+  if (value < 0 || value > 255) {
+    return res.status(400).send("Value must be between 0 and 255.");
+    
+  }
+  const lights = getAllLights();
+  lights.forEach(light => {
+    const { startAddress } = light;
+    const currentRed = universe.get(startAddress);
+    const currentGreen = universe.get(startAddress + 1);
+    const currentBlue = universe.get(startAddress + 2);
+
+    const scaleFactor = value / Math.max(currentRed, currentGreen, currentBlue, 1);
+
+    const newRed = Math.min(Math.round(currentRed * scaleFactor), 255);
+    const newGreen = Math.min(Math.round(currentGreen * scaleFactor), 255);
+    const newBlue = Math.min(Math.round(currentBlue * scaleFactor), 255);
+
+    universe.update({
+      [startAddress]: newRed,
+      [startAddress + 1]: newGreen,
+      [startAddress + 2]: newBlue,
+    });
+  });
+  console.log(`Master brightness set to ${value}`);
+  res.send(`Master brightness set to ${value}`);
+});
+
 
 
 // Endpoint to set a DMX channel value
@@ -163,7 +213,8 @@ router.post("/set-cycle", (req, res) => {
   const { lightsArray1, lightsArray2 } = req.body;
   console.log(lightsArray1, lightsArray2);
   console.log("cycle effect started");
-  const interval = 6000;
+  ////////////////////////////////////////////15 min   6000 = 6min  1000 = 1min
+  const interval = 150000;
 
   if (!Array.isArray(lightsArray1) || !Array.isArray(lightsArray2)) {
     return res.status(400).send("Both lightsArray1 and lightsArray2 should be arrays.");

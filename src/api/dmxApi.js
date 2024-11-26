@@ -152,3 +152,21 @@ export const getAllLights = async () => {
     return [];
   }
 };
+
+export const setMasterBrightness = async (brightness) => {
+  try {
+    const response = await fetch("http://localhost:5000/master-brigthness", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ value: brightness }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP status: ${response.status}`);
+    }
+  } catch (error) {
+    console.error("Error setting master brightness:", error);
+  }
+};

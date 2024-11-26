@@ -14,6 +14,7 @@ import SceneListDemo from "./SceneListDemo";
 import LightSetupSelector from "./SetupSelector";
 import PresetBtn from "./PresetBtn";
 import { PresetScene1, PresetScene2 } from "./PresetScene";
+import { setMasterBrightness } from "../api/dmxApi";
 
 
 const StageLights = () => {
@@ -34,16 +35,24 @@ const StageLights = () => {
   };
 
 
-
-
+  const sendLightsStateToServer = async (updatedLights) => {
+    try {
+      await makeApiCall("http://localhost:5000/track-lights", updatedLights);
+      console.log("Lights state sent to server");
+    } catch (error) {
+      console.error("Error sending lights state to server:", error);
+    }
+  };
 
 
   const addLight = (channel, startAddress) => {
     console.log("Adding light");
     const id = parseInt(numLights + 1);
     const newLight = new Light(id, channel, startAddress);
-    setLights([...lights, newLight]);
+    const updatedLights = [...lights, newLight];
+    setLights(updatedLights);
     setNumLights(parseInt(numLights + 1));
+    sendLightsStateToServer(updatedLights);
   };
 
   const handleDrop = (item, newContainerId) => {
@@ -97,6 +106,7 @@ const StageLights = () => {
   };
 
   const handleApplyChanges = async (url) => {
+    console.log("tuleeks tää ny useemman kerran");
     const selectedLights = lights.filter((light) => light.selected);
     await makeApiCall(url, selectedLights);
   };
@@ -197,10 +207,13 @@ const StageLights = () => {
 
 
 
-
-
-
-
+  const handleMasterBrightnessChange = (e) => {
+    const brightness = parseInt(e.target.value);
+    setLights((prevLights) =>
+      prevLights.map((light) => ({ ...light, brightness }))
+    );
+    setMasterBrightness(brightness);
+  };
 
 
 
@@ -262,8 +275,18 @@ const StageLights = () => {
 
   return (
     <div>
+            <div>
             <PresetBtn lights={lights} startCycle={startSceneCycle}></PresetBtn>
-
+              <label htmlFor="masterBrightnessSlider">Master Brightness: </label>
+              <input
+                type="range"
+                id="masterBrightnessSlider"
+                min="1"
+                max="255"
+                onMouseUp={handleMasterBrightnessChange}
+                className="slider"
+              />
+            </div>
     <div>
       <DndProvider backend={HTML5Backend}>
         <LightSetupSelector
