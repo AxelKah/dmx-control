@@ -52,13 +52,13 @@ export const makeApiCall = async (url, selectedLights) => {
   // Helper function to make an API call to set the cycle effect
   export const makeCycleApiCall = async (url, lightsArray1, lightsArray2, interval) => {
     if (!Array.isArray(lightsArray1.lightsArray1) || !Array.isArray(lightsArray1.lightsArray2)) {
-      console.log("lightsArray1asdsads:", lightsArray1.lightsArray1);
+      console.log("lightsArray1:", lightsArray1.lightsArray1);
       console.log("lightsArray2:",lightsArray1.lightsArray2);
       return;
     }
     try {
       console.log("kerrant täällää")
-      console.log(interval + "interval")
+      console.log(interval + "interval api callissa")
       const response = await fetch(url, {
         method: "POST",
         headers: { "Content-Type": "application/json" },

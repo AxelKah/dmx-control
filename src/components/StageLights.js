@@ -165,18 +165,6 @@ const StageLights = () => {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
   const getCurrentLights = () => {
     lights.forEach((light) => {
       console.log(`Light ID: ${light.id}, Color: ${light.color}`);
@@ -187,30 +175,11 @@ const StageLights = () => {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
   const handleMasterBrightnessChange = (e) => {
     const brightness = parseInt(e.target.value);
-    setLights((prevLights) =>
-      prevLights.map((light) => ({ ...light, brightness }))
+    const updatedLights = [...lights];
+    setLights((updatedLights) =>
+      updatedLights.map((light) => ({ ...light, brightness }))
     );
     setMasterBrightness(brightness);
   };
@@ -225,31 +194,71 @@ const StageLights = () => {
       console.error("Both scenes must have at least one light");
       scene1 = PresetScene1
       scene2  = PresetScene2
-    
+
     }
-    console.log("Starting scene cycle" + interval);
+    console.log("Starting scene cycle " + interval);
     handleCycleApiCall(scene1, scene2, interval);
   };
+
+
+
+  const startSceneCycle2 = async (scene1, scene2, interval) => {
+    if (scene1.length === 0 || scene2.length === 0) {
+      console.error("Both scenes must have at least one light");
+      scene1 = PresetScene1
+      scene2  = PresetScene2
+
+    }
+    console.log("Starting scene cycle " + interval);
+    handleCycleApiCall(scene1, scene2, interval);
+  };
+
+
 
   const stopSceneCycle = async () => {
     await makeApiCall("http://localhost:5000/stop-cycle", [0]);
   };
 
   const handleCycleApiCall = async (lightsArray1, lightsArray2, interval) => {
+    console.log(interval + " interval api callissa");
     if (!Array.isArray(lightsArray1) || !Array.isArray(lightsArray2)) {
       console.error(
-        "lightsArray1 and lightsArray2 must be arrays222222222222222222"
+        "lightsArray1 and lightsArray2 must be arrays"
       );
       return;
     }
     console.log("arrays", lightsArray1, lightsArray2);
 
-    await makeCycleApiCall("http://localhost:5000/set-cycle", {
+    await makeCycleApiCall("http://localhost:5000/set-cycle15m", {
       lightsArray1,
       lightsArray2,
       interval,
     });
   };
+
+
+
+
+
+  const handleCycleApiCall1h = async (lightsArray1, lightsArray2, interval) => {
+    console.log(interval + " interval api callissa");
+    if (!Array.isArray(lightsArray1) || !Array.isArray(lightsArray2)) {
+      console.error(
+        "lightsArray1 and lightsArray2 must be arrays"
+      );
+      return;
+    }
+    console.log("arrays", lightsArray1, lightsArray2);
+
+    await makeCycleApiCall("http://localhost:5000/set-cycle1h", {
+      lightsArray1,
+      lightsArray2,
+      interval,
+    });
+  };
+
+
+
 
   const saveCurrentScene = () => {
     const sceneName = "scene" + (scenes.length + 1);
@@ -276,7 +285,7 @@ const StageLights = () => {
   return (
     <div>
             <div>
-            <PresetBtn lights={lights} startCycle={startSceneCycle}></PresetBtn>
+            <PresetBtn lights={lights} startCycle={startSceneCycle} startCycle1h={startSceneCycle2}></PresetBtn>
               <label htmlFor="masterBrightnessSlider">Master Brightness: </label>
               <input
                 type="range"
