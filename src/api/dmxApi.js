@@ -51,7 +51,7 @@ export const saveLights = async (name, lights) => {
     // remove selected value and change color to default white
     const filteredLights = lights.map(({ selected, ...rest }) => rest);
     filteredLights.forEach(element => {
-      element.color = '#ffff';
+      element.color = '#ffffff';
     });
 
     const response = await fetch("http://localhost:5000/save-lights", {
@@ -80,7 +80,7 @@ export const updateSavedLightSetup = async (id, updatedName, updatedLights) => {
       ({ selected, ...rest }) => rest
     );
     filteredUpdatedLights.forEach((element) => {
-      element.color = "#ffff";
+      element.color = "#ffffff";
     });
 
     const response = await fetch("http://localhost:5000/update-saved-lights", {

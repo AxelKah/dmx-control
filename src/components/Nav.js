@@ -16,7 +16,7 @@ function Navbar() {
           >
             <FaHome className="mr-2" /> Home
           </Link>
-          <Link
+          {/* <Link
             to="/help"
             className="text-black hover:text-gray-200 transition duration-30 flex items-center"
           >
@@ -27,7 +27,7 @@ function Navbar() {
             className="text-black hover:text-gray-200 transition duration-300 flex items-center"
           >
             <FaCog className="mr-2" /> Settings
-          </Link>
+          </Link> */}
         </div>
       </div>
     </nav>

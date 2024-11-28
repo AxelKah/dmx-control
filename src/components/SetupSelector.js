@@ -106,57 +106,66 @@ const LightSetupSelector = ({
 
   return (
     <div className="flex justify-center items-center w-full">
-      <div className="flex justify-center items-center flex-col sm:flex-row bg-gray-100 p-2 rounded-lg shadow-lg m-2">
-        <label htmlFor="lightsetups-dropdown" className="font-bold text-sm">
-          LIGHT SETUPS:{" "}
-        </label>
-        <select
-          id="lights-dropdown"
-          value={selectedLightSetup || ""}
-          onChange={handleSetupChange}
-          disabled={isCycleRunning}
-          className={`ml-2 bg-gray-300 border border-white text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 w-56 ${
-            isCycleRunning ? "opacity-50 cursor-not-allowed" : ""
-          }`}
-        >
-          <option value="" disabled>
-            ...
-          </option>
-          {savedLights.map((light) => (
-            <option key={light.id} value={light.id}>
-              {light.name}
+      {/* Button to open the modal */}
+      <div className="relative group">
+        {/* Tooltip */}
+        {isCycleRunning && (
+          <div className="absolute top-[4.5rem] left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-sm rounded-md px-2 py-1 opacity-0 transition-opacity duration-300 shadow-lg group-hover:opacity-100">
+            Stop cycle to use this functionality
+          </div>
+        )}
+        <div className="flex justify-center items-center flex-col sm:flex-row bg-gray-100 p-2 rounded-lg shadow-lg m-2">
+          <label htmlFor="lightsetups-dropdown" className="font-bold text-sm">
+            LIGHT SETUPS:{" "}
+          </label>
+          <select
+            id="lights-dropdown"
+            value={selectedLightSetup || ""}
+            onChange={handleSetupChange}
+            disabled={isCycleRunning}
+            className={`ml-2 bg-gray-300 border border-white text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 w-56 ${
+              isCycleRunning ? "opacity-50 cursor-not-allowed" : ""
+            }`}
+          >
+            <option value="" disabled>
+              ...
             </option>
-          ))}
-        </select>
-        <div className="flex flex-row mt-2 sm:mt-0">
-          <button
-            onClick={handleUpdate}
-            disabled={isCycleRunning}
-            className={`ml-2 flex flex-row items-center ${
-              isCycleRunning ? "opacity-50 cursor-not-allowed" : ""
-            }`}
-          >
-            <FaEdit className="mr-1" /> Update selected
-          </button>
-          <button
-            onClick={handleDelete}
-            disabled={isCycleRunning}
-            className={`ml-2 flex flex-row items-center ${
-              isCycleRunning ? "opacity-50 cursor-not-allowed" : ""
-            }`}
-          >
-            <FaTrash className="mr-1" /> Delete
-          </button>
-          <button
-            onClick={handleSave}
-            disabled={isCycleRunning}
-            className={`ml-2 flex flex-row items-center ${
-              isCycleRunning ? "opacity-50 cursor-not-allowed" : ""
-            }`}
-          >
-            <FaSave className="mr-1" />
-            Save as new
-          </button>
+            {savedLights.map((light) => (
+              <option key={light.id} value={light.id}>
+                {light.name}
+              </option>
+            ))}
+          </select>
+          <div className="flex flex-row mt-2 sm:mt-0">
+            <button
+              onClick={handleUpdate}
+              disabled={isCycleRunning}
+              className={`ml-2 flex flex-row items-center ${
+                isCycleRunning ? "opacity-50 cursor-not-allowed" : ""
+              }`}
+            >
+              <FaEdit className="mr-1" /> Update selected
+            </button>
+            <button
+              onClick={handleDelete}
+              disabled={isCycleRunning}
+              className={`ml-2 flex flex-row items-center ${
+                isCycleRunning ? "opacity-50 cursor-not-allowed" : ""
+              }`}
+            >
+              <FaTrash className="mr-1" /> Delete
+            </button>
+            <button
+              onClick={handleSave}
+              disabled={isCycleRunning}
+              className={`ml-2 flex flex-row items-center ${
+                isCycleRunning ? "opacity-50 cursor-not-allowed" : ""
+              }`}
+            >
+              <FaSave className="mr-1" />
+              Save as new
+            </button>
+          </div>
         </div>
       </div>
     </div>

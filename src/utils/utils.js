@@ -5,7 +5,7 @@ export const addMultipleLights = (numLightsToAdd, containerId, currentId) => {
   const newLights = []; 
   for (let i = 0; i < numLightsToAdd; i++) {
     currentId++;
-    newLights.push(new Light(currentId, 1, 0, "#fff", containerId, 99));
+    newLights.push(new Light(currentId, 1, 0, "#ffffff", containerId, 99));
   }
 
   return { newLights, currentId };

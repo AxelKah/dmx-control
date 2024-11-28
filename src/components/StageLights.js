@@ -34,6 +34,10 @@ const StageLights = () => {
   const dropdownToggleRef = useRef(null);
   const dropdownRef = useRef(null);
   const [isOpen, setIsOpen] = useState(false);
+  const [masterBrightness, setMasterBrightness] = useState(100);
+  const [isMasterBrightnessEnabled, setIsMasterBrightnessEnabled] =
+    useState(false);
+  const [originalIntensity, setOriginalIntensity] = useState([]);
 
   useEffect(() => {
     // to close select scene modal if user clicks outside of it
@@ -69,6 +73,67 @@ const StageLights = () => {
     setSelectedScene(null);
     fetchSetupsScenes();
   }, [selectedLightSetup]);
+
+  const toggleMasterBrightness = async (e) => {
+    const isChecked = e.target.checked;
+
+    if (isChecked) {
+      const original = lights.map((light) => ({
+        id: light.id,
+        intensity: light.intensity,
+      }));
+      setOriginalIntensity(original);
+    } else {
+      const restoredLights = lights.map((light) => {
+        const original = originalIntensity.find((orig) => orig.id === light.id);
+        return {
+          ...light,
+          intensity: original ? original.intensity : light.intensity,
+        };
+      });
+
+      setLights(restoredLights);
+      setOriginalIntensity([]);
+
+      try {
+        await handleApplyChanges(
+          "http://localhost:5000/set-brightness",
+          restoredLights
+        );
+      } catch (error) {
+        console.error("Error restoring brightness on backend:", error);
+      }
+    }
+
+    setIsMasterBrightnessEnabled(isChecked);
+  };
+
+  const handleMasterBrightnessChange = async (e) => {
+    const brightness = parseInt(e.target.value, 10);
+    setMasterBrightness(brightness);
+
+    if (isMasterBrightnessEnabled) {
+      const adjustedLights = lights.map((light) => {
+        const scaledIntensity = brightness;
+
+        return {
+          ...light,
+          intensity: scaledIntensity,
+        };
+      });
+
+      setLights(adjustedLights);
+
+      try {
+        await handleApplyChanges(
+          "http://localhost:5000/set-brightness",
+          adjustedLights
+        );
+      } catch (error) {
+        console.error("Error applying brightness changes to backend:", error);
+      }
+    }
+  };
 
   const addLight = (channel, startAddress) => {
     console.log("Adding light");
@@ -128,9 +193,19 @@ const StageLights = () => {
     );
   };
 
-  const handleApplyChanges = async (url) => {
-    const selectedLights = lights.filter((light) => light.selected);
-    await makeApiCall(url, selectedLights);
+  const handleApplyChanges = async (url, updatedLights = lights) => {
+    // use the provided lights array (updatedLights)
+    if (!updatedLights || updatedLights.length === 0) {
+      console.warn("No lights provided to update.");
+      return;
+    }
+
+    try {
+      // console.log("Sending lights to backend:", updatedLights);
+      await makeApiCall(url, updatedLights);
+    } catch (error) {
+      console.error("Error applying changes:", error);
+    }
   };
 
   const resetLights = async () => {
@@ -212,7 +287,11 @@ const StageLights = () => {
 
   const [cycleInterval, setCycleInterval] = useState(null);
 
-  const startSceneCycle = async (selectedScenes, interval = 1500) => {
+  const startSceneCycle = async (selectedScenes, interval) => {
+    if (cycleInterval) {
+      clearInterval(cycleInterval);
+    }
+
     if (!Array.isArray(selectedScenes) || selectedScenes.length !== 2) {
       alert("Please select exactly two scenes.");
       return;
@@ -220,7 +299,6 @@ const StageLights = () => {
 
     const [scene1, scene2] = selectedScenes;
 
-    // scenes should have valid "colors" arrays
     if (!Array.isArray(scene1.colors) || !Array.isArray(scene2.colors)) {
       console.error(
         "One or both selected scenes are missing 'colors': ",
@@ -232,9 +310,28 @@ const StageLights = () => {
     }
 
     try {
-      const sceneLightsArrays = [scene1.colors, scene2.colors];
+      // apply master brightness if enabled
+      const adjustBrightness = (colors) =>
+        colors.map((color) => ({
+          ...color,
+          intensity: isMasterBrightnessEnabled
+            ? masterBrightness
+            : color.intensity,
+        }));
 
-      console.log("Starting scene cycle with lightsArray:", sceneLightsArrays);
+      const transformLights = (colors) =>
+        colors.map((light) => ({
+          id: light.lightId,
+          color: light.color,
+          channel: light.channel,
+          startAddress: light.startAddress,
+          intensity: light.intensity,
+        }));
+
+      const sceneLightsArrays = [
+        transformLights(adjustBrightness(scene1.colors)),
+        transformLights(adjustBrightness(scene2.colors)),
+      ];
 
       setIsCycleRunning(true);
 
@@ -253,14 +350,14 @@ const StageLights = () => {
         if (currentSceneLights) {
           const updatedLights = lights.map((existingLight) => {
             const matchingColor = currentSceneLights.find(
-              (color) => color.lightId === existingLight.id
+              (color) => color.id === existingLight.id
             );
 
             if (matchingColor) {
               return {
                 ...existingLight,
                 color: matchingColor.color,
-                intensity: matchingColor.intensity,
+                intensity: matchingColor.intensity, // adjusted above if needed
                 selected: false,
               };
             }
@@ -275,14 +372,10 @@ const StageLights = () => {
           setSelectedScene(currentScene);
         }
 
-        // cycle to the next scene
         currentIndex = (currentIndex + 1) % sceneLightsArrays.length;
       };
 
-      // Clear intervals before starting a new one
-      if (cycleInterval) {
-        clearInterval(cycleInterval);
-      }
+      if (cycleInterval) clearInterval(cycleInterval);
 
       // Update lights immediately for the first scene
       updateLightsState();
@@ -327,7 +420,9 @@ const StageLights = () => {
       colors: lights.map((light) => ({
         lightId: light.id,
         color: light.color,
+        channel: light.channel,
         intensity: light.intensity,
+        startAddress: light.startAddress,
       })),
     };
     setScenes([...scenes, scene]);
@@ -335,7 +430,21 @@ const StageLights = () => {
   };
 
   const deleteCurrentScene = (sceneId) => {
-    console.log("Deleting scene with ID: ", sceneId);
+    // console.log("Deleting scene with ID: ", sceneId);
+
+    if (!sceneId) {
+      alert("No scene selected to delete. Please select a scene first.");
+      return;
+    }
+
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete this scene?"
+    );
+
+    if (!confirmDelete) {
+      // clicked "Cancel"
+      return;
+    }
 
     // update local state to remove scene from the list
     setScenes((prevScenes) => {
@@ -375,6 +484,67 @@ const StageLights = () => {
 
   return (
     <div>
+      <div className="master-brightness-container flex flex-col items-center bg-gray-100 p-6 rounded-xl shadow-lg m-6 w-32 justify-between absolute top-1/3 left-1 md:left-36 transform -translate-y-1/2">
+        {/* Master Brightness Toggle */}
+        <div className="flex flex-col items-center mb-20">
+          <input
+            type="checkbox"
+            id="masterBrightnessToggle"
+            checked={isMasterBrightnessEnabled}
+            onChange={toggleMasterBrightness}
+            className="form-checkbox h-5 w-5 text-green-500 focus:ring-2 focus:ring-green-300"
+            disabled={isCycleRunning}
+          />
+          <label
+            htmlFor="masterBrightnessToggle"
+            className="font-semibold text-gray-700 text-center mt-2 text-sm"
+          >
+            MASTER BRIGHTNESS
+          </label>
+        </div>
+
+        {/* Master Brightness Slider */}
+        <div className="relative flex flex-col items-center justify-center h-full">
+          <label
+            htmlFor="masterBrightnessSlider"
+            className="mb-6 text-gray-700 font-bold text-center hidden "
+          >
+            Master Brightness
+          </label>
+          <div className="relative flex flex-col items-center h-full group">
+            <div
+              className={`absolute top-[-2.5rem] bg-gray-800 text-white text-sm rounded-md px-2 py-1 opacity-0 transition-opacity duration-300 shadow-lg group-hover:opacity-90 z-50 ${
+                isCycleRunning ? "" : "hidden"
+              }`}
+            >
+              Stop cycle to adjust master brightness
+            </div>
+
+            {/* Slider */}
+            <input
+              type="range"
+              id="masterBrightnessSlider"
+              min="0"
+              max="100"
+              value={masterBrightness}
+              onChange={handleMasterBrightnessChange}
+              className={`w-40 h-2 bg-gray-300 rounded-lg appearance-none transform -rotate-90 origin-center focus:outline-none focus:ring-2 focus:ring-green-300 ${
+                isCycleRunning ? "opacity-50 cursor-not-allowed" : ""
+              }`}
+              disabled={!isMasterBrightnessEnabled || isCycleRunning}
+            />
+            {/* Percentage Text */}
+            <span
+              className={`mt-20 text-lg font-semibold ${
+                isMasterBrightnessEnabled ? "text-gray-700" : "text-gray-400"
+              }`}
+            >
+              {masterBrightness}%
+            </span>
+          </div>
+        </div>
+      </div>
+
       <DndProvider backend={HTML5Backend}>
         <LightSetupSelector
           lights={lights}
@@ -489,75 +659,80 @@ const StageLights = () => {
       )}
 
       <div className="flex flex-row justify-center">
-        <div className="lighttools-container flex justify-center bg-gray-100 p-4 rounded-xl shadow-lg m-6 w-fit relative">
-          <div className="relative" ref={dropdownToggleRef}>
-            <div
-              className={`flex flex-row items-center border rounded-xl border-gray-300 bg-gray-200 px-4 py-2 pr-4 text-gray-700 cursor-pointer focus:border-blue-500 focus:outline-none w-40 h-11 overflow-hidden ${
+        {/* Button to open the modal */}
+        <div className="relative group">
+          {/* Tooltip */}
+          {isCycleRunning && (
+            <div className="absolute top-[-1.5rem] left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-sm rounded-md px-2 py-1 opacity-0 transition-opacity duration-300 shadow-lg group-hover:opacity-100">
+              Stop cycle to use this functionality
+            </div>
+          )}
+          <div className="lighttools-container flex justify-center bg-gray-100 p-4 rounded-xl shadow-lg m-6 w-fit relative">
+            <div className="relative" ref={dropdownToggleRef}>
+              <div
+                className={`flex flex-row items-center border rounded-xl border-gray-300 bg-gray-200 px-4 py-2 pr-4 text-gray-700 cursor-pointer focus:border-blue-500 focus:outline-none w-40 h-11 overflow-hidden ${
+                  isCycleRunning ? "opacity-50 cursor-not-allowed" : ""
+                }`}
+                onClick={() => setIsOpen((prev) => !prev)}
+              >
+                <span className="truncate">
+                  {selectedScene ? selectedScene.name : "Select scene"}
+                </span>
+                <span className="ml-auto">
+                  {isOpen ? <FaAngleUp /> : <FaAngleDown />}
+                </span>
+              </div>
+              {isOpen && !isCycleRunning && (
+                <ul className="absolute bottom-full left-0 mb-2 w-full bg-gray-300 border border-gray-400 shadow-lg rounded overflow-hidden">
+                  {scenes.length > 0 ? (
+                    scenes.map((scene, index) => (
+                      <li
+                        key={index}
+                        className="px-4 py-2 cursor-pointer hover:bg-gray-100 flex justify-between items-center"
+                        onClick={() => {
+                          handleItemClick(scene);
+                          setIsOpen(false);
+                        }}
+                      >
+                        {scene.name}
+                      </li>
+                    ))
+                  ) : (
+                    <li className="px-4 py-2 text-gray-500">No saved scenes</li>
+                  )}
+                </ul>
+              )}
+            </div>
+
+            <button
+              disabled={isCycleRunning}
+              onClick={saveCurrentScene}
+              className={`flex flex-row mx-2 ${
                 isCycleRunning ? "opacity-50 cursor-not-allowed" : ""
               }`}
-              onClick={() => setIsOpen((prev) => !prev)}
             >
-              <span className="truncate">
-                {selectedScene ? selectedScene.name : "Select scene"}
-              </span>
-              <span className="ml-auto">
-                {isOpen ? <FaAngleUp /> : <FaAngleDown />}
-              </span>
-            </div>
-            {isOpen && !isCycleRunning && (
-              <ul className="absolute bottom-full left-0 mb-2 w-full bg-gray-300 border border-gray-400 shadow-lg rounded overflow-hidden">
-                {scenes.length > 0 ? (
-                  scenes.map((scene, index) => (
-                    <li
-                      key={index}
-                      className="px-4 py-2 cursor-pointer hover:bg-gray-100 flex justify-between items-center"
-                      onClick={() => {
-                        handleItemClick(scene);
-                        setIsOpen(false);
-                      }}
-                    >
-                      {scene.name}
-                    </li>
-                  ))
-                ) : (
-                  <li className="px-4 py-2 text-gray-500">No saved scenes</li>
-                )}
-              </ul>
-            )}
+              Save scene
+            </button>
+            <button
+              disabled={isCycleRunning}
+              onClick={() => deleteCurrentScene(selectedScene?.id)}
+              // className="flex flex-row"
+              className={`flex flex-row ${
+                isCycleRunning ? "opacity-50 cursor-not-allowed" : ""
+              }`}
+            >
+              Delete scene
+            </button>
+            <button
+              disabled={isCycleRunning}
+              onClick={resetLights}
+              className={`ml-2 bg-red-500 text-white px-4 py-2 rounded shadow hover:bg-red-600 ${
+                isCycleRunning ? "opacity-50 cursor-not-allowed" : ""
+              }`}
+            >
+              Reset
+            </button>
           </div>
-
-          <button
-            disabled={isCycleRunning}
-            onClick={saveCurrentScene}
-            className={`flex flex-row mx-2 ${
-              isCycleRunning ? "opacity-50 cursor-not-allowed" : ""
-            }`}
-          >
-            Save scene
-          </button>
-          <button
-            disabled={isCycleRunning}
-            onClick={(e) => {
-              if (selectedScene) {
-                deleteCurrentScene(selectedScene.id);
-              }
-            }}
-            // className="flex flex-row"
-            className={`flex flex-row ${
-              isCycleRunning ? "opacity-50 cursor-not-allowed" : ""
-            }`}
-          >
-            Delete scene
-          </button>
-          <button
-            disabled={isCycleRunning}
-            onClick={resetLights}
-            className={`ml-2 bg-red-500 text-white px-4 py-2 rounded shadow hover:bg-red-600 ${
-              isCycleRunning ? "opacity-50 cursor-not-allowed" : ""
-            }`}
-          >
-            Reset
-          </button>
         </div>
 
         <div className="flex justify-center bg-gray-100 p-4 rounded-xl shadow-lg m-6 w-fit relative">
@@ -586,34 +761,43 @@ const StageLights = () => {
           </div>
         </div>
         <div className="flex flex-col justify-evenly">
-          <GPTColorForm></GPTColorForm>
+          {/* <GPTColorForm></GPTColorForm> */}
         </div>
         {/* Button to open the modal */}
-        <div className="lightsetup-container flex flex-row justify-center bg-gray-100 p-4 rounded-xl shadow-lg m-6 w-fit">
-          <button
-            className={`${
-              isCycleRunning ? "opacity-50 cursor-not-allowed" : ""
-            }`}
-            disabled={isCycleRunning}
-            onClick={() => {
-              setShowModal(true);
-              setModalContent("addLight");
-            }}
-          >
-            Add new light
-          </button>
-          <button
-            className={`ml-2 ${
-              isCycleRunning ? "opacity-50 cursor-not-allowed" : ""
-            }`}
-            disabled={isCycleRunning}
-            onClick={() => {
-              setModalContent("setupLights");
-              setShowModal(true);
-            }}
-          >
-            Lights setup
-          </button>
+        <div className="relative group">
+          {/* Tooltip */}
+          {isCycleRunning && (
+            <div className="absolute top-[-2.5rem] left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-sm rounded-md px-2 py-1 opacity-0 transition-opacity duration-300 shadow-lg group-hover:opacity-100">
+              Stop cycle to use this functionality
+            </div>
+          )}
+
+          <div className="lightsetup-container flex flex-row justify-center bg-gray-100 p-4 rounded-xl shadow-lg m-6 w-fit">
+            <button
+              className={`${
+                isCycleRunning ? "opacity-50 cursor-not-allowed" : ""
+              }`}
+              disabled={isCycleRunning}
+              onClick={() => {
+                setShowModal(true);
+                setModalContent("addLight");
+              }}
+            >
+              Add new light
+            </button>
+            <button
+              className={`ml-2 ${
+                isCycleRunning ? "opacity-50 cursor-not-allowed" : ""
+              }`}
+              disabled={isCycleRunning}
+              onClick={() => {
+                setModalContent("setupLights");
+                setShowModal(true);
+              }}
+            >
+              Lights setup
+            </button>
+          </div>
         </div>
         {/* Modal */}
         <LightModal

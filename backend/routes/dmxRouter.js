@@ -166,7 +166,7 @@ const cycleLigths = () => {
     clearInterval(cycleIntervalId);
   }
 
-  console.log("cycleligths indexid: ", cycleindx);
+  console.log("cycle ligths indexid: ", cycleindx);
   const currentLights = cyclingsceneLightsArrays[cycleindx];
 
   currentLights.forEach((light) => {
@@ -194,9 +194,15 @@ const cycleLigths = () => {
       });
     });
 
-    // Log the color visually
-    const logColor = `\x1b[38;2;${red};${green};${blue}m██\x1b[0m`;
-    console.log(`Color: ${logColor} (${color}), Intensity: ${intensity}%`);
+    const logColor = (hex) => {
+      const [red, green, blue] = hex.length < 6
+        ? [1, 2, 3].map((i) => parseInt(hex[i] + hex[i], 16)) // Expand short hex
+        : [1, 3, 5].map((i) => parseInt(hex.substr(i, 2), 16)); // Parse full hex 
+    
+      return `\x1b[38;2;${red};${green};${blue}m██\x1b[0m`;
+    };
+    
+    console.log(`Color: ${logColor(color)} (${color}), Intensity: ${intensity}%, Light: ${light.id}, Channel: ${light.channel} Address: ${dmxChannel}`);
   });
 
   cycleindx = (cycleindx + 1) % cyclingsceneLightsArrays.length; // Loop back to 0 when reaching the end
