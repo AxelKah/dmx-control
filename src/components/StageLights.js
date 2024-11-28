@@ -282,10 +282,26 @@ const StageLights = () => {
   };
 
 
+  const makeLightsGoVerydim = async () => {
+    console.log("Making lights go very dim");
+      const brightness = 1;
+      const updatedLights = [...lights];
+      setLights((updatedLights) =>
+        updatedLights.map((light) => ({ ...light, brightness }))
+      );
+      stopSceneCycle();
+      setMasterBrightness(brightness);
+    };
+
+
+
+
+
+
   return (
     <div>
             <div>
-            <PresetBtn lights={lights} startCycle={startSceneCycle} startCycle1h={startSceneCycle2}></PresetBtn>
+            <PresetBtn lights={lights} startCycle={startSceneCycle} startCycle1h={startSceneCycle2} killLights={makeLightsGoVerydim}></PresetBtn>
               <label htmlFor="masterBrightnessSlider">Master Brightness: </label>
               <input
                 type="range"
@@ -465,6 +481,7 @@ const StageLights = () => {
           <button onClick={stopSceneCycle} className="ml-2">
             Stop cycle
           </button>
+          <button onClick={sendLightsStateToServer} className="ml-2"></button>
         
         </div>
     </div>

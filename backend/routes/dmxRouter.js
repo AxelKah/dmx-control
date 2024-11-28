@@ -13,6 +13,9 @@ let allLights = [];
 
 // Route to track all lights
 router.post("/track-lights", (req, res) => {
+  const manualLighst = req.body;
+  console.log("Tracking lights: ", manualLighst);
+  allLights = manualLighst;
   const { lights } = req.body;
   if (!Array.isArray(lights)) {
     return res.status(400).send("Lights should be an array.");
@@ -209,7 +212,7 @@ router.post("/clear-lights", (req, res) => {
 let cycleIntervalId = null;
 
 // Route to set the cycle effect
-router.post("/set-cycle1h", (req, res) => {
+router.post("/set-cycle", (req, res) => {
   const { lightsArray1, lightsArray2, } = req.body;
   
 //  console.log(req.body);
@@ -354,6 +357,7 @@ router.post("/stop-cycle", (req, res) => {
 
     res.send("Cycle effect stopped");
   } else {
+    console.log("No cycle effect to stop");
     res.send("No cycle effect to stop");
   }
 });
