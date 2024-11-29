@@ -139,7 +139,7 @@ const SceneControls = ({
     }));
 
     setLights(resetLightsArray);
-    setSelectedScenes(null);
+    setSelectedScenes([]);
 
     await makeApiCall("http://localhost:5000/set-lights", resetLightsArray);
   };

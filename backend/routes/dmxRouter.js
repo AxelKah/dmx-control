@@ -370,7 +370,11 @@ app.post('/log-lights', (req, res) => {
 // Control multiple lights
 router.post("/set-lights", (req, res) => {
   const lights = req.body.lights;
-  console.log(lights);
+  
+  if (!lights) {
+    console.error("No lights provided in the request");
+  }
+
   if (!Array.isArray(lights)) {
     return res
       .status(400)
