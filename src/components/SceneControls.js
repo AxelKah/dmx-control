@@ -16,6 +16,8 @@ const SceneControls = ({
     selectedScenes,
     setSelectedScenes,
     selectedLightSetup,
+    masterBrightness,
+    isMasterBrightnessEnabled,
   } = useLightData();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownToggleRef = useRef(null);
@@ -64,7 +66,9 @@ const SceneControls = ({
         return {
           ...light,
           color: matchingColor.color,
-          intensity: matchingColor.intensity,
+          intensity: isMasterBrightnessEnabled
+            ? masterBrightness
+            : matchingColor.intensity
         };
       }
       return light;
