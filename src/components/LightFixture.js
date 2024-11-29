@@ -54,23 +54,24 @@ const LightFixture = ({
   };
 
   return (
-    <div
-      ref={(node) => drag(drop(node))}
-      className="light-box"
-      style={{
-        backgroundColor: light.color,
-        opacity: isDragging ? 0.5 : 1,
-        border: light.selected ? "3px solid black" : "none",
-      }}
-      onClick={handleClick}
-      onDoubleClick={handleDoubleClick}
-      onMouseEnter={() => setShowHint(true)}
-      onMouseLeave={() => setShowHint(false)}
-    >
-      {`Light ${light.id} Address ${light.startAddress}`}
-
+    <div>
+      <div
+        ref={(node) => drag(drop(node))}
+        className="light-box"
+        style={{
+          backgroundColor: light.color,
+          opacity: isDragging ? 0.5 : 1,
+          border: light.selected ? "3px solid black" : "none",
+        }}
+        onClick={handleClick}
+        onDoubleClick={handleDoubleClick}
+        onMouseEnter={() => setShowHint(true)}
+        onMouseLeave={() => setShowHint(false)}
+      >
+        {`Light ${light.id} Address ${light.startAddress}`}
+      </div>
       {showHint && (
-        <div className="absolute inset-0 flex flex-col items-center justify-center text-xs text-black pointer-events-none">
+        <div className="absolute inset-0 flex flex-col items-center justify-center text-xs text-black font-bold pointer-events-none">
           Single-click light(s) to adjust color and brightness<br></br>
           Double-click to edit address and channel
         </div>
