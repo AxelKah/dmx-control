@@ -18,6 +18,14 @@ const hexToRgb = (hex) => {
   return { red, green, blue };
 };
 
+// helper to log colors visually
+const logColor = (hex) => {
+  const [red, green, blue] = hex.length < 6
+    ? [1, 2, 3].map((i) => parseInt(hex[i] + hex[i], 16)) // Expand short hex
+    : [1, 3, 5].map((i) => parseInt(hex.substr(i, 2), 16)); // Parse full hex 
+
+  return `\x1b[38;2;${red};${green};${blue}m██\x1b[0m`;
+};
 
 // Endpoint to set a DMX channel value
 router.post("/set-channel", (req, res) => {
@@ -166,7 +174,7 @@ const cycleLigths = () => {
     clearInterval(cycleIntervalId);
   }
 
-  console.log("cycle ligths indexid: ", cycleindx);
+  console.log("\nScene lights index id: ", cycleindx);
   const currentLights = cyclingsceneLightsArrays[cycleindx];
 
   currentLights.forEach((light) => {
@@ -193,14 +201,6 @@ const cycleLigths = () => {
         [dmxChannel + 2]: currentValues.blue,
       });
     });
-
-    const logColor = (hex) => {
-      const [red, green, blue] = hex.length < 6
-        ? [1, 2, 3].map((i) => parseInt(hex[i] + hex[i], 16)) // Expand short hex
-        : [1, 3, 5].map((i) => parseInt(hex.substr(i, 2), 16)); // Parse full hex 
-    
-      return `\x1b[38;2;${red};${green};${blue}m██\x1b[0m`;
-    };
     
     console.log(`Color: ${logColor(color)} (${color}), Intensity: ${intensity}%, Light: ${light.id}, Channel: ${light.channel} Address: ${dmxChannel}`);
   });
@@ -212,8 +212,9 @@ const cycleLigths = () => {
 
 router.post("/set-cycle", (req, res) => {
   const { sceneLightsArrays, interval } = req.body;
-  console.log("amount of scenes: ", sceneLightsArrays.length);
-  console.log("Cycle interval: ", interval);
+  console.log("---\nCycle effect started")
+  console.log("Amount of the scenes: ", sceneLightsArrays.length);
+  console.log("Cycle interval in ms: ", interval);
 
   if (!Array.isArray(sceneLightsArrays)) {
     return res.status(400).send("should be arrays");
@@ -242,6 +243,7 @@ router.post("/stop-cycle", (req, res) => {
     cycleIntervalId = null;
     cycleindx = 0;
 
+    console.log("Cycle effect stopped")
     res.json({ message: "Cycle effect stopped" });
   } else {
     res.json({ message: "No cycle effect to stop" });
@@ -324,8 +326,11 @@ const updateDmxSmoothly = (startValues, endValues, duration, updateFn) => {
 router.post('/set-scene', (req, res) => {
   const { lights } = req.body;
 
+  console.log("---\nSetting the scene:")
   lights.forEach((light) => {
-    const { startAddress, color, intensity } = light;
+    const { id, channel, startAddress, color, intensity } = light;
+    console.log(`Setting light ${id} channel ${channel} to color: ${logColor(color)} (${color}), intensity: ${intensity}`);
+
     const dmxChannel = startAddress;
     const { red, green, blue } = hexToRgb(color);
 
@@ -349,6 +354,7 @@ router.post('/set-scene', (req, res) => {
       });
     });
   });
+  console.log("Finished setting the scene.")
 
   res.send({ success: true });
 });
@@ -385,7 +391,7 @@ router.post("/set-lights", (req, res) => {
 
   lights.forEach((light) => {
     const { id, channel, color, startAddress } = light;
-    console.log(`Setting light ${id} channel ${channel} to color ${color}`);
+    console.log(`Setting light ${id} channel ${channel} to color ${logColor(color)} (${color})`);
 
     // Map the light StartAddress to its DMX channel
     const dmxChannel = startAddress;
