@@ -7,6 +7,9 @@ const LightsProvider = ({ children }) => {
   const [scenes, setScenes] = useState([]);
   const [selectedScenes, setSelectedScenes] = useState([]);
   const [isCycleRunning, setIsCycleRunning] = useState(false);
+  const [masterBrightness, setMasterBrightness] = useState(100);
+  const [isMasterBrightnessEnabled, setIsMasterBrightnessEnabled] =
+    useState(false);
 
   return (
     <LightsContext.Provider
@@ -19,6 +22,10 @@ const LightsProvider = ({ children }) => {
         setScenes,
         isCycleRunning,
         setIsCycleRunning,
+        masterBrightness,
+        setMasterBrightness,
+        isMasterBrightnessEnabled,
+        setIsMasterBrightnessEnabled,
       }}
     >
       {children}
