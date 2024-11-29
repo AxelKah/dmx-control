@@ -4,11 +4,22 @@ export const LightsContext = createContext();
 
 const LightsProvider = ({ children }) => {
   const [selectedLightSetup, setSelectedLightSetup] = useState(null);
-  const [selectedScenes, setSelectedScene] = useState([]);
+  const [scenes, setScenes] = useState([]);
+  const [selectedScenes, setSelectedScenes] = useState([]);
+  const [isCycleRunning, setIsCycleRunning] = useState(false);
 
   return (
     <LightsContext.Provider
-      value={{ selectedLightSetup, setSelectedLightSetup, selectedScenes, setSelectedScene }}
+      value={{
+        selectedLightSetup,
+        setSelectedLightSetup,
+        selectedScenes,
+        setSelectedScenes,
+        scenes,
+        setScenes,
+        isCycleRunning,
+        setIsCycleRunning,
+      }}
     >
       {children}
     </LightsContext.Provider>
@@ -16,12 +27,11 @@ const LightsProvider = ({ children }) => {
 };
 
 export const useLightData = () => {
-    const context = useContext(LightsContext);
-    if (!context) {
-      throw new Error("LightsContext not found");
-    }
-    return context;
-  };
-
+  const context = useContext(LightsContext);
+  if (!context) {
+    throw new Error("LightsContext not found");
+  }
+  return context;
+};
 
 export default LightsProvider;

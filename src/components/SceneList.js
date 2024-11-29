@@ -1,14 +1,9 @@
-import React, { useState, useEffect } from "react";
-import PropTypes from "prop-types";
+import React, { useState } from "react";
+import { useLightData } from "../contexts/lightsContext";
 
-const SceneList = ({ scenes = [], startSceneCycle, stopSceneCycle }) => {
-  const [selectedScenes, setSelectedScenes] = useState([]);
+const SceneList = ({ startSceneCycle, stopSceneCycle }) => {
+  const { scenes, selectedScenes, setSelectedScenes } = useLightData();
   const [interval, setInterval] = useState(1);
-
-  useEffect(() => {
-    // to reset selected scenes if received scenes changes
-    setSelectedScenes([]);
-  }, [scenes]);
 
   const handleSelect = (scene) => {
     if (selectedScenes.includes(scene)) {
@@ -20,15 +15,13 @@ const SceneList = ({ scenes = [], startSceneCycle, stopSceneCycle }) => {
 
   const handleSubmit = () => {
     if (selectedScenes.length === 2) {
-      // console.log("Submitting selected scenes:", selectedScenes);
       sendSelection(selectedScenes, interval);
     } else {
-      alert("Please select exactly two items.");
+      alert("Please select two items.");
     }
   };
 
   const sendSelection = async (scenes, intervalInSeconds) => {
-    // console.log("Selected items:", scenes);
     const intervalInMilliseconds = intervalInSeconds * 1000;
     await startSceneCycle(scenes, intervalInMilliseconds);
   };
@@ -80,23 +73,6 @@ const SceneList = ({ scenes = [], startSceneCycle, stopSceneCycle }) => {
       </div>
     </div>
   );
-};
-
-SceneList.propTypes = {
-  scenes: PropTypes.arrayOf(
-    PropTypes.shape({
-      id: PropTypes.number.isRequired,
-      name: PropTypes.string.isRequired,
-      colors: PropTypes.arrayOf(
-        PropTypes.shape({
-          lightId: PropTypes.number.isRequired,
-          color: PropTypes.string.isRequired,
-          intensity: PropTypes.number.isRequired,
-        })
-      ).isRequired,
-    })
-  ).isRequired,
-  startSceneCycle: PropTypes.func.isRequired,
 };
 
 export default SceneList;
