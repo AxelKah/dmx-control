@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { FaPlay, FaPause } from "react-icons/fa";
 import { useLightData } from "../contexts/lightsContext";
 
 const SceneList = ({ startSceneCycle, stopSceneCycle }) => {
@@ -64,11 +65,17 @@ const SceneList = ({ startSceneCycle, stopSceneCycle }) => {
         />
       </div>
       <div className="flex flex-row justify-center mt-2">
-        <button onClick={handleSubmit} className="m-2">
-          Start cycle
+        <button
+          onClick={handleSubmit}
+          className="m-2 flex flex-row items-center"
+        >
+          <FaPlay className="mr-1" /> Start cycle
         </button>
-        <button onClick={stopSceneCycle} className="bg-red-500 shadow m-2">
-          Stop cycle
+        <button
+          onClick={stopSceneCycle}
+          className="flex flex-row items-center bg-red-500 shadow m-2"
+        >
+          <FaPause className="mr-1" /> Stop cycle
         </button>
       </div>
     </div>

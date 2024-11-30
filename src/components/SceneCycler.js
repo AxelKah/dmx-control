@@ -1,5 +1,5 @@
 import React, { useState, useRef } from "react";
-import { FaAngleUp, FaAngleDown } from "react-icons/fa";
+import { FaAngleUp, FaAngleDown, FaRotate } from "react-icons/fa6";
 import SceneList from "./SceneList";
 import { makeCycleApiCall, makeApiCall } from "../utils/utils";
 import { useLightData } from "../contexts/lightsContext";
@@ -138,9 +138,10 @@ const SceneCycler = ({
       <div className="relative">
         <button
           onClick={() => setShowSceneDropdown((prev) => !prev)}
-          className="flex items-center border rounded-lg px-4 py-2 shadow"
+          className="flex flex-row items-center border rounded-lg px-4 py-2 shadow"
         >
-          <span>Scene cycler</span>
+          <FaRotate className="mr-1"/>
+          Scene cycler
           <span className="ml-2">
             {showSceneDropdown ? <FaAngleUp /> : <FaAngleDown />}
           </span>
@@ -148,7 +149,7 @@ const SceneCycler = ({
         {showSceneDropdown && (
           <div
             ref={dropdownRef}
-            className="absolute bottom-full left-0 mb-2 w-fit p-2 bg-gray-300 border border-gray-400 shadow-lg rounded z-10 min-w-64"
+            className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-fit p-2 bg-gray-300 border border-gray-400 shadow-lg rounded z-10 min-w-72"
           >
             <SceneList
               startSceneCycle={startSceneCycle}

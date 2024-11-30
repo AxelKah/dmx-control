@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { FaSave, FaEdit, FaTrash } from "react-icons/fa";
+import { FaSave, FaEdit, FaTrash, FaPlus } from "react-icons/fa";
 import {
   getAllLights,
   deleteSavedLightSetup,
@@ -15,7 +15,12 @@ const LightSetupSelector = ({
   isCycleRunning,
 }) => {
   const [savedLights, setSavedLights] = useState([]);
-  const { selectedLightSetup, setSelectedLightSetup } = useLightData();
+  const {
+    selectedLightSetup,
+    setSelectedLightSetup,
+    setScenes,
+    setSelectedScenes,
+  } = useLightData();
 
   useEffect(() => {
     const fetchLights = async () => {
@@ -104,6 +109,18 @@ const LightSetupSelector = ({
     }
   };
 
+  const handleNewSetup = () => {
+    if (isCycleRunning) {
+      alert("Cannot start a new setup while a cycle is running.");
+      return;
+    }
+    setLights([]);
+    setNumLights(0);
+    setScenes([]);
+    setSelectedScenes([]);
+    setSelectedLightSetup(null);
+  };
+
   return (
     <div className="flex justify-center items-center w-full">
       {/* Button to open the modal */}
@@ -138,6 +155,15 @@ const LightSetupSelector = ({
           </select>
           <div className="flex flex-row mt-2 sm:mt-0">
             <button
+              onClick={handleNewSetup}
+              disabled={isCycleRunning}
+              className={`ml-2 flex flex-row items-center ${
+                isCycleRunning ? "opacity-50 cursor-not-allowed" : ""
+              }`}
+            >
+              <FaPlus className="mr-1" /> New setup
+            </button>
+            <button
               onClick={handleUpdate}
               disabled={isCycleRunning}
               className={`ml-2 flex flex-row items-center ${
@@ -145,15 +171,6 @@ const LightSetupSelector = ({
               }`}
             >
               <FaEdit className="mr-1" /> Update selected
-            </button>
-            <button
-              onClick={handleDelete}
-              disabled={isCycleRunning}
-              className={`ml-2 flex flex-row items-center ${
-                isCycleRunning ? "opacity-50 cursor-not-allowed" : ""
-              }`}
-            >
-              <FaTrash className="mr-1" /> Delete
             </button>
             <button
               onClick={handleSave}
@@ -164,6 +181,15 @@ const LightSetupSelector = ({
             >
               <FaSave className="mr-1" />
               Save as new
+            </button>
+            <button
+              onClick={handleDelete}
+              disabled={isCycleRunning}
+              className={`ml-2 flex flex-row items-center bg-red-500 hover:bg-red-600 ${
+                isCycleRunning ? "opacity-50 cursor-not-allowed" : ""
+              }`}
+            >
+              <FaTrash className="mr-1" /> Delete
             </button>
           </div>
         </div>

@@ -14,8 +14,6 @@ const LightFixture = ({
   containerId,
   updateChannel,
 }) => {
-  const [selected, setSelected] = useState(false);
-  const [showTooltip, setShowTooltip] = useState(false);
   const [showHint, setShowHint] = useState(false);
 
   const [{ isDragging }, drag] = useDrag(() => ({

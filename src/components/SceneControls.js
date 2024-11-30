@@ -1,8 +1,8 @@
 import React, { useState, useRef, useEffect } from "react";
-import { FaAngleUp, FaAngleDown } from "react-icons/fa";
 import { makeApiCall } from "../utils/utils";
 import { saveScenes, getScenes, deleteScene } from "../api/dmxApi";
 import { useLightData } from "../contexts/lightsContext";
+import { FaAngleUp, FaAngleDown, FaSave, FaTrash, FaUndo } from "react-icons/fa";
 
 const SceneControls = ({
   lights,
@@ -68,7 +68,7 @@ const SceneControls = ({
           color: matchingColor.color,
           intensity: isMasterBrightnessEnabled
             ? masterBrightness
-            : matchingColor.intensity
+            : matchingColor.intensity,
         };
       }
       return light;
@@ -187,29 +187,29 @@ const SceneControls = ({
         <button
           onClick={saveCurrentScene}
           disabled={isCycleRunning}
-          className={`flex flex-row mx-2 ${
+          className={`flex flex-row mx-2 items-center ${
             isCycleRunning ? "opacity-50 cursor-not-allowed" : ""
           }`}
         >
-          Save scene
+          <FaSave className="mr-1" /> Save scene
         </button>
         <button
           onClick={() => deleteCurrentScene(selectedScenes?.id)}
           disabled={isCycleRunning}
-          className={`flex flex-row ${
+          className={`flex flex-row items-center${
             isCycleRunning ? "opacity-50 cursor-not-allowed" : ""
           }`}
         >
-          Delete scene
+          <FaTrash className="mr-1" /> Delete scene
         </button>
         <button
           onClick={resetLights}
           disabled={isCycleRunning}
-          className={`ml-2 bg-red-500 text-white px-4 py-2 rounded shadow hover:bg-red-600 ${
+          className={`ml-2 flex flex-row items-center bg-red-500 text-white px-4 py-2 rounded shadow hover:bg-red-600 ${
             isCycleRunning ? "opacity-50 cursor-not-allowed" : ""
           }`}
         >
-          Reset lights
+          <FaUndo className="mr-1" /> Reset lights
         </button>
       </div>
     </div>

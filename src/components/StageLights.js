@@ -11,6 +11,7 @@ import SceneCycler from "./SceneCycler";
 import LightSetupSelector from "./SetupSelector";
 import { useLightData } from "../contexts/lightsContext";
 import MasterBrightnessController from "./MasterBrightness";
+import { FaPlus, FaGripVertical } from "react-icons/fa6";
 
 const StageLights = () => {
   const {
@@ -311,7 +312,7 @@ const StageLights = () => {
 
           <div className="lightsetup-container flex flex-row justify-center bg-gray-100 p-4 rounded-xl shadow-lg m-6 w-fit">
             <button
-              className={`${
+              className={`flex flex-row items-center ${
                 isCycleRunning ? "opacity-50 cursor-not-allowed" : ""
               }`}
               disabled={isCycleRunning}
@@ -320,10 +321,10 @@ const StageLights = () => {
                 setModalContent("addLight");
               }}
             >
-              Add new light
+              <FaPlus className="mr-1" /> Add new light
             </button>
             <button
-              className={`ml-2 ${
+              className={`ml-2 flex flex-row items-center ${
                 isCycleRunning ? "opacity-50 cursor-not-allowed" : ""
               }`}
               disabled={isCycleRunning}
@@ -332,7 +333,7 @@ const StageLights = () => {
                 setShowModal(true);
               }}
             >
-              Lights setup
+              <FaGripVertical className="mr-1" /> Lights setup
             </button>
           </div>
         </div>
