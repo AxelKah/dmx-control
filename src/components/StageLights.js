@@ -240,8 +240,11 @@ const StageLights = () => {
               <input
                 type="color"
                 value={
-                  selectedLights.length === 1
-                    ? selectedLights[0].color
+                  selectedLights.length === 1 ||
+                  selectedLights.every(
+                    (light) => light.color === selectedLights[0]?.color // if all have same color, show it
+                  )
+                    ? selectedLights[0]?.color || "#ffffff"
                     : "#cccccc"
                 }
                 onChange={(e) => handleColorChange(e.target.value)}
@@ -297,6 +300,16 @@ const StageLights = () => {
                 Apply brightness
               </button>
             </div>
+            <button
+              onClick={() =>
+                setLights((prevLights) =>
+                  prevLights.map((light) => ({ ...light, selected: false }))
+                )
+              }
+              className="relative right-[-15px] top-[-15px] bg-red-500 text-white text-center rounded-full w-6 h-6 flex items-center justify-center self-start shadow-md cursor-pointer"
+            >
+              &#10006;
+            </button>
           </div>
         </div>
       )}
