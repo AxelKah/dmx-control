@@ -12,6 +12,7 @@ import LightSetupSelector from "./SetupSelector";
 import { useLightData } from "../contexts/lightsContext";
 import MasterBrightnessController from "./MasterBrightness";
 import { FaPlus, FaGripVertical } from "react-icons/fa6";
+import CircularColorPicker from "./ColorPicker";
 
 const StageLights = () => {
   const {
@@ -69,11 +70,11 @@ const StageLights = () => {
     );
   };
 
-  const handleColorChange = (e) => {
-    setColor(e.target.value);
+  const handleColorChange = (selectedColor) => {
+    setColor(selectedColor);
     setLights((prevLights) =>
       prevLights.map((light) =>
-        light.selected ? { ...light, color: e.target.value } : light
+        light.selected ? { ...light, color: selectedColor } : light
       )
     );
   };
@@ -232,39 +233,70 @@ const StageLights = () => {
 
       {/* show color/brightness editor only when light is selected*/}
       {selectedLights.length > 0 && (
-        <div className="fixed inset-0 flex items-center justify-center pointer-events-none z-[100]">
-          <div className="bg-white p-6 rounded-lg shadow-lg flex flex-col pointer-events-auto">
-            <input
-              type="color"
-              value={color}
-              onChange={handleColorChange}
-              className="self-center mb-1 w-full h-8"
-            />
-            <button
-              onClick={() =>
-                handleApplyChanges("http://localhost:5000/set-lights")
-              }
-            >
-              Apply Color
-            </button>
-            <div className="my-2">
-              <label htmlFor="intensitySlider">Intensity: </label>
+        <div className="fixed inset-0 bottom-20 flex items-center justify-center pointer-events-none z-[100]">
+          <div className="bg-white p-6 rounded-lg shadow-lg flex flex-row items-end pointer-events-auto">
+            <div className="flex flex-col mx-2">
+              <CircularColorPicker onColorSelect={handleColorChange} />
               <input
-                type="range"
-                id="intensitySlider"
-                min="0"
-                max="100"
-                value={lights.find((light) => light.selected)?.intensity || 0}
-                onChange={handleIntensityChange}
+                type="color"
+                value={
+                  selectedLights.length === 1
+                    ? selectedLights[0].color
+                    : "#cccccc"
+                }
+                onChange={(e) => handleColorChange(e.target.value)}
+                className="self-center mb-1 w-full h-8"
               />
+
+              <button
+                onClick={() =>
+                  handleApplyChanges("http://localhost:5000/set-lights")
+                }
+              >
+                Apply color
+              </button>
             </div>
-            <button
-              onClick={() =>
-                handleApplyChanges("http://localhost:5000/set-brightness")
-              }
-            >
-              Apply Brightness
-            </button>
+            <div className="flex flex-col ml-6 max-w-36 relative">
+              {isMasterBrightnessEnabled && (
+                <div className="absolute top-[2rem] left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-sm rounded-md px-2 py-1 shadow-lg select-none z-50">
+                  Master brightness is enabled
+                </div>
+              )}
+              <div className="my-2 flex flex-col">
+                <label htmlFor="intensitySlider"> </label>
+                <input
+                  type="range"
+                  id="intensitySlider"
+                  min="0"
+                  max="100"
+                  value={lights.find((light) => light.selected)?.intensity || 0}
+                  onChange={handleIntensityChange}
+                  disabled={isMasterBrightnessEnabled}
+                  style={{
+                    writingMode: "bt-lr",
+                    transform: "rotate(-90deg)",
+                    height: "140px",
+                  }}
+                />
+                <span className="flex justify-center mt-2 select-none">
+                  {lights.find((light) => light.selected)?.intensity || 0} %
+                </span>
+              </div>
+
+              <button
+                disabled={isMasterBrightnessEnabled}
+                className={`${
+                  isMasterBrightnessEnabled
+                    ? "opacity-50 cursor-not-allowed"
+                    : ""
+                }`}
+                onClick={() =>
+                  handleApplyChanges("http://localhost:5000/set-brightness")
+                }
+              >
+                Apply brightness
+              </button>
+            </div>
           </div>
         </div>
       )}

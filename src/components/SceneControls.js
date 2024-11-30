@@ -196,7 +196,7 @@ const SceneControls = ({
         <button
           onClick={() => deleteCurrentScene(selectedScenes?.id)}
           disabled={isCycleRunning}
-          className={`flex flex-row items-center${
+          className={`flex flex-row items-center ${
             isCycleRunning ? "opacity-50 cursor-not-allowed" : ""
           }`}
         >

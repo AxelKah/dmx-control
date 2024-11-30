@@ -138,7 +138,7 @@ const SceneCycler = ({
       <div className="relative">
         <button
           onClick={() => setShowSceneDropdown((prev) => !prev)}
-          className="flex flex-row items-center border rounded-lg px-4 py-2 shadow"
+          className="flex flex-row items-center border rounded-lg px-4 py-2"
         >
           <FaRotate className="mr-1"/>
           Scene cycler
@@ -149,7 +149,7 @@ const SceneCycler = ({
         {showSceneDropdown && (
           <div
             ref={dropdownRef}
-            className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-fit p-2 bg-gray-300 border border-gray-400 shadow-lg rounded z-10 min-w-72"
+            className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-fit p-2 bg-gray-300 border border-gray-400 shadow-lg rounded z-[100] min-w-72"
           >
             <SceneList
               startSceneCycle={startSceneCycle}
