@@ -30,6 +30,19 @@ const LightSetupSelector = ({
     fetchLights();
   }, []);
 
+  // to restore selected light setup after route changes
+  useEffect(() => {
+    if (selectedLightSetup && savedLights.length > 0) {
+      const selectedSetup = savedLights.find(
+        (light) => light.id === selectedLightSetup
+      );
+      if (selectedSetup) {
+        setLights(selectedSetup.lights);
+        setNumLights(selectedSetup.lights.length);
+      }
+    }
+  }, [selectedLightSetup, savedLights, setLights, setNumLights]);
+
   const handleSetupChange = (e) => {
     if (isCycleRunning) {
       alert("Cannot change light setup while a cycle is running.");
@@ -41,8 +54,8 @@ const LightSetupSelector = ({
     if (selectedSetup) {
       setLights(selectedSetup.lights);
       setNumLights(selectedSetup.lights.length);
+      setSelectedLightSetup(selectedId);
     }
-    setSelectedLightSetup(selectedId);
   };
 
   const handleUpdate = async () => {

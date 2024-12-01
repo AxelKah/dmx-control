@@ -1,15 +1,42 @@
-import React, { createContext, useState, useContext } from "react";
+import React, { createContext, useState, useContext, useEffect } from "react";
 
 export const LightsContext = createContext();
 
 const LightsProvider = ({ children }) => {
-  const [selectedLightSetup, setSelectedLightSetup] = useState(null);
-  const [scenes, setScenes] = useState([]);
-  const [selectedScenes, setSelectedScenes] = useState([]);
-  const [isCycleRunning, setIsCycleRunning] = useState(false);
-  const [masterBrightness, setMasterBrightness] = useState(100);
-  const [isMasterBrightnessEnabled, setIsMasterBrightnessEnabled] =
-    useState(false);
+  const initialState = JSON.parse(sessionStorage.getItem("lightsState")) || {
+    selectedLightSetup: null,
+    scenes: [],
+    selectedScenes: [],
+    isCycleRunning: false,
+    masterBrightness: 100,
+    isMasterBrightnessEnabled: false,
+  };
+
+  const [selectedLightSetup, setSelectedLightSetup] = useState(initialState.selectedLightSetup);
+  const [scenes, setScenes] = useState(initialState.scenes);
+  const [selectedScenes, setSelectedScenes] = useState(initialState.selectedScenes);
+  const [isCycleRunning, setIsCycleRunning] = useState(initialState.isCycleRunning);
+  const [masterBrightness, setMasterBrightness] = useState(initialState.masterBrightness);
+  const [isMasterBrightnessEnabled, setIsMasterBrightnessEnabled] = useState(initialState.isMasterBrightnessEnabled);
+
+  useEffect(() => {
+    const state = {
+      selectedLightSetup,
+      scenes,
+      selectedScenes,
+      isCycleRunning,
+      masterBrightness,
+      isMasterBrightnessEnabled,
+    };
+    sessionStorage.setItem("lightsState", JSON.stringify(state));
+  }, [
+    selectedLightSetup,
+    scenes,
+    selectedScenes,
+    isCycleRunning,
+    masterBrightness,
+    isMasterBrightnessEnabled,
+  ]);
 
   return (
     <LightsContext.Provider
