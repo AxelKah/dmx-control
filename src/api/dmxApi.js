@@ -47,11 +47,10 @@ export const testChannels = async () => {
 
 export const saveLights = async (name, lights) => {
   try {
-
     // remove selected value and change color to default white
     const filteredLights = lights.map(({ selected, ...rest }) => rest);
-    filteredLights.forEach(element => {
-      element.color = '#ffffff';
+    filteredLights.forEach((element) => {
+      element.color = "#ffffff";
     });
 
     const response = await fetch("http://localhost:5000/save-lights", {
@@ -203,5 +202,59 @@ export const getScenes = async (lightSetupId) => {
   } catch (error) {
     console.error("Error in getScenes:", error);
     return [];
+  }
+};
+
+export const stopCycle = async (beacon = false) => {
+  const url = "http://localhost:5000/stop-cycle";
+
+  if (beacon) {
+    try {
+      navigator.sendBeacon(url);
+    } catch (error) {
+      console.error("Error in stopCycle with beacon:", error);
+    }
+  } else {
+    try {
+      const response = await fetch(url, {
+        method: "POST",
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP status: ${response.status}`);
+      }
+
+      console.log("Cycle stopped.");
+    } catch (error) {
+      console.error("Error in stopCycle:", error);
+      return { message: "Error stopping cycle" };
+    }
+  }
+};
+
+export const clearLights = async (beacon = false) => {
+  const url = "http://localhost:5000/clear-lights";
+
+  if (beacon) {
+    try {
+      navigator.sendBeacon(url);
+    } catch (error) {
+      console.error("Error in clearLights with beacon:", error);
+    }
+  } else {
+    try {
+      const response = await fetch(url, {
+        method: "POST",
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP status: ${response.status}`);
+      }
+
+      console.log("Lights cleared.");
+    } catch (error) {
+      console.error("Error in clearLights:", error);
+      return { message: "Error clearing lights" };
+    }
   }
 };

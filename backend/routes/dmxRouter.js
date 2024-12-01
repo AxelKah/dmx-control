@@ -160,6 +160,7 @@ router.post("/clear-lights", (req, res) => {
     policeIntervalId = null;
   }
 
+  console.log("Lights cleared")
   res.send("All lights cleared and effects stopped");
 });
 
