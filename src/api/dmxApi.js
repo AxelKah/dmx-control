@@ -205,16 +205,9 @@ export const getScenes = async (lightSetupId) => {
   }
 };
 
-export const stopCycle = async (beacon = false) => {
+export const stopCycle = async () => {
   const url = "http://localhost:5000/stop-cycle";
 
-  if (beacon) {
-    try {
-      navigator.sendBeacon(url);
-    } catch (error) {
-      console.error("Error in stopCycle with beacon:", error);
-    }
-  } else {
     try {
       const response = await fetch(url, {
         method: "POST",
@@ -229,19 +222,11 @@ export const stopCycle = async (beacon = false) => {
       console.error("Error in stopCycle:", error);
       return { message: "Error stopping cycle" };
     }
-  }
 };
 
-export const clearLights = async (beacon = false) => {
+export const clearLights = async () => {
   const url = "http://localhost:5000/clear-lights";
 
-  if (beacon) {
-    try {
-      navigator.sendBeacon(url);
-    } catch (error) {
-      console.error("Error in clearLights with beacon:", error);
-    }
-  } else {
     try {
       const response = await fetch(url, {
         method: "POST",
@@ -256,5 +241,14 @@ export const clearLights = async (beacon = false) => {
       console.error("Error in clearLights:", error);
       return { message: "Error clearing lights" };
     }
+};
+
+export const sendHeartbeat = async () => {
+  const url = "http://localhost:5000/heartbeat";
+
+  try {
+    await fetch(url, { method: "POST" });
+  } catch (error) {
+    console.error("Error sending heartbeat:", error);
   }
 };

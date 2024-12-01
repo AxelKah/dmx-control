@@ -5,28 +5,15 @@ import HelpPage from "./views/Help";
 import Nav from "./components/Nav";
 import DebugPage from "./views/DebugPage";
 import LightsProvider from "./contexts/lightsContext";
-import { stopCycle, clearLights } from "./api/dmxApi";
+import { sendHeartbeat } from "./api/dmxApi";
 
 const App = () => {
-  // to stop stuff on tab/window close but not on refresh
-  const isPageRefresh = () => {
-    const [navigationEntry] = performance.getEntriesByType("navigation");
-    return navigationEntry && navigationEntry.type === "reload";
-  };
-
   useEffect(() => {
-    const onBeforeUnload = () => {
-      if (!isPageRefresh()) {
-        // with true to use beacon
-        stopCycle(true);
-        clearLights(true);
-      }
-    };
-
-    window.addEventListener("beforeunload", onBeforeUnload);
+    sendHeartbeat();
+    const heartbeatInterval = setInterval(sendHeartbeat, 5000);
 
     return () => {
-      window.removeEventListener("beforeunload", onBeforeUnload);
+      clearInterval(heartbeatInterval);
     };
   }, []);
 
