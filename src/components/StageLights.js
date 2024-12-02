@@ -35,9 +35,10 @@ const StageLights = () => {
   };
 
 
-  const sendLightsStateToServer = async (updatedLights) => {
+  const sendLightsStateToServer = async () => {
+    console.log("Sending lights state to server " + [lights]);
     try {
-      await makeApiCall("http://localhost:5000/track-lights", updatedLights);
+      await makeApiCall("http://localhost:5000/track-lights", lights);
       console.log("Lights state sent to server");
     } catch (error) {
       console.error("Error sending lights state to server:", error);
@@ -188,7 +189,7 @@ const StageLights = () => {
 
 
   const [cycleInterval, setCycleInterval] = useState(null);
-
+//////////////15min
   const startSceneCycle = async (scene1, scene2, interval) => {
     if (scene1.length === 0 || scene2.length === 0) {
       console.error("Both scenes must have at least one light");
@@ -201,7 +202,7 @@ const StageLights = () => {
   };
 
 
-
+////////////////////////////////1h cycle
   const startSceneCycle2 = async (scene1, scene2, interval) => {
     if (scene1.length === 0 || scene2.length === 0) {
       console.error("Both scenes must have at least one light");
@@ -210,7 +211,19 @@ const StageLights = () => {
 
     }
     console.log("Starting scene cycle " + interval);
-    handleCycleApiCall(scene1, scene2, interval);
+    handleCycleApiCall1h(scene1, scene2, interval);
+  };
+
+////////////////////25sec
+  const startSceneCycle3 = async (scene1, scene2, interval) => {
+    if (scene1.length === 0 || scene2.length === 0) {
+      console.error("Both scenes must have at least one light");
+      scene1 = PresetScene1
+      scene2  = PresetScene2
+
+    }
+    console.log("Starting scene cycle " + interval);
+    handleCycleApiCall25sec(scene1, scene2, interval);
   };
 
 
@@ -229,7 +242,7 @@ const StageLights = () => {
     }
     console.log("arrays", lightsArray1, lightsArray2);
 
-    await makeCycleApiCall("http://localhost:5000/set-cycle15m", {
+    await makeCycleApiCall("http://localhost:5000/set-cycle15min", {
       lightsArray1,
       lightsArray2,
       interval,
@@ -251,6 +264,25 @@ const StageLights = () => {
     console.log("arrays", lightsArray1, lightsArray2);
 
     await makeCycleApiCall("http://localhost:5000/set-cycle1h", {
+      lightsArray1,
+      lightsArray2,
+      interval,
+    });
+  };
+
+
+
+  const handleCycleApiCall25sec = async (lightsArray1, lightsArray2, interval) => {
+    console.log(interval + " interval api callissa");
+    if (!Array.isArray(lightsArray1) || !Array.isArray(lightsArray2)) {
+      console.error(
+        "lightsArray1 and lightsArray2 must be arrays"
+      );
+      return;
+    }
+    console.log("arrays", lightsArray1, lightsArray2);
+
+    await makeCycleApiCall("http://localhost:5000/set-cycle25sec", {
       lightsArray1,
       lightsArray2,
       interval,
@@ -301,7 +333,7 @@ const StageLights = () => {
   return (
     <div>
             <div>
-            <PresetBtn lights={lights} startCycle={startSceneCycle} startCycle1h={startSceneCycle2} killLights={makeLightsGoVerydim}></PresetBtn>
+            <PresetBtn lights={lights} startCycle={startSceneCycle} startCycle1h={startSceneCycle2} startCycle25sec={startSceneCycle3} killLights={makeLightsGoVerydim}></PresetBtn>
               <label htmlFor="masterBrightnessSlider">Master Brightness: </label>
               <input
                 type="range"
@@ -481,7 +513,7 @@ const StageLights = () => {
           <button onClick={stopSceneCycle} className="ml-2">
             Stop cycle
           </button>
-          <button onClick={sendLightsStateToServer} className="ml-2"></button>
+          <button onClick={sendLightsStateToServer} className="ml-2">Send light to server</button>
         
         </div>
     </div>

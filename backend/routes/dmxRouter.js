@@ -49,6 +49,7 @@ router.post ("/master-brigthness", (req, res) => {
   }
   const lights = getAllLights();
   lights.forEach(light => {
+    console.log("katoha" + light.id);
     const { startAddress } = light;
     const currentRed = universe.get(startAddress);
     const currentGreen = universe.get(startAddress + 1);
@@ -212,7 +213,7 @@ router.post("/clear-lights", (req, res) => {
 let cycleIntervalId = null;
 
 // Route to set the cycle effect
-router.post("/set-cycle", (req, res) => {
+router.post("/set-cycle1h", (req, res) => {
   const { lightsArray1, lightsArray2, } = req.body;
   
 //  console.log(req.body);
@@ -221,6 +222,9 @@ router.post("/set-cycle", (req, res) => {
   ////////////////////////////////////////////15 min   6000 = 6min  1000 = 1min
   ///tää on nyt 1h
   const interval = 3600000;
+  console.log("nyt on 1h cycle");
+
+
 
   if (!Array.isArray(lightsArray1) || !Array.isArray(lightsArray2)) {
     return res.status(400).send("Both lightsArray1 and lightsArray2 should be arrays.");
@@ -285,6 +289,8 @@ router.post("/set-cycle15m", (req, res) => {
   ////////////////////////////////////////////15 min   6000 = 6min  1000 = 1min
   ///tää on nyt 15min
   const interval = 900000;
+  console.log("nyt on 15 min cycle");
+
 
   if (!Array.isArray(lightsArray1) || !Array.isArray(lightsArray2)) {
     return res.status(400).send("Both lightsArray1 and lightsArray2 should be arrays.");
@@ -335,8 +341,65 @@ router.post("/set-cycle15m", (req, res) => {
   res.send("Cycle effect started");
 });
 
+////////////////////////// 25 sec vätin vaihto
+router.post("/set-cycle25sec", (req, res) => {
+  const { lightsArray1, lightsArray2, } = req.body;
+  
+//  console.log(req.body);
+//  console.log(lightsArray1, lightsArray2);
+  console.log("cycle effect started");
+  ////////////////////////////////////////////25 sec   6000 = 6min  1000 = 1min
+  const interval = 25000;
+  console.log("nyt on 25 sec cycle");
 
+  if (!Array.isArray(lightsArray1) || !Array.isArray(lightsArray2)) {
+    return res.status(400).send("Both lightsArray1 and lightsArray2 should be arrays.");
+  }
 
+  if (lightsArray1.length !== lightsArray2.length) {
+    return res.status(400).send("Both arrays should have the same length.");
+  }
+
+  if (cycleIntervalId) {
+    clearInterval(cycleIntervalId);
+  }
+
+  let toggle = true;
+
+  cycleIntervalId = setInterval(() => {
+    const currentLights = toggle ? lightsArray1 : lightsArray2;
+
+    currentLights.forEach((light) => {
+      const { startAddress, color, intensity } = light;
+      const dmxChannel = startAddress;
+      const { red, green, blue } = hexToRgb(color);
+
+      const startValues = {
+        red: universe.get(dmxChannel),
+        green: universe.get(dmxChannel + 1),
+        blue: universe.get(dmxChannel + 2),
+      };
+
+      const endValues = {
+        red: red * intensity / 100,
+        green: green * intensity / 100,
+        blue: blue * intensity / 100,
+      };
+
+      updateDmxSmoothly(startValues, endValues, 5000, (currentValues) => {
+        universe.update({
+          [dmxChannel]: currentValues.red,
+          [dmxChannel + 1]: currentValues.green,
+          [dmxChannel + 2]: currentValues.blue,
+        });
+      });
+    });
+
+    toggle = !toggle;
+  }, interval);
+
+  res.send("Cycle effect started");
+});
 
 
 

@@ -3,7 +3,7 @@ import { makeApiCall } from '../utils/utils';
 import '../PresetBtn.css';
 import { PresetScene1, PresetScene2 } from './PresetScene';
 
-const PresetBtn = ({ lights, startCycle, startCycle1h, killLights}) => {
+const PresetBtn = ({ lights, startCycle, startCycle1h, killLights, startCycle25sec}) => {
 
 
     const purpleLight = async () => {
@@ -32,10 +32,18 @@ const PresetBtn = ({ lights, startCycle, startCycle1h, killLights}) => {
       const PresetScenes1h = async () => {
         await startCycle1h(PresetScene1, PresetScene2, 900000);
       };
+      const PresetScenes25 = async () => {
+        await startCycle25sec(PresetScene1, PresetScene2, 25000);
+      };
 
       const stopCycle = async () => {
         await makeApiCall("http://localhost:5000/stop-cycle", [0]);
     };
+
+    const dimLights = async () => {
+        await killLights();
+    };
+
     
 
     return (
@@ -45,10 +53,11 @@ const PresetBtn = ({ lights, startCycle, startCycle1h, killLights}) => {
             <button className="preset-button" onClick={greenLights}>Green Light</button>
             <button className="preset-button" onClick={PresetScenes}>Purple & Green cycle 15min</button>
             <button className="preset-button" onClick={PresetScenes1h}>Purple & Green cycle 1h</button>
+            <button className="preset-button" onClick={PresetScenes25}>Purple & Green cycle 25seconds</button>
            <br/>
            <br/>
             <button className="preset-button" onClick={stopCycle}>Stop Cycle</button>
-            <button className="preset-button" onClick={killLights}>Stop Lights</button>
+            <button className="preset-button" onClick={dimLights}>Stop Lights</button>
         
         </div>
     );
