@@ -4,7 +4,7 @@ import { useLightData } from "../contexts/lightsContext";
 
 const SceneList = ({ startSceneCycle, stopSceneCycle }) => {
   const { scenes, selectedScenes, setSelectedScenes } = useLightData();
-  const [interval, setInterval] = useState(1);
+  const [interval, setInterval] = useState(3);
 
   const handleSelect = (scene) => {
     if (selectedScenes.includes(scene)) {
@@ -35,13 +35,9 @@ const SceneList = ({ startSceneCycle, stopSceneCycle }) => {
             <li
               key={index}
               onClick={() => handleSelect(item)}
-              style={{
-                cursor: "pointer",
-                backgroundColor: selectedScenes.includes(item)
-                  ? "lightblue"
-                  : "white",
-              }}
-              className="p-1 border-b border-gray-200"
+              className={`p-1 border-b border-gray-200 cursor-pointer ${
+                selectedScenes.includes(item) ? "bg-blue-300" : "bg-white"
+              }`}
             >
               {item.name}
             </li>

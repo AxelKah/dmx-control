@@ -136,16 +136,15 @@ const LightSetupSelector = ({
 
   return (
     <div className="flex justify-center items-center w-full">
-      {/* Button to open the modal */}
       <div className="relative group">
-        {/* Tooltip */}
         {isCycleRunning && (
           <div className="absolute top-[4.5rem] left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-sm rounded-md px-2 py-1 opacity-0 transition-opacity duration-300 shadow-lg group-hover:opacity-100">
             Stop cycle to use this functionality
           </div>
         )}
-        <div className="flex justify-center items-center flex-col sm:flex-row bg-gray-100 p-2 rounded-lg shadow-lg m-2">
-          <label htmlFor="lightsetups-dropdown" className="font-bold text-sm">
+        <div className="flex justify-center items-center flex-col lg:flex-row bg-gray-100 p-2 rounded-lg shadow-lg m-2">
+          <div className="flex flex-row items-center">
+          <label htmlFor="lightsetups-dropdown" className="font-bold text-sm text-nowrap">
             LIGHT SETUPS:{" "}
           </label>
           <select
@@ -153,7 +152,7 @@ const LightSetupSelector = ({
             value={selectedLightSetup || ""}
             onChange={handleSetupChange}
             disabled={isCycleRunning}
-            className={`ml-2 bg-gray-300 border border-white text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 w-56 ${
+            className={`w-full lg:w-56 ml-2 my-2 lg:my-0 bg-gray-300 border border-white text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 ${
               isCycleRunning ? "opacity-50 cursor-not-allowed" : ""
             }`}
           >
@@ -166,6 +165,7 @@ const LightSetupSelector = ({
               </option>
             ))}
           </select>
+          </div>
           <div className="flex flex-row mt-2 sm:mt-0">
             <button
               onClick={handleNewSetup}

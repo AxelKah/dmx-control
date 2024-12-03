@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import GridContainer from "./GridContainer";
@@ -27,8 +27,45 @@ const StageLights = () => {
   const [showModal, setShowModal] = useState(false);
   const [modalContent, setModalContent] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
-  const [color, setColor] = useState("#ffffff");
   const selectedLights = lights.filter((light) => light.selected);
+
+  useEffect(() => {
+    // to position modal in the middle of light grid containers
+    const positionModal = () => {
+      const target = document.getElementById("lightgrid-containers");
+      const floating = document.getElementById("editorModal");
+
+      if (!target || !floating) return;
+
+      const targetRect = target.getBoundingClientRect();
+
+      const targetCenterX =
+        targetRect.left + targetRect.width / 2 + window.scrollX;
+      const targetCenterY =
+        targetRect.top + targetRect.height / 2 + window.scrollY;
+
+      floating.style.position = "absolute";
+      floating.style.left = `${targetCenterX - floating.offsetWidth / 2}px`;
+      floating.style.top = `${targetCenterY - floating.offsetHeight / 2}px`;
+    };
+
+    if (selectedLights.length > 0) {
+      positionModal();
+    }
+
+    const handleUpdate = () => {
+      if (selectedLights.length > 0) {
+        positionModal();
+      }
+    };
+    window.addEventListener("scroll", handleUpdate);
+    window.addEventListener("resize", handleUpdate);
+
+    return () => {
+      window.removeEventListener("scroll", handleUpdate);
+      window.removeEventListener("resize", handleUpdate);
+    };
+  }, [selectedLights]);
 
   const addLight = (channel, startAddress) => {
     console.log("Adding light");
@@ -71,7 +108,6 @@ const StageLights = () => {
   };
 
   const handleColorChange = (selectedColor) => {
-    setColor(selectedColor);
     setLights((prevLights) =>
       prevLights.map((light) =>
         light.selected ? { ...light, color: selectedColor } : light
@@ -150,13 +186,6 @@ const StageLights = () => {
 
   return (
     <div>
-      <MasterBrightnessController
-        lights={lights}
-        setLights={setLights}
-        handleApplyChanges={handleApplyChanges}
-        isCycleRunning={isCycleRunning}
-      />
-
       <DndProvider backend={HTML5Backend}>
         <LightSetupSelector
           lights={lights}
@@ -165,7 +194,8 @@ const StageLights = () => {
           isCycleRunning={isCycleRunning}
         />
         <div
-          className={`containers w-full lg:w-1/2 ${
+          id="lightgrid-containers"
+          className={`containers w-full 2xl:w-1/2 ${
             isCycleRunning ? "pointer-events-none" : ""
           }`}
         >
@@ -233,8 +263,11 @@ const StageLights = () => {
 
       {/* show color/brightness editor only when light is selected*/}
       {selectedLights.length > 0 && (
-        <div className="fixed inset-0 bottom-20 flex items-center justify-center pointer-events-none z-[100]">
-          <div className="bg-white p-6 rounded-lg shadow-lg flex flex-row items-end pointer-events-auto">
+        <div
+          id="editorModal"
+          className="fixed inset-0 bottom-20 flex items-center justify-center pointer-events-none z-[100] h-[96%] max-w-[415px]"
+        >
+          <div className="bg-white p-6 rounded-lg shadow-lg flex flex-row items-end pointer-events-auto max-w-[415px]">
             <div className="flex flex-col mx-2">
               <CircularColorPicker onColorSelect={handleColorChange} />
               <input
@@ -275,11 +308,7 @@ const StageLights = () => {
                   value={lights.find((light) => light.selected)?.intensity || 0}
                   onChange={handleIntensityChange}
                   disabled={isMasterBrightnessEnabled}
-                  style={{
-                    writingMode: "bt-lr",
-                    transform: "rotate(-90deg)",
-                    height: "140px",
-                  }}
+                  className="h-[140px] -rotate-90"
                 />
                 <span className="flex justify-center mt-2 select-none">
                   {lights.find((light) => light.selected)?.intensity || 0} %
@@ -288,7 +317,7 @@ const StageLights = () => {
 
               <button
                 disabled={isMasterBrightnessEnabled}
-                className={`${
+                className={`text-nowrap ${
                   isMasterBrightnessEnabled
                     ? "opacity-50 cursor-not-allowed"
                     : ""
@@ -306,7 +335,7 @@ const StageLights = () => {
                   prevLights.map((light) => ({ ...light, selected: false }))
                 )
               }
-              className="relative right-[-15px] top-[-15px] bg-red-500 text-white text-center rounded-full w-6 h-6 flex items-center justify-center self-start shadow-md cursor-pointer"
+              className="relative right-[-8px] top-[-17px] bg-red-500 text-white text-center rounded-full w-6 h-6 flex items-center justify-center self-start shadow-md cursor-pointer"
             >
               &#10006;
             </button>
@@ -314,16 +343,14 @@ const StageLights = () => {
         </div>
       )}
 
-      <div className="flex flex-row justify-center">
-        {/* Button to open the modal */}
-        <div className="relative group">
-          {/* Tooltip */}
+      <div className="flex flex-wrap justify-center items-center lg:space-x-6 lg:space-y-0">
+        <div className="relative group flex-[1_1_100%] md:flex-[1_1_50%] lg:flex-[0_0_auto] max-w-fit">
           {isCycleRunning && (
             <div className="absolute top-[-1.5rem] left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-sm rounded-md px-2 py-1 opacity-0 transition-opacity duration-300 shadow-lg group-hover:opacity-100">
               Stop cycle to use this functionality
             </div>
           )}
-          <div className="scenetools-container flex justify-center bg-gray-100 p-4 rounded-xl shadow-lg m-6 w-fit relative">
+          <div className="scenetools-container flex justify-center bg-gray-100 p-4 rounded-xl shadow-lg m-6 relative md:text-nowrap">
             <SceneControls
               lights={lights}
               setLights={setLights}
@@ -332,7 +359,7 @@ const StageLights = () => {
             />
           </div>
         </div>
-        <div className="scenecycler-container flex justify-center bg-gray-100 p-4 rounded-xl shadow-lg m-6 w-fit relative">
+        <div className="scenecycler-container flex-[1_1_100%] md:flex-[1_1_50%] lg:flex-[0_0_auto] flex justify-center bg-gray-100 p-4 rounded-xl shadow-lg m-6 max-w-fit">
           <SceneCycler
             lights={lights}
             setLights={setLights}
@@ -342,20 +369,17 @@ const StageLights = () => {
             isMasterBrightnessEnabled={isMasterBrightnessEnabled}
           />
         </div>
-
-        <div className="flex flex-col justify-evenly">
-          {/* <GPTColorForm></GPTColorForm> */}
+        {/*  <div className="flex flex-col justify-evenly">
+          <GPTColorForm></GPTColorForm>
         </div>
-        {/* Button to open the modal */}
-        <div className="lightsetup-container relative group">
-          {/* Tooltip */}
+        */}
+        <div className="lightsetup-container relative group flex-[1_1_100%] sm:flex-[1_1_50%] md:flex-[1_1_100%] lg:flex-[0_0_auto] max-w-fit">
           {isCycleRunning && (
             <div className="absolute top-[-2.5rem] left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-sm rounded-md px-2 py-1 opacity-0 transition-opacity duration-300 shadow-lg group-hover:opacity-100">
               Stop cycle to use this functionality
             </div>
           )}
-
-          <div className="lightsetup-container flex flex-row justify-center bg-gray-100 p-4 rounded-xl shadow-lg m-6 w-fit">
+          <div className="flex flex-row justify-center bg-gray-100 p-4 rounded-xl shadow-lg m-6">
             <button
               className={`flex flex-row items-center ${
                 isCycleRunning ? "opacity-50 cursor-not-allowed" : ""
@@ -382,6 +406,12 @@ const StageLights = () => {
             </button>
           </div>
         </div>
+        <MasterBrightnessController
+          lights={lights}
+          setLights={setLights}
+          handleApplyChanges={handleApplyChanges}
+          isCycleRunning={isCycleRunning}
+        />
         {/* Modal */}
         <LightModal
           showModal={showModal}

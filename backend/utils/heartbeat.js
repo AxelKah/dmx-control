@@ -16,7 +16,7 @@ const isInactive = (timeout) => {
   return Date.now() - lastHeartbeatTime > timeout;
 };
 
-const initializeHeartbeat = (timeout = 10000) => {
+const initializeHeartbeat = (timeout = 15000) => {
   if (intervalId) {
     console.warn("App monitoring already initialized.");
     return;
@@ -43,7 +43,7 @@ const stopHeartbeat = () => {
   }
 };
 
-initializeHeartbeat(10000, () => {});
+initializeHeartbeat(15000, () => {});
 
 module.exports = {
   updateHeartbeat,

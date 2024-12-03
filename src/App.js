@@ -10,7 +10,7 @@ import { sendHeartbeat } from "./api/dmxApi";
 const App = () => {
   useEffect(() => {
     sendHeartbeat();
-    const heartbeatInterval = setInterval(sendHeartbeat, 5000);
+    const heartbeatInterval = setInterval(sendHeartbeat, 10000);
 
     return () => {
       clearInterval(heartbeatInterval);
@@ -21,7 +21,7 @@ const App = () => {
     <LightsProvider>
       <Router>
         <Nav />
-        <main className="md:py-16 py-0">
+        <main className="pt-0 pb-4 2xl:pb-0 md:pt-16">
           <Routes>
             <Route path="/" element={<Main />} />
             <Route path="/help" element={<HelpPage />} />

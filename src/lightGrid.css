@@ -108,7 +108,7 @@
 .containers {
     margin: 0 auto;
     display: grid;
-    justify-content: space-around; 
+    justify-content: space-evenly; 
     padding: 10px;
 }
 /* Light box styles */

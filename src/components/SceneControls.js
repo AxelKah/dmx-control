@@ -151,7 +151,7 @@ const SceneControls = ({
   return (
     <div className="relative flex flex-row" ref={dropdownToggleRef}>
       <div
-        className={`flex flex-row items-center border rounded-xl border-gray-300 bg-gray-200 px-4 py-2 pr-4 text-gray-700 cursor-pointer focus:border-blue-500 focus:outline-none w-40 h-11 overflow-hidden ${
+        className={`flex flex-row items-center border rounded-xl border-gray-300 bg-gray-200 px-4 py-2 pr-4 text-gray-700 cursor-pointer focus:border-blue-500 focus:outline-none w-40 h-full overflow-hidden ${
           isCycleRunning ? "opacity-50 cursor-not-allowed" : ""
         }`}
         onClick={() => setIsOpen((prev) => !prev)}
