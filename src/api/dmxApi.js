@@ -242,13 +242,3 @@ export const clearLights = async () => {
       return { message: "Error clearing lights" };
     }
 };
-
-export const sendHeartbeat = async () => {
-  const url = "http://localhost:5000/heartbeat";
-
-  try {
-    await fetch(url, { method: "POST" });
-  } catch (error) {
-    console.error("Error sending heartbeat:", error);
-  }
-};

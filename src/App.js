@@ -5,15 +5,14 @@ import HelpPage from "./views/Help";
 import Nav from "./components/Nav";
 import DebugPage from "./views/DebugPage";
 import LightsProvider from "./contexts/lightsContext";
-import { sendHeartbeat } from "./api/dmxApi";
+import createHeartbeatWorker from "./workers/hbWorker";
 
 const App = () => {
   useEffect(() => {
-    sendHeartbeat();
-    const heartbeatInterval = setInterval(sendHeartbeat, 10000);
+    const worker = createHeartbeatWorker();
 
     return () => {
-      clearInterval(heartbeatInterval);
+      worker.terminate();
     };
   }, []);
 
