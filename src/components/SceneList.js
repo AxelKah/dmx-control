@@ -15,6 +15,10 @@ const SceneList = ({ startSceneCycle, stopSceneCycle }) => {
   };
 
   const handleSubmit = () => {
+    if (!interval || interval <= 0) {
+      alert("The cycle speed must be at least 1 second.");
+      return;
+    }
     if (selectedScenes.length >= 2) {
       sendSelection(selectedScenes, interval);
     } else {
@@ -58,6 +62,7 @@ const SceneList = ({ startSceneCycle, stopSceneCycle }) => {
           className="mt-1 block w-full p-2 border border-gray-300 rounded"
           placeholder="Enter interval in seconds"
           min="1"
+          required
         />
       </div>
       <div className="flex flex-row justify-center mt-2">

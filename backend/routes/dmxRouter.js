@@ -213,12 +213,19 @@ const cycleLigths = () => {
 
 router.post("/set-cycle", (req, res) => {
   const { sceneLightsArrays, interval } = req.body;
-  console.log("---\nCycle effect started")
+  console.log("---\nCycle effect started");
   console.log("Amount of the scenes: ", sceneLightsArrays.length);
   console.log("Cycle interval in ms: ", interval);
 
   if (!Array.isArray(sceneLightsArrays)) {
     return res.status(400).send("should be arrays");
+  }
+
+  if (!interval || typeof interval !== "number" || interval < 1000) {
+    console.log("Couldn't start the cycle: Interval must be a number and at least 1 second.")
+    return res
+      .status(400)
+      .send("Interval must be a number and at least 1 second.");
   }
 
   if (cycleIntervalId) {

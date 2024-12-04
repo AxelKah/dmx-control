@@ -107,7 +107,7 @@ const SceneCycler = ({
       setCycleInterval(intervalId);
     } catch (error) {
       console.error("Failed to start scene cycle:", error);
-      alert("Failed to start scene cycle. Please try again.");
+      alert("Failed to start scene cycle. Please make sure all required values are provided and try again.");
       setIsCycleRunning(false);
     }
   };
