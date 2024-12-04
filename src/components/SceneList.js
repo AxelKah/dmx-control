@@ -9,16 +9,16 @@ const SceneList = ({ startSceneCycle, stopSceneCycle }) => {
   const handleSelect = (scene) => {
     if (selectedScenes.includes(scene)) {
       setSelectedScenes(selectedScenes.filter((i) => i !== scene));
-    } else if (selectedScenes.length < 2) {
+    } else {
       setSelectedScenes([...selectedScenes, scene]);
     }
   };
 
   const handleSubmit = () => {
-    if (selectedScenes.length === 2) {
+    if (selectedScenes.length >= 2) {
       sendSelection(selectedScenes, interval);
     } else {
-      alert("Please select two items.");
+      alert("Please select at least two scenes.");
     }
   };
 

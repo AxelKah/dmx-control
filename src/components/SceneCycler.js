@@ -20,18 +20,15 @@ const SceneCycler = ({
       clearInterval(cycleInterval);
     }
 
-    if (!Array.isArray(selectedScenes) || selectedScenes.length !== 2) {
-      alert("Please select exactly two scenes.");
+    if (!Array.isArray(selectedScenes) || selectedScenes.length < 2) {
+      alert("Please select at least two scenes.");
       return;
     }
 
-    const [scene1, scene2] = selectedScenes;
-
-    if (!Array.isArray(scene1.colors) || !Array.isArray(scene2.colors)) {
+    if (!selectedScenes.every((scene) => Array.isArray(scene.colors))) {
       console.error(
-        "One or both selected scenes are missing 'colors': ",
-        scene1,
-        scene2
+        "One or more selected scenes are missing 'colors': ",
+        selectedScenes
       );
       alert("Selected scenes must have light configurations.");
       return;
@@ -56,10 +53,9 @@ const SceneCycler = ({
           intensity: light.intensity,
         }));
 
-      const sceneLightsArrays = [
-        transformLights(adjustBrightness(scene1.colors)),
-        transformLights(adjustBrightness(scene2.colors)),
-      ];
+      const sceneLightsArrays = selectedScenes.map((scene) =>
+        transformLights(adjustBrightness(scene.colors))
+      );
 
       setIsCycleRunning(true);
 
@@ -140,7 +136,7 @@ const SceneCycler = ({
           onClick={() => setShowSceneDropdown((prev) => !prev)}
           className="flex flex-row items-center border rounded-lg px-4 py-2"
         >
-          <FaRotate className="mr-1"/>
+          <FaRotate className="mr-1" />
           Scene cycler
           <span className="ml-2">
             {showSceneDropdown ? <FaAngleUp /> : <FaAngleDown />}
