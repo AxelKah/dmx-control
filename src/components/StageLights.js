@@ -125,7 +125,6 @@ const StageLights = () => {
   };
 
   const handleApplyChanges = async (url, updatedLights = lights) => {
-    // use the provided lights array (updatedLights)
     if (!updatedLights || updatedLights.length === 0) {
       console.warn("No lights provided to update.");
       return;

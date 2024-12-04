@@ -22,7 +22,7 @@ const SceneListDemo = ({ scenes, startSceneCycle }) => {
 const sendSelection = async (scene) => {
     console.log('Selected items:', scene);
     await startSceneCycle(scene[0].lights, scene[1].lights, 10000);
-    // Add your function logic here
+   
 };
 
   return (

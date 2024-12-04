@@ -271,15 +271,10 @@ router.post('/set-brightness', (req, res) => {
       // Convert the color to DMX values (RGB)
       const { red, green, blue } = hexToRgb(color)
 
-      //const red = parseInt(color.substr(1, 2), 16);
-      //const green = parseInt(color.substr(3, 2), 16);
-      //const blue = parseInt(color.substr(5, 2), 16);
-
       //Convert RBG values accorging to intensity
      const redIntensity = red * intensity / 100;
      const greenIntensity = green * intensity / 100;
      const blueIntensity = blue * intensity / 100;
-      
 
       // Set the DMX channels for the light
       universe.update({
@@ -360,20 +355,6 @@ router.post('/set-scene', (req, res) => {
   res.send({ success: true });
 });
 
-
-
-
-/*
-// Route to log all lights and their channels
-app.post('/log-lights', (req, res) => {
-    const channels = universe.getChannels();
-    console.log('Current light channels and values:');
-    for (let channel in channels) {
-        console.log(`Channel ${channel}: ${channels[channel]}`);
-    }
-    res.send({ success: true });
-});
-*/
 // Control multiple lights
 router.post("/set-lights", (req, res) => {
   const lights = req.body.lights;

@@ -17,6 +17,7 @@ const SetupLights = ({ onClose, onFinish }) => {
         back: "",
     });
 
+    //Multi step form content
     const stepContent = [
         {
             title: "Welcome to Light Setup",
@@ -159,12 +160,11 @@ const SetupLights = ({ onClose, onFinish }) => {
         },
     ];
 
-    // Go to the next step
+    //Handle next, back and finish button clicks
     const handleNext = () => {
         setStep((prevStep) => (prevStep + 1 < stepContent.length ? prevStep + 1 : prevStep));
     };
 
-    // Go to the previous step if needed
     const handleBack = () => {
         setStep((prevStep) => (prevStep > 0 ? prevStep - 1 : prevStep));
     };
@@ -174,7 +174,6 @@ const SetupLights = ({ onClose, onFinish }) => {
             lightCount,
             sides,
         };
-        //console.log("Finished! Collected values:", collectedValues);
         onFinish(collectedValues);
         onClose();
 
