@@ -1,10 +1,4 @@
-Sure! Here's the updated 
 
-README.md
-
- file with the additional documentation included:
-
-```markdown
 # DMX Control
 
 DMX Control is a project designed to manage and control DMX lighting systems. This project includes both a backend server and a frontend application to provide a comprehensive solution for DMX lighting control.
