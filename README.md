@@ -1,3 +1,10 @@
+Sure! Here's the updated 
+
+README.md
+
+ file with the additional documentation included:
+
+```markdown
 # DMX Control
 
 DMX Control is a project designed to manage and control DMX lighting systems. This project includes both a backend server and a frontend application to provide a comprehensive solution for DMX lighting control.
@@ -22,6 +29,8 @@ Before running the backend server, ensure you update the COM port value in the `
 ```javascript
 const universe = dmx.addUniverse("demo", "enttec-open-usb-dmx", "COM9");
 ```
+
+Replace `"COM9"` with the appropriate COM port for your DMX interface.
 
 Open two terminal/command prompt tabs to run the backend and frontend simultaneously.
 
@@ -64,18 +73,127 @@ Open two terminal/command prompt tabs to run the backend and frontend simultaneo
     npm start
     ```
 
-### Usage
+## Application Documentation
 
-Once both the backend and frontend are running, you can access the DMX Control application in your web browser. The frontend application will communicate with the backend server to control the DMX lighting system.
+### Short Description
 
-### Project Structure
+DMX Control is a comprehensive solution for managing and controlling DMX lighting systems. The application consists of a backend server and a frontend application, providing real-time control and smooth transitions for DMX values. Users can manage scenes, cycle through scenes, and control individual lights through an intuitive web interface.
 
-- `backend/`: Contains the backend server code.
-- `src/`: Contains the frontend application code.
+### Architecture Diagram
 
-### Features
+![Architecture Diagram](docs/images/architecture-diagram.png)
 
-- Control DMX lighting systems.
-- Smooth transitions for DMX values.
-- Scene management and cycling.
-- Real-time updates and control.
+#### Description
+
+- **Frontend**: A React-based web application that provides the user interface for controlling the DMX lights.
+- **Backend**: An node.js server that handles API requests from the frontend and communicates with the DMX controller.
+- **DMX Controller**: A hardware interface that sends DMX signals to the connected lights.
+
+### Data Flow Diagram
+
+![Data Flow Diagram](docs/images/data-flow-diagram.png)
+
+#### Description
+
+1. **User Interaction**: The user interacts with the frontend application.
+2. **API Requests**: The frontend sends API requests to the backend server.
+3. **DMX Commands**: The backend processes the requests and sends DMX commands to the DMX controller.
+4. **Light Control**: The DMX controller adjusts the lights based on the received commands.
+
+### Database Diagram
+
+![Database Diagram](docs/images/db_diagram.png)
+
+#### Description
+
+- **Scenes**: Stores information about different lighting scenes, including light settings and configurations.
+- **Lights**: Stores information about individual lights, including their DMX addresses and current settings.
+
+### APIs Usage
+
+#### Set Channel
+
+**Endpoint**: `/set-channel`
+
+**Method**: `POST`
+
+**Description**: Sets the value of a specific DMX channel.
+
+**Request Body**:
+```json
+{
+  "channel": 1,
+  "value": 255
+}
+```
+
+**Response**:
+```json
+{
+  "message": "Channel 1 set to 255"
+}
+```
+
+#### Set Cycle
+
+**Endpoint**: `/set-cycle`
+
+**Method**: `POST`
+
+**Description**: Starts cycling through a series of lighting scenes.
+
+**Request Body**:
+```json
+{
+  "sceneLightsArrays": [
+    // Array of scenes with light settings
+  ],
+  "interval": 10000
+}
+```
+
+**Response**:
+```json
+{
+  "message": "Cycle effect started"
+}
+```
+
+#### Stop Cycle
+
+**Endpoint**: `/stop-cycle`
+
+**Method**: `POST`
+
+**Description**: Stops the cycling of lighting scenes.
+
+**Response**:
+```json
+{
+  "message": "Cycle effect stopped"
+}
+```
+
+#### Set Scene
+
+**Endpoint**: `/set-scene`
+
+**Method**: `POST`
+
+**Description**: Sets a specific lighting scene.
+
+**Request Body**:
+```json
+{
+  "lights": [
+    // Array of light settings
+  ]
+}
+```
+
+**Response**:
+```json
+{
+  "message": "Scene set"
+}
+```
