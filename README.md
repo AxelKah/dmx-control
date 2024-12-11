@@ -15,6 +15,14 @@ Ensure you have the following software installed on your machine:
 
 ### Installation
 
+### Configuration
+
+Before running the backend server, ensure you update the COM port value in the `dmxRouter.js` file to match your DMX interface's COM port. Open the file and modify the following line:
+
+```javascript
+const universe = dmx.addUniverse("demo", "enttec-open-usb-dmx", "COM9");
+```
+
 Open two terminal/command prompt tabs to run the backend and frontend simultaneously.
 
 #### Running the Backend
