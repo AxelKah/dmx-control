@@ -57,12 +57,7 @@ Open two terminal/command prompt tabs to run the backend and frontend simultaneo
     npm install
     ```
 
-3. Navigate to the `src` directory:
-    ```sh
-    cd src
-    ```
-
-4. Start the frontend application:
+3. Start the frontend application:
     ```sh
     npm start
     ```
