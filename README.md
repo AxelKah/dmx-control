@@ -1,7 +1,7 @@
 
 # DMX Control
 
-DMX Control is a project designed to manage and control DMX lighting systems. This project includes both a backend server and a frontend application to provide a comprehensive solution for DMX lighting control.
+DMX Control is a project designed to manage and control DMX lighting systems. This project includes both a backend server and a frontend application to provide a solution for DMX lighting control.
 
 ## Getting Started
 
@@ -69,9 +69,6 @@ Open two terminal/command prompt tabs to run the backend and frontend simultaneo
 
 ## Application Documentation
 
-### Short Description
-
-DMX Control is a comprehensive solution for managing and controlling DMX lighting systems. The application consists of a backend server and a frontend application, providing real-time control and smooth transitions for DMX values. Users can manage scenes, cycle through scenes, and control individual lights through an intuitive web interface.
 
 ### Architecture Diagram
 
@@ -87,12 +84,6 @@ DMX Control is a comprehensive solution for managing and controlling DMX lightin
 
 ![Data Flow Diagram](docs/images/data-flow-diagram.png)
 
-#### Description
-
-1. **User Interaction**: The user interacts with the frontend application.
-2. **API Requests**: The frontend sends API requests to the backend server.
-3. **DMX Commands**: The backend processes the requests and sends DMX commands to the DMX controller.
-4. **Light Control**: The DMX controller adjusts the lights based on the received commands.
 
 ### Database Diagram
 
