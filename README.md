@@ -3,7 +3,7 @@
 ## To run this project
 
 Open two terminal/command promt tabs
-
+## Running the backend
 First tab navigate to dmx-control\backend
 ### `cd dmx-control\backend`
 Install dependencies for the backend
@@ -11,6 +11,7 @@ Install dependencies for the backend
 Then you can start the backend
 ### `node index.js`
 
+## Running the frontend
 Second tab navigate to dmx-control>
 ### `cd dmx-control`
 Install dependencies
