@@ -1,18 +1,22 @@
-# Getting Started with Create React App
-
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+# Getting Started dmx-control
 
 ## To run this project
 
-Open two terminal tabs in Visual Studio Code
+Open two terminal/command promt tabs
 
 First tab navigate to dmx-control\backend
 ### `cd dmx-control\backend`
+Install dependencies for the backend
+### `npm install`
 Then you can start the backend
-### `node dmxController.js`
+### `node index.js`
 
-Secont tab navigate to dmx-control\src>
-### `cd dmx-control\src`
+Second tab navigate to dmx-control>
+### `cd dmx-control`
+Install dependencies
+### `npm install`
+After installing dependencies, navigate to dmx-control\src
+### `cd src`
 Then you can start the frontend
 ### `npm start`
 
